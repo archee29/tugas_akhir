@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "250405337714",
+    "firebase_url": "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tugas-akhir-3c0d9",
+    "storage_bucket": "tugas-akhir-3c0d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250405337714:android:302f9d75ac767bc367e0eb",
+        "android_client_info": {
+          "package_name": "com.example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250405337714:android:4f62a7076344f74367e0eb",
+        "android_client_info": {
+          "package_name": "com.example.tugas_akhir"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250405337714:android:8ce3efd5d761bd2367e0eb",
+        "android_client_info": {
+          "package_name": "com.tugas_akhir.untan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250405337714-hqnmqou8haanqqnipsg36bdgbo68ct45.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
