@@ -161,7 +161,7 @@ class DataController extends GetxController
     if (currentUser != null) {
       String uid = currentUser.uid;
       databaseReference
-          .child("UsersData/$uid/manual/jadwalPagi")
+          .child("UsersData/$uid/penjadwalan/jadwalPagi")
           .onValue
           .listen((event) {
         if (event.snapshot.value != null) {
@@ -199,7 +199,7 @@ class DataController extends GetxController
     if (currentUser != null) {
       String uid = currentUser.uid;
       databaseReference
-          .child("UsersData/$uid/manual/jadwalSore")
+          .child("UsersData/$uid/penjadwalan/jadwalSore")
           .onValue
           .listen((event) {
         if (event.snapshot.value != null) {
@@ -291,7 +291,7 @@ class DataController extends GetxController
         onConfirm: () async {
           try {
             await databaseReference
-                .child("UsersData/$uid/manual/jadwalPagi/$key")
+                .child("UsersData/$uid/penjadwalan/jadwalPagi/$key")
                 .remove();
             listDataMf.removeWhere((element) => element['key'] == key);
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -323,7 +323,7 @@ class DataController extends GetxController
         onConfirm: () async {
           try {
             await databaseReference
-                .child("UsersData/$uid/manual/jadwalSore/$key")
+                .child("UsersData/$uid/penjadwalan/jadwalSore/$key")
                 .remove();
             listDataAf.removeWhere((element) => element['key'] == key);
             WidgetsBinding.instance.addPostFrameCallback((_) {

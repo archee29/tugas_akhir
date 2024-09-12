@@ -63,7 +63,7 @@ class HomeController extends GetxController {
 
   void fetchScheduleData(String scheduleNode, String uid, String todayDate) {
     databaseReference
-        .child("UsersData/$uid/manual/$scheduleNode")
+        .child("UsersData/$uid/penjadwalan/$scheduleNode")
         .orderByChild("tanggal")
         .equalTo(todayDate)
         .onValue
