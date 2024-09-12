@@ -113,6 +113,13 @@ class SettingView extends GetView<SettingController> {
                         onTap: () => Get.toNamed(Routes.DETAIL_JADWAL),
                       ),
                       MenuTile(
+                        title: "Coba Notifikasi",
+                        icon: SvgPicture.asset(
+                          'assets/icons/password.svg',
+                        ),
+                        onTap: () => Get.toNamed(Routes.COBA_NOTIFIKASI),
+                      ),
+                      MenuTile(
                         isDanger: true,
                         title: 'Keluar',
                         icon: SvgPicture.asset(

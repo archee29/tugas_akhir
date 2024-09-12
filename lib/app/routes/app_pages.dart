@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/coba_notifikasi/bindings/coba_notifikasi_binding.dart';
+import '../modules/coba_notifikasi/views/coba_notifikasi_view.dart';
 import '../modules/data/bindings/data_binding.dart';
 import '../modules/data/views/data_view.dart';
 import '../modules/detail_jadwal/bindings/detail_jadwal_binding.dart';
@@ -114,6 +116,11 @@ class AppPages {
       name: _Paths.EDIT_STATUS_ALAT,
       page: () => EditStatusAlatView(),
       binding: EditStatusAlatBinding(),
+    ),
+    GetPage(
+      name: _Paths.COBA_NOTIFIKASI,
+      page: () => const CobaNotifikasiView(),
+      binding: CobaNotifikasiBinding(),
     ),
   ];
 }

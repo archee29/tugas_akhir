@@ -152,6 +152,7 @@ class EditJadwalController extends GetxController {
     final String scheduleTitle =
         nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
     await _localNotificationService.scheduleNotification(
+      DateTime.now().millisecondsSinceEpoch,
       selectedTime.value,
       scheduleTitle,
       "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",

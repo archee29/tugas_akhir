@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +18,7 @@ class LocalNotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
   }
 
   Future<void> requestPermissions() async {
@@ -32,12 +34,11 @@ class LocalNotificationService {
   }
 
   Future<void> scheduleNotification(
-      TimeOfDay time, String title, String body) async {
+      int id, TimeOfDay time, String title, String body) async {
     final now = DateTime.now();
     DateTime scheduledDateTime =
         DateTime(now.year, now.month, now.day, time.hour, time.minute);
 
-    // Cek jika waktu yang dijadwalkan di masa lalu
     if (scheduledDateTime.isBefore(now)) {
       scheduledDateTime = scheduledDateTime.add(const Duration(days: 1));
     }
@@ -58,8 +59,11 @@ class LocalNotificationService {
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
+    int notificationId =
+        DateTime.now().millisecondsSinceEpoch.remainder(100000) +
+            Random().nextInt(1000);
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
+      notificationId,
       title,
       body,
       tzScheduledDateTime,

@@ -134,6 +134,7 @@ class TambahJadwalController extends GetxController {
     print(
         "Scheduling notification for $scheduleTitle at ${selectedTime.value.format(Get.context!)}");
     await _localNotificationService.scheduleNotification(
+      DateTime.now().millisecondsSinceEpoch,
       selectedTime.value,
       scheduleTitle,
       "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
