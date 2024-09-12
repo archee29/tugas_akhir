@@ -27,6 +27,7 @@ dependencies:
   image_picker: ^1.1.0
   intl: ^0.19.0
   maps_launcher: ^2.2.1
+  percent_indicator: ^4.2.3
   permission_handler: ^11.3.1
   rxdart: ^0.28.0
   syncfusion_flutter_calendar: ^26.1.35

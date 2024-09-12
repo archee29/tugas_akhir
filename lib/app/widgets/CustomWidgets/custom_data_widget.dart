@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import './../../modules/data/controllers/data_controller.dart';
+import '../../modules/data/controllers/data_controller.dart';
 import '../../routes/app_pages.dart';
 import '../../styles/app_colors.dart';
 
@@ -220,7 +220,9 @@ class ManualMfDataTile extends GetView<DataController> {
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    controller.deleteDataMF(mfDataKey);
+                    Future.delayed(Duration.zero, () {
+                      controller.deleteDataMF(mfDataKey);
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.warning,
@@ -469,7 +471,9 @@ class ManualAfDataTile extends GetView<DataController> {
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    controller.deleteDataAF(afDataKey);
+                    Future.delayed(Duration.zero, () {
+                      controller.deleteDataAF(afDataKey);
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.warning,

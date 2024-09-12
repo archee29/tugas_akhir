@@ -73,10 +73,10 @@ class FeederCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        (todayFeederData?["masuk"] == null)
+                        (todayFeederData?["morningFeeder"] == null)
                             ? "-"
                             : DateFormat('HH:mm:ss').format(DateTime.parse(
-                                todayFeederData!["masuk"]["date"])),
+                                todayFeederData!["morningFeeder"]["date"])),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -105,10 +105,10 @@ class FeederCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        (todayFeederData?["keluar"] == null)
+                        (todayFeederData?["afternoonFeeder"] == null)
                             ? "-"
                             : DateFormat('HH:mm:ss').format(DateTime.parse(
-                                todayFeederData!["keluar"]["date"])),
+                                todayFeederData!["afternoonFeeder"]["date"])),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

@@ -109,45 +109,6 @@ class HomeView extends GetView<HomeController> {
                   },
                 ),
 
-                // Menampilkan data feeder
-                // StreamBuilder<Map<String, int>>(
-                //   stream: controller.streamDayCardData(),
-                //   builder: (context, outputSnapshot) {
-                //     if (outputSnapshot.connectionState ==
-                //         ConnectionState.waiting) {
-                //       return const Center(child: CircularProgressIndicator());
-                //     } else if (outputSnapshot.hasError) {
-                //       return const Center(
-                //          child: Text("Error Loading Data Feeder"));
-                //     } else if(!outputSnapshot.hasData || outputSnapshot.data!.snapshot.value == null){
-                //       return DayCard(
-
-                //       );
-                //     }
-                //   },
-                // ),
-
-                // StreamBuilder<Map<String, int>>(
-                //   stream: controller.streamOutput(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.waiting) {
-                //       return const Center(child: CircularProgressIndicator());
-                //     } else if (snapshot.hasError) {
-                //       return const Center(child: Text("Error loading data"));
-                //     } else if (!snapshot.hasData) {
-                //       return const Center(child: Text("No data available"));
-                //     } else {
-                //       var data = snapshot.data!;
-                //       return DayCard(
-                //         latestMakanan: data['latestMakanan']!,
-                //         totalMakanan: data['totalMakanan']!,
-                //         latestMinuman: data['latestMinuman']!,
-                //         totalMinuman: data['totalMinuman']!,
-                //       );
-                //     }
-                //   },
-                // ),
-
                 Obx(() {
                   return DayCard(
                     latestMakanan: controller.latestMakanan.value,

@@ -14,6 +14,7 @@ class LocalNotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
+
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
     tz.initializeTimeZones();
   }
@@ -22,7 +23,9 @@ class LocalNotificationService {
     if (Platform.isAndroid && (await Permission.scheduleExactAlarm.isDenied)) {
       await Permission.scheduleExactAlarm.request();
     }
+
     PermissionStatus status = await Permission.notification.request();
+    print('Permission Status: $status');
     if (status != PermissionStatus.granted) {
       throw Exception("Notifikasi Tidak Diizinkan");
     }
@@ -31,10 +34,18 @@ class LocalNotificationService {
   Future<void> scheduleNotification(
       TimeOfDay time, String title, String body) async {
     final now = DateTime.now();
-    final scheduledDateTime =
+    DateTime scheduledDateTime =
         DateTime(now.year, now.month, now.day, time.hour, time.minute);
+
+    // Cek jika waktu yang dijadwalkan di masa lalu
+    if (scheduledDateTime.isBefore(now)) {
+      scheduledDateTime = scheduledDateTime.add(const Duration(days: 1));
+    }
+
     final tz.TZDateTime tzScheduledDateTime =
         tz.TZDateTime.from(scheduledDateTime, tz.local);
+    print(
+        "Notifikasi dijadwalkan pada: $tzScheduledDateTime dengan judul: $title");
 
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(

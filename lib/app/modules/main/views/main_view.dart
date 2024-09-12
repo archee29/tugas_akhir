@@ -103,7 +103,7 @@ class MainView extends GetView<MainController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Feeder",
+                              "Otomatisasi",
                               style: TextStyle(
                                 fontSize: 20,
                                 color: AppColors.primary,
@@ -214,14 +214,15 @@ class MainView extends GetView<MainController> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // display data total makanan harian dan mingguan
                   FutureBuilder<Map<String, double>>(
                     future: controller.calculateTotals(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
-                        return const Center(child: Text("Error loading data"));
+                        return Center(
+                            child:
+                                Text("Error loading data: ${snapshot.error}"));
                       } else if (!snapshot.hasData) {
                         return const Center(child: Text("No Data"));
                       } else {
@@ -229,36 +230,45 @@ class MainView extends GetView<MainController> {
                         return SizedBox(
                           child: Column(
                             children: [
-                              WeeklyCard(
-                                title: "Total Food / Day",
-                                value: controller
-                                    .formatOutput(data['totalFoodDay']!),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  WeeklyCard(
+                                    title: "Total Food / Day",
+                                    value: controller
+                                        .formatOutput(data['totalFoodDay']!),
+                                  ),
+                                  WeeklyCard(
+                                    title: "Total Food / Week",
+                                    value: controller
+                                        .formatOutput(data['totalFoodWeek']!),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 15),
-                              WeeklyCard(
-                                title: "Total Water / Day",
-                                value: controller
-                                    .formatWaterOutput(data['totalWaterDay']!),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  WeeklyCard(
+                                    title: "Total Water / Day",
+                                    value: controller.formatWaterOutput(
+                                        data['totalWaterDay']!),
+                                  ),
+                                  WeeklyCard(
+                                    title: "Total Water / Week",
+                                    value: controller.formatWaterOutput(
+                                        data['totalWaterWeek']!),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 15),
-                              WeeklyCard(
-                                title: "Total Food/ Week",
-                                value: controller
-                                    .formatOutput(data['totalFoodWeek']!),
-                              ),
-                              const SizedBox(height: 15),
-                              WeeklyCard(
-                                  title: "Total Water / Week",
-                                  value: controller.formatWaterOutput(
-                                      data['totalWaterWeek']!)),
-                              const SizedBox(height: 15),
                             ],
                           ),
                         );
                       }
                     },
                   ),
-
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

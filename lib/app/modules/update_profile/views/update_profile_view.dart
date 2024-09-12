@@ -127,12 +127,6 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
             margin: const EdgeInsets.only(bottom: 16, top: 42),
           ),
           CustomInput(
-            controller: controller.userIdController,
-            label: "User Id",
-            hint: "01101",
-            disabled: true,
-          ),
-          CustomInput(
             controller: controller.emailController,
             label: "Email",
             hint: "youremail@email.com",

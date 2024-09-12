@@ -2,11 +2,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../../../widgets/card/day_card.dart';
-import './../../../../app/routes/app_pages.dart';
+import 'package:intl/intl.dart';
+import '../../../routes/app_pages.dart';
+import '../../edit_status_alat/views/edit_status_alat_view.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
-import './../../../../app/widgets/card/feeder_card.dart';
 import '../controllers/status_alat_controller.dart';
 
 class StatusAlatView extends GetView<StatusAlatController> {
@@ -31,7 +31,6 @@ class StatusAlatView extends GetView<StatusAlatController> {
             Map<String, dynamic> user = Map<String, dynamic>.from(
                 userSnapshot.data!.snapshot.value as Map);
 
-            // StreamBuilder untuk status alat
             return StreamBuilder<DatabaseEvent>(
               stream: controller.streamStatusAlat(),
               builder: (context, alatSnapshot) {
@@ -45,12 +44,15 @@ class StatusAlatView extends GetView<StatusAlatController> {
                   return const Center(
                       child: Text("Tidak ada data status alat"));
                 } else {
-                  // Data status alat dari Firebase
                   Map<String, dynamic> statusAlat = Map<String, dynamic>.from(
                       alatSnapshot.data!.snapshot.value as Map);
                   String servoStatus = statusAlat['servo_status'] ?? 'UNKNOWN';
                   String pumpStatus = statusAlat['pump_status'] ?? 'UNKNOWN';
                   String catatan = statusAlat['catatan'] ?? 'Tidak ada catatan';
+
+                  // Date key untuk status alat (sesuai format yang digunakan di controller)
+                  String formattedDate =
+                      DateFormat('MM-dd-yyyy').format(DateTime.now());
 
                   return ListView(
                     shrinkWrap: true,
@@ -65,7 +67,6 @@ class StatusAlatView extends GetView<StatusAlatController> {
                         width: MediaQuery.of(context).size.width,
                         child: Row(
                           children: [
-                            // menampilkan Poto user
                             ClipOval(
                               child: SizedBox(
                                 width: 42,
@@ -80,7 +81,6 @@ class StatusAlatView extends GetView<StatusAlatController> {
                               ),
                             ),
                             const SizedBox(width: 24),
-                            // menampilkan nama user
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -113,15 +113,18 @@ class StatusAlatView extends GetView<StatusAlatController> {
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             children: [
-                              const Row(
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.settings,
+                                  SvgPicture.asset(
+                                    'assets/icons/tools.svg',
                                     color: Colors.white,
+                                    width: 24,
+                                    height: 24,
                                   ),
-                                  Text(
+                                  const SizedBox(width: 10),
+                                  const Text(
                                     "Status Alat",
                                     style: TextStyle(
                                       fontSize: 18,
@@ -136,16 +139,21 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                 thickness: 2.5,
                               ),
                               const SizedBox(height: 10),
-                              ClipOval(
-                                child: SizedBox(
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Container(
                                   width: 150,
                                   height: 100,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.black, width: 2.0),
+                                    color: Colors.pink,
+                                  ),
                                   child: Image.network(
-                                    (statusAlat["avatar"] == null ||
-                                            statusAlat['avatar'].isEmpty)
-                                        ? "https://ui-avatars.com/api/?name=Alat" // Gambar default jika avatar tidak ada
-                                        : statusAlat[
-                                            'avatar'], // URL gambar dari Firebase
+                                    (statusAlat["gambarAlat"] == null ||
+                                            statusAlat['gambarAlat'].isEmpty)
+                                        ? "https://ui-avatars.com/api/?name=Alat"
+                                        : statusAlat['gambarAlat'],
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                                       return const Center(
@@ -158,19 +166,21 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 20),
-                              // Status Servo
                               Row(
                                 children: [
                                   Expanded(
                                     child: Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.green,
+                                        color: servoStatus == 'GOOD'
+                                            ? Colors.green
+                                            : Colors.redAccent,
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                            color: Colors.black, width: 3),
+                                          color: Colors.black,
+                                          width: 3,
+                                        ),
                                       ),
                                       child: Stack(
                                         children: [
@@ -193,12 +203,13 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                                 color: Colors.white,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                    color: Colors.black,
-                                                    width: 2),
+                                                  color: Colors.black,
+                                                  width: 2,
+                                                ),
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  servoStatus, // Menampilkan status servo dari data stream
+                                                  servoStatus,
                                                   style: const TextStyle(
                                                     color: Colors.black,
                                                     fontSize: 12,
@@ -214,22 +225,35 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              // Status Pump
                               Row(
                                 children: [
                                   Expanded(
                                     child: Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.redAccent,
+                                        color: pumpStatus == 'GOOD'
+                                            ? Colors.green
+                                            : Colors.redAccent,
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                            color: Colors.black, width: 3),
+                                          color: Colors.black,
+                                          width: 3,
+                                        ),
                                       ),
                                       child: Stack(
                                         children: [
-                                          Align(
+                                          const Align(
                                             alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "Pump",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
                                             child: Container(
                                               width: 70,
                                               height: 70,
@@ -237,28 +261,18 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                                 color: Colors.white,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                    color: Colors.black,
-                                                    width: 2),
+                                                  color: Colors.black,
+                                                  width: 2,
+                                                ),
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  pumpStatus, // Menampilkan status pump dari data stream
+                                                  pumpStatus,
                                                   style: const TextStyle(
                                                     color: Colors.black,
                                                     fontSize: 12,
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
-                                              ),
-                                            ),
-                                          ),
-                                          const Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                              "PUMP",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
                                               ),
                                             ),
                                           ),
@@ -269,47 +283,63 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              // Catatan
                               Container(
-                                padding: const EdgeInsets.all(10),
-                                color: Colors.white,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
+                                width: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.only(
+                                    left: 14, right: 14, top: 4),
+                                margin: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryExtraSoft,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    width: 1,
+                                    color: AppColors.secondaryExtraSoft,
+                                  ),
+                                ),
+                                child: TextField(
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                    suffixIcon:
+                                        const Icon(Icons.text_snippet_outlined),
+                                    label: Text(
                                       "Catatan",
                                       style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      catatan, // Menampilkan catatan dari data stream
-                                      style: const TextStyle(
-                                        color: Colors.black54,
+                                        color: AppColors.primary,
                                         fontSize: 14,
                                       ),
                                     ),
-                                  ],
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    border: InputBorder.none,
+                                    hintText: catatan,
+                                    hintStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'poppins',
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              // Tombol Edit dan Delete
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   ElevatedButton.icon(
                                     onPressed: () {
-                                      // Aksi Edit
+                                      Get.toNamed(
+                                        Routes.EDIT_STATUS_ALAT,
+                                        arguments: {
+                                          'date': formattedDate,
+                                          'statusAlat': statusAlat,
+                                        },
+                                      );
                                     },
                                     icon: const Icon(Icons.edit),
                                     label: const Text(
                                       "Edit",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.cyan,
@@ -318,7 +348,8 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                   ),
                                   ElevatedButton.icon(
                                     onPressed: () {
-                                      // Aksi Delete
+                                      controller
+                                          .deleteStatusAlat(formattedDate);
                                     },
                                     icon: const Icon(
                                       Icons.delete,

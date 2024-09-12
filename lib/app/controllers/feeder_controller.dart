@@ -53,7 +53,7 @@ class FeederController extends GetxController {
         await feederRef.child(todayDocId).set(
           {
             "date": DateTime.now().toIso8601String(),
-            "masuk": {
+            "morningFeeder": {
               "date": DateTime.now().toIso8601String(),
               "latitude": position.latitude,
               "longtitude": position.longitude,
@@ -87,7 +87,7 @@ class FeederController extends GetxController {
         await feederRef.child(todayDocId).set(
           {
             "date": DateTime.now().toIso8601String(),
-            "masuk": {
+            "morningFeeder": {
               "date": DateTime.now().toIso8601String(),
               "latitude": position.latitude,
               "longtitude": position.longitude,
@@ -120,7 +120,7 @@ class FeederController extends GetxController {
       onConfirm: () async {
         await feederRef.child(todayDocId).update(
           {
-            "keluar": {
+            "afternoonFeeder": {
               "date": DateTime.now().toIso8601String(),
               "latitude": position.latitude,
               "longtitude": position.longitude,
@@ -144,7 +144,7 @@ class FeederController extends GetxController {
     String uid = auth.currentUser!.uid;
     String todayDocId =
         DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-    DatabaseReference feederRef = database.child("UsersData/$uid/feeder");
+    DatabaseReference feederRef = database.child("UsersData/$uid/manual");
     DatabaseEvent snapshotPreference = await feederRef.once();
     bool inArea = false;
 
@@ -158,13 +158,13 @@ class FeederController extends GetxController {
       if (todayDoc.snapshot.value != null) {
         Map<String, dynamic> dataFeederToday =
             Map<String, dynamic>.from(todayDoc.snapshot.value as Map);
-        if (dataFeederToday["masuk"] != null &&
-            dataFeederToday["keluar"] != null) {
+        if (dataFeederToday["morningFeeder"] != null &&
+            dataFeederToday["afternoonFeeder"] != null) {
           CustomNotification.errorNotification(
             "Terjadi Kesalahan",
             "Anda sudah memiliki jadwal Pagi dan Sore pada tanggal tersebut",
           );
-        } else if (dataFeederToday["masuk"] != null) {
+        } else if (dataFeederToday["morningFeeder"] != null) {
           afternoonFeeder(
               feederRef, todayDocId, position, alamat, distance, inArea);
         } else {

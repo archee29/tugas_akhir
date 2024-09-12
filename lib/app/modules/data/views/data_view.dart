@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../styles/app_colors.dart';
-import '../../../widgets/wrapper/add_wrapper.dart';
+import '../../../widgets/CustomWidgets/custom_data_widget.dart';
 import '../controllers/data_controller.dart';
 
 class DataView extends GetView<DataController> {
@@ -36,7 +36,7 @@ class DataView extends GetView<DataController> {
       body: TabBarView(
         controller: controller.dataTabController,
         physics: const BouncingScrollPhysics(),
-        children:   [DataJadwalPagi(), DataJadwalSore()],
+        children: [DataJadwalPagi(), DataJadwalSore()],
       ),
     );
   }

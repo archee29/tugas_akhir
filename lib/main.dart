@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
 import './app/modules/data/controllers/data_controller.dart';
 import './app/modules/edit_jadwal/controllers/edit_jadwal_controller.dart';
 import './app/routes/app_pages.dart';
@@ -23,10 +24,18 @@ void main() async {
 
   LocalNotificationService localNotificationService =
       LocalNotificationService();
-  await localNotificationService.requestPermissions();
   await localNotificationService.init();
+  await localNotificationService.requestPermissions();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  String? token = await messaging.getToken();
+  print("FCM Token: $token");
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Pesan diterima saat di foreground: ${message.notification?.title}');
+  });
 
   Get.put(LocalNotificationService(), permanent: true);
   Get.put(FeederController(), permanent: true);

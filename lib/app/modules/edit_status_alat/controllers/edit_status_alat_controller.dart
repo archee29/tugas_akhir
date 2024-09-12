@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,19 +6,29 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart' as s;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import '../../../routes/app_pages.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 
-class TambahStatusAlatController extends GetxController {
+class EditStatusAlatController extends GetxController {
   final RxBool isLoading = false.obs;
   final TextEditingController catatanController = TextEditingController();
   final RxString selectedServoStatus = ''.obs;
   final RxString selectedPumpStatus = ''.obs;
-
   final FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   final ImagePicker picker = ImagePicker();
   final s.FirebaseStorage storage = s.FirebaseStorage.instance;
   XFile? image;
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (auth.currentUser == null) {
+      Get.offAllNamed(Routes.LOGIN);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {});
+    }
+  }
 
   @override
   void onClose() {
@@ -37,7 +46,7 @@ class TambahStatusAlatController extends GetxController {
     }
   }
 
-  Future<void> tambahStatusAlat() async {
+  Future<void> editStatusAlat() async {
     final User? user = auth.currentUser;
     if (user == null) {
       CustomNotification.errorNotification(
@@ -50,53 +59,56 @@ class TambahStatusAlatController extends GetxController {
         catatanController.text.isEmpty) {
       CustomNotification.errorNotification(
           "Terjadi Kesalahan", "Isi Semua Data");
-      return;
     }
     isLoading.value = true;
     try {
       final String uid = user.uid;
-      String? avatarUrl;
-      if (image != null) {
-        avatarUrl = await _uploadAvatar(uid);
-      }
+
       final Map<String, dynamic> data = {
         "servo_status": selectedServoStatus.value,
         "pump_status": selectedPumpStatus.value,
         "catatan": catatanController.text,
-        "created_at": DateTime.now().toIso8601String(),
       };
-      if (avatarUrl != null) {
+
+      if (image != null) {
+        String avatarUrl = await _uploadAvatar(uid);
         data["gambarAlat"] = avatarUrl;
       }
-      await _saveStatusToDatabase(user.uid, data);
+
+      await updateStatusAlatToDatabase(uid, data);
+      image = null;
       Get.back();
-      Get.back();
-      Get.back();
-      CustomNotification.successNotification(
-          "Berhasil", "Status Alat Berhasil Ditambahkan");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        CustomNotification.successNotification(
+            "Berhasil", "Data Berhasil Diedit");
+      });
     } catch (e) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan", "Gagal Mengedit Data");
     } finally {
       isLoading.value = false;
-      update();
     }
   }
 
-  Future<void> _saveStatusToDatabase(
+  Future<void> updateStatusAlatToDatabase(
       String uid, Map<String, dynamic> data) async {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('MM-dd-yyyy').format(now);
     await databaseReference
         .child("UsersData/$uid/statusAlat/$formattedDate")
-        .set(data);
+        .update(data);
   }
 
   Future<String> _uploadAvatar(String uid) async {
     File file = File(image!.path);
     String ext = image!.name.split(".").last;
     String upDir = "$uid/statusAlat/gambarAlat.$ext";
-    await storage.ref(upDir).putFile(file);
-    return await storage.ref(upDir).getDownloadURL();
+    try {
+      await storage.ref(upDir).putFile(file);
+      return await storage.ref(upDir).getDownloadURL();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void onServoStatusChanged(String value) {

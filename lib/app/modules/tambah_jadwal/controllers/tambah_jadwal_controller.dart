@@ -14,12 +14,10 @@ class TambahJadwalController extends GetxController {
   final TextEditingController deskripsiController = TextEditingController();
   final TextEditingController makananController = TextEditingController();
   final TextEditingController minumanController = TextEditingController();
-
   final RxBool isLoading = false.obs;
   final RxBool isLoadingCreateSchedule = false.obs;
   final Rx<DateTime> selectedDate = DateTime.now().obs;
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
-
   final FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   final LocalNotificationService _localNotificationService =
@@ -29,6 +27,7 @@ class TambahJadwalController extends GetxController {
   void onInit() {
     super.onInit();
     _localNotificationService.init();
+    _localNotificationService.requestPermissions();
   }
 
   Future<void> addManualDataBasedOnTime() async {
@@ -44,20 +43,22 @@ class TambahJadwalController extends GetxController {
         final String nodePath = _getNodePath();
         final existingScheduleQuery =
             _getExistingScheduleQuery(user.uid, nodePath);
-
         final snapshot = await existingScheduleQuery.get();
+
         if (snapshot.exists) {
           CustomNotification.errorNotification("Terjadi Kesalahan",
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
           await _scheduleNotification(nodePath);
-          Get.back();
-          Get.back();
-          Get.back();
-          _clearEditingControllers();
-          CustomNotification.successNotification("Berhasil",
-              "Berhasil Menambahkan Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}");
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.back();
+            Get.back();
+            Get.back();
+            _clearEditingControllers();
+            CustomNotification.successNotification("Berhasil",
+                "Berhasil Menambahkan Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}");
+          });
         }
       } catch (e) {
         CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
@@ -79,10 +80,8 @@ class TambahJadwalController extends GetxController {
           "Terjadi Kesalahan", "Isi Form Terlebih Dahulu");
       return false;
     }
-
     final int? makananValue = int.tryParse(makananController.text);
     final int? minumanValue = int.tryParse(minumanController.text);
-
     if (makananValue == null || makananValue < 0 || makananValue > 120) {
       CustomNotification.errorNotification("Terjadi Kesalahan",
           "Masukan Jumlah Makanan dengan nilai 0-120 Gram saja");
@@ -93,7 +92,6 @@ class TambahJadwalController extends GetxController {
           "Masukan Jumlah Minuman dengan nilai 0-300 Mililiter saja");
       return false;
     }
-
     return true;
   }
 
@@ -118,7 +116,7 @@ class TambahJadwalController extends GetxController {
     DateTime date = DateFormat.yMd().parse(dateController.text);
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
     return databaseReference
-        .child("UsersData/$uid/manual/$nodePath/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate");
   }
 
   Future<void> _saveDataToDatabase(
@@ -126,18 +124,21 @@ class TambahJadwalController extends GetxController {
     DateTime date = DateFormat.yMd().parse(dateController.text);
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
     await databaseReference
-        .child("UsersData/$uid/manual/$nodePath/$formattedDate")
+        .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate")
         .set(data);
   }
 
   Future<void> _scheduleNotification(String nodePath) async {
     final String scheduleTitle =
         nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
+    print(
+        "Scheduling notification for $scheduleTitle at ${selectedTime.value.format(Get.context!)}");
     await _localNotificationService.scheduleNotification(
       selectedTime.value,
       scheduleTitle,
       "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
     );
+    print("Notification scheduled successfully for $scheduleTitle.");
   }
 
   void _clearEditingControllers() {
@@ -188,9 +189,9 @@ class TambahJadwalController extends GetxController {
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
 
     final DatabaseReference morningScheduleRef = databaseReference
-        .child("UsersData/$uid/manual/jadwalPagi/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/jadwalPagi/$formattedDate");
     final DatabaseReference eveningScheduleRef = databaseReference
-        .child("UsersData/$uid/manual/jadwalSore/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/jadwalSore/$formattedDate");
 
     DataSnapshot? morningSnapshot;
     DataSnapshot? eveningSnapshot;

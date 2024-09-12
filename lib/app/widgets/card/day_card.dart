@@ -46,7 +46,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "$latestMakanan Gr",
+                    "120 Gr",
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
@@ -67,7 +67,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "$latestMinuman mL",
+                    "300 mL",
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,

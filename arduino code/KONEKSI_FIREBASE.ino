@@ -3,8 +3,10 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-#define WIFI_SSID "Tugasakhir"
-#define WIFI_PASSWORD "wifisigit"
+// #define WIFI_SSID "Tugasakhir"
+// #define WIFI_PASSWORD "wifisigit"
+#define WIFI_SSID "HOME 2G"
+#define WIFI_PASSWORD "wifirumah2"
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
@@ -19,7 +21,7 @@ FirebaseJsonData jsonData;
 String uid, databasePath, monitoringNode, controlNode;
 
 unsigned long sendDataPrevMillis = 0;
-unsigned long timerDelay = 18000;
+unsigned long timerDelay = 3000;
 
 void initWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);

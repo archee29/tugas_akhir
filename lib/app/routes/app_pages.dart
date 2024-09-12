@@ -6,6 +6,8 @@ import '../modules/detail_jadwal/bindings/detail_jadwal_binding.dart';
 import '../modules/detail_jadwal/views/detail_jadwal_view.dart';
 import '../modules/edit_jadwal/bindings/edit_jadwal_binding.dart';
 import '../modules/edit_jadwal/views/edit_jadwal_view.dart';
+import '../modules/edit_status_alat/bindings/edit_status_alat_binding.dart';
+import '../modules/edit_status_alat/views/edit_status_alat_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -107,6 +109,11 @@ class AppPages {
       name: _Paths.TAMBAH_STATUS_ALAT,
       page: () => const TambahStatusAlatView(),
       binding: TambahStatusAlatBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_STATUS_ALAT,
+      page: () => EditStatusAlatView(),
+      binding: EditStatusAlatBinding(),
     ),
   ];
 }

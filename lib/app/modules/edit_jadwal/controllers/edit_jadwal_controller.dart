@@ -136,7 +136,7 @@ class EditJadwalController extends GetxController {
     DateTime date = DateFormat.yMd().parse(dateController.text);
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
     return databaseReference
-        .child("UsersData/$uid/manual/$nodePath/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate");
   }
 
   Future<void> _updateDataToDatabase(
@@ -144,7 +144,7 @@ class EditJadwalController extends GetxController {
     DateTime date = DateFormat.yMd().parse(dateController.text);
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
     await databaseReference
-        .child("UsersData/$uid/manual/$nodePath/$formattedDate")
+        .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate")
         .update(data);
   }
 
@@ -212,9 +212,9 @@ class EditJadwalController extends GetxController {
     String formattedDate = DateFormat('MM-dd-yyyy').format(date);
 
     final DatabaseReference morningScheduleRef = databaseReference
-        .child("UsersData/$uid/manual/jadwalPagi/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/jadwalPagi/$formattedDate");
     final DatabaseReference eveningScheduleRef = databaseReference
-        .child("UsersData/$uid/manual/jadwalSore/$formattedDate");
+        .child("UsersData/$uid/penjadwalan/jadwalSore/$formattedDate");
 
     DataSnapshot? morningSnapshot;
     DataSnapshot? eveningSnapshot;

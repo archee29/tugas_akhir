@@ -91,12 +91,13 @@ class SettingView extends GetView<SettingController> {
                           onTap: () => Get.toNamed(Routes.REGISTER),
                         ),
                       MenuTile(
-                        title: "Tambah Status Alat",
-                        icon: SvgPicture.asset(
-                          'assets/icons/tools-setting.svg',
-                        ),
-                        onTap: () => Get.toNamed(Routes.TAMBAH_STATUS_ALAT),
-                      ),
+                          title: "Tambah Status Alat",
+                          icon: SvgPicture.asset(
+                            'assets/icons/tools-setting.svg',
+                          ),
+                          onTap: () async {
+                            controller.checkAndNavigate();
+                          }),
                       MenuTile(
                         title: "Ubah Password",
                         icon: SvgPicture.asset(

@@ -44,7 +44,7 @@ unsigned long previousLCDMillis = 0;
 const long lcdInterval = 1000;
 
 unsigned long previousNotificationMonitoringMillis = 0;
-const long notificationMonitoringInterval = 600000;
+const long notificationMonitoringInterval = 120000;
 
 void initLCD() {
   lcd.init();
@@ -88,7 +88,7 @@ void wadahPakan(int &beratWadah) {
   }
 }
 
-void tabungMinum(int &volumeTabung) {
+void tabungMinum(int &volumeMLTabung) {
   digitalWrite(trigPinTabung, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinTabung, HIGH);
@@ -96,7 +96,6 @@ void tabungMinum(int &volumeTabung) {
   digitalWrite(trigPinTabung, LOW);
   durasiTabung = pulseIn(echoPinTabung, HIGH);
   if (durasiTabung == 0) {
-    Serial.println("Sensor Tabung tidak mendeteksi objek.");
     return;
   }
   int tinggiAirTabung = durasiTabung * 0.034 / 2;
@@ -107,10 +106,11 @@ void tabungMinum(int &volumeTabung) {
   if (airTabung < 0) {
     airTabung = 0;
   }
-  volumeTabung = 3.14159 * radiusTabung * radiusTabung * airTabung;
+  int volumeTabung = 3.14159 * radiusTabung * radiusTabung * airTabung;
+  volumeMLTabung = volumeTabung;
 }
 
-void wadahMinum(int &volumeWadah) {
+void wadahMinum(int &volumeMLWadah) {
   digitalWrite(trigPinWadah, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinWadah, HIGH);
@@ -118,7 +118,6 @@ void wadahMinum(int &volumeWadah) {
   digitalWrite(trigPinWadah, LOW);
   durasiWadah = pulseIn(echoPinWadah, HIGH);
   if (durasiWadah == 0) {
-    Serial.println("Sensor Wadah tidak mendeteksi objek.");
     return;
   }
   int tinggiAirWadah = durasiWadah * 0.034 / 2;
@@ -129,11 +128,11 @@ void wadahMinum(int &volumeWadah) {
   if (airWadah < 0) {
     airWadah = 0;
   }
-  volumeWadah = 3.14159 * semiMayorWadah * semiMinorWadah * airWadah;
+  int volumeWadah = 3.14159 * semiMayorWadah * semiMinorWadah * airWadah;
+  volumeMLWadah = volumeWadah;
 }
 
 void bukaServo(int jumlah) {
-  servoStatus = false;
   for (int i = 0; i < jumlah; i++) {
     for (int posisi = 0; posisi <= 90; posisi++) {
       myServo.write(posisi);
@@ -148,17 +147,18 @@ void bukaServo(int jumlah) {
 }
 
 void onPump() {
-  digitalWrite(relayPin, LOW);
-  delay(5000);
   digitalWrite(relayPin, HIGH);
+  delay(5000);
+  digitalWrite(relayPin, LOW);
+  delay(1000);
   pumpStatus = true;
 }
 
-void readSensor(int &beratWadah, int &volumeTabung, int &volumeWadah) {
+void readSensor(int &beratWadah, int &volumeMLTabung, int &volumeMLWadah) {
   initRTC();
   wadahPakan(beratWadah);
-  tabungMinum(volumeTabung);
-  wadahMinum(volumeWadah);
+  tabungMinum(volumeMLTabung);
+  wadahMinum(volumeMLWadah);
 }
 
 void monitoringNotification(String message1, String message2) {
@@ -179,45 +179,66 @@ void showNotification(String message1, String message2) {
   lcd.print(message2);
 }
 
-void monitoring(int beratWadah, int volumeWadah) {
+void monitoring(int beratWadah, int volumeMLWadah, int volumeMLTabung) {
   unsigned long currentMillis = millis();
   if (currentMillis - previousNotificationMonitoringMillis >= notificationMonitoringInterval) {
     previousNotificationMonitoringMillis = currentMillis;
     if (beratWadah >= 0 && beratWadah < 40) {
-      monitoringNotification("PAKAN WADAH < 120 GR", "WADAH PERLU DIISI");
+      monitoringNotification("PAKAN WADAH < 40 GR", "WADAH PERLU DIISI!");
       delay(2000);
       showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...");
       bukaServo(4);
-      delay(2000);
       showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!");
-    } else if (volumeWadah >= 0 && volumeWadah < 100) {
-      monitoringNotification("AIR WADAH < 300 ML", "WADAH PERLU DIISI");
+      delay(2000);
+    } else if (volumeMLWadah >= 0 && volumeMLWadah < 150) {
+      monitoringNotification("AIR WADAH < 150 ML", "WADAH PERLU DIISI");
       delay(2000);
       showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...");
       onPump();
-      delay(2000);
       showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!");
+      delay(2000);
+    } else if (beratWadah >= 41 && beratWadah < 100) {
+      monitoringNotification("PAKAN WADAH < 100 GR", "SEGERA ISI WADAH");
+      delay(2000);
+    } else if (beratWadah > 120) {
+      monitoringNotification("PAKAN WADAH > 120 GR", "WADAH PAKAN PENUH");
+      delay(2000);
+    } else if (volumeMLWadah >= 151 && volumeMLWadah < 280) {
+      monitoringNotification("AIR WADAH < 300 ML", "SEGERA ISI WADAH");
+      delay(2000);
+    } else if (volumeMLWadah > 300) {
+      monitoringNotification("AIR WADAH > 300 ML", "WADAH MINUM PENUH");
+      delay(2000);
+    } else if (volumeMLTabung >= 0 && volumeMLTabung < 300) {
+      monitoringNotification("AIR TABUNG < 300 ML", "SEGERA ISI TABUNG");
+      delay(2000);
+    } else if (volumeMLTabung > 1000) {
+      monitoringNotification("AIR TABUNG > 1 L", "TABUNG MINUM PENUH");
+      delay(2000);
+    } else if (jam != 7 && jam != 17) {
+      monitoringNotification("DILUAR WAKTU FEEDING", "SILAHKAN CEK KONDISI");
+      delay(2000);
     }
   }
 }
 
 void feeder() {
   if (jam == 7 && menit == 0 && detik == 0) {
-    showNotification("NOTIFIKASI !!!", "MORNING FEEDING!!!");
+    showNotification("NOTIFIKASI !!!", "MORNING FEEDING!!!!!");
     delay(2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...");
     onPump();
     bukaServo(4);
-    delay(2000);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!");
+    delay(2000);
   } else if (jam == 17 && menit == 0 && detik == 0) {
     showNotification("NOTIFIKASI !!!", "AFTERNOON FEEDING!!!");
     delay(2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...");
     onPump();
     bukaServo(4);
-    delay(2000);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!");
+    delay(2000);
   }
 }
 
@@ -289,9 +310,8 @@ void setup() {
     abort();
   }
   if (rtc.lostPower()) {
-    Serial.println("RTC kehilangan daya, atur ulang waktu!");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }  
+  }
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();
@@ -300,18 +320,18 @@ void setup() {
   pinMode(echoPinWadah, INPUT);
   pinMode(trigPinWadah, OUTPUT);
   myServo.attach(servoPin);
+  myServo.write(0);
   pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, HIGH);
-  initLCD();
-  Serial.println("MULAI PROGRAM");
+  digitalWrite(relayPin, LOW);
+  initLCD();  
 }
 
 void loop() {
-  int beratWadah, volumeTabung, volumeWadah;
-  readSensor(beratWadah, volumeTabung, volumeWadah);
-  monitoring(beratWadah, volumeWadah);
+  int beratWadah, volumeMLTabung, volumeMLWadah;
+  readSensor(beratWadah, volumeMLTabung, volumeMLWadah);
+  monitoring(beratWadah, volumeMLTabung, volumeMLWadah);
   feeder();
-  displayLCD(beratWadah, volumeWadah, volumeTabung);
-  sendData(beratWadah, volumeTabung, volumeWadah);
+  displayLCD(beratWadah, volumeMLWadah, volumeMLTabung);
+  sendData(beratWadah, volumeMLTabung, volumeMLWadah);
   reqData();
 }

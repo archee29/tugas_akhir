@@ -19,6 +19,7 @@ abstract class Routes {
   static const UPDATE_PROFILE = _Paths.UPDATE_PROFILE;
   static const STATUS_ALAT = _Paths.STATUS_ALAT;
   static const TAMBAH_STATUS_ALAT = _Paths.TAMBAH_STATUS_ALAT;
+  static const EDIT_STATUS_ALAT = _Paths.EDIT_STATUS_ALAT;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const UPDATE_PROFILE = '/update-profile';
   static const STATUS_ALAT = '/status-alat';
   static const TAMBAH_STATUS_ALAT = '/tambah-status-alat';
+  static const EDIT_STATUS_ALAT = '/edit-status-alat';
 }

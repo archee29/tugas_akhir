@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 
 import '../../../routes/app_pages.dart';
+import '../../../widgets/dialog/custom_alert_dialog.dart';
+import '../../../widgets/dialog/custom_notification.dart';
 
 class StatusAlatController extends GetxController {
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
@@ -25,23 +27,19 @@ class StatusAlatController extends GetxController {
         }, onError: (error) {
           print('Error streaming user data: $error');
         });
-
-        // Mulai streaming status alat
         streamStatusAlat().listen((event) {
           if (event.snapshot.value != null) {
             Map<String, dynamic> data =
                 Map<String, dynamic>.from(event.snapshot.value as Map);
             statusAlatList.clear();
-
-            // Parsing setiap data status alat berdasarkan tanggal
             data.forEach((key, value) {
               Map<String, dynamic> statusData =
                   Map<String, dynamic>.from(value);
-              statusData['date'] = key; // Simpan kunci sebagai tanggal
+              statusData['date'] = key;
               statusAlatList.add(statusData);
             });
           } else {
-            statusAlatList.clear(); // Jika tidak ada data, kosongkan list
+            statusAlatList.clear();
           }
         });
       } else {
@@ -67,61 +65,35 @@ class StatusAlatController extends GetxController {
     String uid = user.uid;
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('MM-dd-yyyy').format(now);
-
-    // Return stream from Firebase Realtime Database
     return databaseReference
-        .child("UsersData/$uid/manual/statusAlat/$formattedDate")
+        .child("UsersData/$uid/statusAlat/$formattedDate")
         .onValue;
   }
 
-  // Fungsi untuk mengedit status alat
-  Future<void> editStatusAlat(
-      String date, Map<String, dynamic> statusData) async {
-    try {
-      String? uid = auth.currentUser?.uid;
-      if (uid != null) {
-        await databaseReference
-            .child('UsersData/$uid/manual/statusAlat/$date')
-            .update(statusData);
-        Get.snackbar("Success", "Data status alat berhasil diubah");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Gagal mengubah data status alat: $e");
-    }
-  }
-
-  // Fungsi untuk menghapus status alat berdasarkan tanggal
   Future<void> deleteStatusAlat(String date) async {
-    try {
-      String? uid = auth.currentUser?.uid;
-      if (uid != null) {
-        await databaseReference
-            .child('UsersData/$uid/manual/statusAlat/$date')
-            .remove();
-        Get.snackbar("Success", "Data status alat berhasil dihapus");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Gagal menghapus data status alat: $e");
-    }
-  }
-
-  // Fungsi untuk menambahkan status alat baru (opsional)
-  Future<void> addStatusAlat(Map<String, dynamic> newStatus) async {
-    try {
-      String? uid = auth.currentUser?.uid;
-      if (uid != null) {
-        DateTime now = DateTime.now();
-        String formattedDate =
-            DateFormat('MM-dd-yyyy').format(now); // Format tanggal
-
-        await databaseReference
-            .child('UsersData/$uid/manual/statusAlat/$formattedDate')
-            .set(newStatus);
-
-        Get.snackbar("Success", "Status alat berhasil ditambahkan");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Gagal menambahkan status alat: $e");
+    String? uid = auth.currentUser?.uid;
+    if (uid != null) {
+      CustomAlertDialog.showFeederAlert(
+        title: "Hapus Data",
+        message: "Apakah Anda Yakin Untuk Menghapus Data?",
+        onCancel: () => Get.back(),
+        onConfirm: () async {
+          try {
+            await databaseReference
+                .child('UsersData/$uid/statusAlat/$date')
+                .remove();
+            Get.back();
+            Get.back();
+            CustomNotification.successNotification(
+                "Success", "Data status alat berhasil dihapus");
+          } catch (e) {
+            CustomNotification.errorNotification(
+                "Error", "Gagal menghapus data status alat: $e");
+          }
+        },
+      );
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
     }
   }
 }

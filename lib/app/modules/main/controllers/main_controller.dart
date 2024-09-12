@@ -71,46 +71,38 @@ class MainController extends GetxController {
     return databaseReference.child("UsersData/$uid/UsersProfile").onValue;
   }
 
-  Future<Map<String, dynamic>> fetchSchedules() async {
-    String uid = auth.currentUser!.uid;
-    final snapshotPagi = await databaseReference
-        .child('UsersData/$uid/manual/jadwalPagi')
-        .once();
-    final snapshotSiang = await databaseReference
-        .child('UsersData/$uid/manual/jadwalSore')
-        .once();
-
-    final pagiData = snapshotPagi.snapshot.value as Map<String, dynamic>? ?? {};
-    final siangData =
-        snapshotSiang.snapshot.value as Map<String, dynamic>? ?? {};
-
-    return {
-      'jadwalPagi': pagiData,
-      'jadwalSore': siangData,
-    };
-  }
-
   Future<Map<String, double>> calculateTotals() async {
-    final schedules = await fetchSchedules();
+    String uid = auth.currentUser!.uid;
+
+    final snapshotMonitoring =
+        await databaseReference.child('UsersData/$uid/iot/monitoring').once();
+
+    final monitoringData =
+        Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
 
     double totalFoodDay = 0;
     double totalWaterDay = 0;
     double totalFoodWeek = 0;
     double totalWaterWeek = 0;
 
-    schedules['jadwalPagi'].forEach((key, value) {
-      totalFoodDay += double.parse(value['makanan'] ?? '0');
-      totalWaterDay += double.parse(value['minuman'] ?? '0');
-    });
+    totalFoodDay =
+        double.parse(monitoringData['beratWadah']?.toString() ?? '0');
 
-    schedules['jadwalSore'].forEach((key, value) {
-      totalFoodDay += double.parse(value['makanan'] ?? '0');
-      totalWaterDay += double.parse(value['minuman'] ?? '0');
-    });
+    totalWaterDay =
+        double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
 
-    totalFoodWeek = totalFoodDay * 7;
-    totalWaterWeek = totalWaterDay * 7;
+    for (int i = 0; i < 7; i++) {
+      final weeklySnapshot = await databaseReference
+          .child('UsersData/$uid/iot/monitoring/day${i}')
+          .once();
+      final weeklyData =
+          weeklySnapshot.snapshot.value as Map<String, dynamic>? ?? {};
 
+      totalFoodWeek +=
+          double.parse(weeklyData['beratWadah']?.toString() ?? '0');
+      totalWaterWeek +=
+          double.parse(weeklyData['volumeMLWadah']?.toString() ?? '0');
+    }
     return {
       'totalFoodDay': totalFoodDay,
       'totalWaterDay': totalWaterDay,
