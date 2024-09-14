@@ -32,7 +32,7 @@ dependencies:
   permission_handler: ^11.3.1
   rxdart: ^0.28.0
   syncfusion_flutter_calendar: ^26.1.35
-  syncfusion_flutter_charts: ^26.1.35
+  syncfusion_flutter_charts: ^26.2.14
   syncfusion_flutter_datepicker: ^26.1.35
   table_calendar: ^3.1.1
   timezone: ^0.9.3

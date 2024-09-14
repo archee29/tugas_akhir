@@ -15,7 +15,7 @@ class DataView extends GetView<DataController> {
       extendBody: true,
       appBar: AppBar(
         title: Text(
-          'Data Manual',
+          'Data Penjadwalan',
           style: TextStyle(
             color: AppColors.secondary,
             fontSize: 14,

@@ -27,6 +27,7 @@ class DataController extends GetxController
   RxInt minumanValue = 0.obs;
 
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
+  RxMap<String, dynamic> monitoringData = <String, dynamic>{}.obs;
 
   StreamSubscription<User?>? _authStreamSubscription;
 
@@ -43,18 +44,17 @@ class DataController extends GetxController
   void onInit() {
     super.onInit();
     dataTabController = TabController(length: 2, vsync: this);
-    _authStreamSubscription = auth.authStateChanges().listen((user) {
-      if (user != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          isLoading.value = true;
-          streamUser().listen((event) {
-            userData.value =
-                Map<String, dynamic>.from(event.snapshot.value as Map);
-          });
-          retrieveData();
-          retrieveDataMF();
-          retrieveDataAf();
+    Future.delayed(Duration.zero, () {
+      if (auth.currentUser != null) {
+        streamUser().listen((event) {
+          userData.value =
+              Map<String, dynamic>.from(event.snapshot.value as Map);
+        }, onError: (error) {
+          print('Error streaming user data: $error');
         });
+        streamMonitoring();
+        retrieveDataMF();
+        retrieveDataAf();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -77,83 +77,29 @@ class DataController extends GetxController
     }
   }
 
-  Future<void> retrieveMonitoringData() async {
-    User? currentUser = auth.currentUser;
-    if (currentUser != null) {
-      String uid = currentUser.uid;
-      databaseReference
-          .child("UsersData/$uid/iot/monitoring")
-          .onValue
-          .listen((event) {
-        if (event.snapshot.value != null) {
-          final monitoringData =
-              Map<String, dynamic>.from(event.snapshot.value as Map);
-          int beratWadah = monitoringData['beratWadah'] ?? 0;
-          String ketHari = monitoringData['ketHari'] ?? "";
-          String ketWaktu = monitoringData['ketWaktu'] ?? "";
-          bool pumpStatus = monitoringData['pumpStatus'] ?? false;
-          bool servoStatus = monitoringData['servoStatus'] ?? false;
-          int volumeMLTabung = monitoringData['volumeMLTabung'] ?? 0;
-          int volumeMLWadah = monitoringData['volumeMLWadah'] ?? 0;
-          userData.updateAll((key, value) => {
-                'beratWadah': beratWadah,
-                'ketHari': ketHari,
-                'ketWaktu': ketWaktu,
-                'pumpStatus': pumpStatus,
-                'servoStatus': servoStatus,
-                'volumeMLTabung': volumeMLTabung,
-                'volumeMLWadah': volumeMLWadah,
-              });
-          isLoading.value = false;
-        } else {
-          userData.updateAll((key, value) => {
-                'beratWadah': 0,
-                'ketHari': "RTC Tidak Ditemukan",
-                'ketWaktu': "RTC Tidak Ditemukan",
-                'pumpStatus': false,
-                'servoStatus': false,
-                'volumeMLTabung': 0,
-                'volumeMLWadah': 0,
-              });
-          isLoading.value = false;
-        }
-      });
-    } else {
-      Get.offAllNamed(Routes.LOGIN);
-    }
-  }
+  Stream<Map<String, double>> streamMonitoring() {
+    String uid = auth.currentUser!.uid;
 
-  Stream<DatabaseEvent> streamTodayFeeder() {
-    String? uid = auth.currentUser?.uid;
-    if (uid != null) {
-      String todayDocId =
-          DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-      return databaseReference
-          .child('UsersData/$uid/iot/feeder/$todayDocId')
-          .onValue;
-    } else {
-      return const Stream.empty();
-    }
-  }
+    // Stream untuk monitoring
+    Stream<DatabaseEvent> monitoringStream =
+        databaseReference.child('UsersData/$uid/iot/monitoring').onValue;
 
-  Future<void> retrieveData() async {
-    User? currentUser = auth.currentUser;
-    if (currentUser != null) {
-      String uid = currentUser.uid;
-      databaseReference.child("UsersData/$uid/iot").onValue.listen((event) {
-        if (event.snapshot.value != null) {
-          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
-          makananValue.value = values['makanan'] ?? 0;
-          minumanValue.value = values['minuman'] ?? 0;
-        } else {
-          makananValue.value = 0;
-          minumanValue.value = 0;
-        }
-        isLoading.value = false; // Pemuatan selesai
-      });
-    } else {
-      Get.offAllNamed(Routes.LOGIN);
-    }
+    return monitoringStream.map((snapshotMonitoring) {
+      // Mendapatkan data monitoring dari snapshot
+      final monitoringData =
+          Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
+
+      // Parsing data monitoring
+      double beratWadah =
+          double.parse(monitoringData['beratWadah']?.toString() ?? '0');
+      double volumeMLWadah =
+          double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
+
+      return {
+        'beratWadah': beratWadah,
+        'volumeMLWadah': volumeMLWadah,
+      };
+    });
   }
 
   Future<void> retrieveDataMF() async {

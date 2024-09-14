@@ -71,44 +71,48 @@ class MainController extends GetxController {
     return databaseReference.child("UsersData/$uid/UsersProfile").onValue;
   }
 
-  Future<Map<String, double>> calculateTotals() async {
+  Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
 
-    final snapshotMonitoring =
-        await databaseReference.child('UsersData/$uid/iot/monitoring').once();
+    // Stream untuk monitoring
+    Stream<DatabaseEvent> monitoringStream =
+        databaseReference.child('UsersData/$uid/iot/monitoring').onValue;
 
-    final monitoringData =
-        Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
+    // Dengarkan stream dan hitung total berdasarkan perubahan data
+    return monitoringStream.asyncMap((snapshotMonitoring) async {
+      final monitoringData =
+          Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
 
-    double totalFoodDay = 0;
-    double totalWaterDay = 0;
-    double totalFoodWeek = 0;
-    double totalWaterWeek = 0;
+      double totalFoodDay = 0;
+      double totalWaterDay = 0;
+      double totalFoodWeek = 0;
+      double totalWaterWeek = 0;
 
-    totalFoodDay =
-        double.parse(monitoringData['beratWadah']?.toString() ?? '0');
+      totalFoodDay =
+          double.parse(monitoringData['beratWadah']?.toString() ?? '0');
+      totalWaterDay =
+          double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
 
-    totalWaterDay =
-        double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
+      for (int i = 0; i < 7; i++) {
+        final weeklySnapshot = await databaseReference
+            .child('UsersData/$uid/iot/monitoring/day$i')
+            .once();
+        final weeklyData =
+            weeklySnapshot.snapshot.value as Map<String, dynamic>? ?? {};
 
-    for (int i = 0; i < 7; i++) {
-      final weeklySnapshot = await databaseReference
-          .child('UsersData/$uid/iot/monitoring/day${i}')
-          .once();
-      final weeklyData =
-          weeklySnapshot.snapshot.value as Map<String, dynamic>? ?? {};
+        totalFoodWeek +=
+            double.parse(weeklyData['beratWadah']?.toString() ?? '0');
+        totalWaterWeek +=
+            double.parse(weeklyData['volumeMLWadah']?.toString() ?? '0');
+      }
 
-      totalFoodWeek +=
-          double.parse(weeklyData['beratWadah']?.toString() ?? '0');
-      totalWaterWeek +=
-          double.parse(weeklyData['volumeMLWadah']?.toString() ?? '0');
-    }
-    return {
-      'totalFoodDay': totalFoodDay,
-      'totalWaterDay': totalWaterDay,
-      'totalFoodWeek': totalFoodWeek,
-      'totalWaterWeek': totalWaterWeek,
-    };
+      return {
+        'totalFoodDay': totalFoodDay,
+        'totalWaterDay': totalWaterDay,
+        'totalFoodWeek': totalFoodWeek,
+        'totalWaterWeek': totalWaterWeek,
+      };
+    });
   }
 
   String formatOutput(double value) {

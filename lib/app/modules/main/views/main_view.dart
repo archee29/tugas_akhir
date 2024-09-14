@@ -214,15 +214,15 @@ class MainView extends GetView<MainController> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  FutureBuilder<Map<String, double>>(
-                    future: controller.calculateTotals(),
+                  StreamBuilder<Map<String, double>>(
+                    stream: controller.calculateTotals(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(
-                            child:
-                                Text("Error loading data: ${snapshot.error}"));
+                          child: Text("Error loading data: ${snapshot.error}"),
+                        );
                       } else if (!snapshot.hasData) {
                         return const Center(child: Text("No Data"));
                       } else {

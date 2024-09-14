@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -131,10 +133,13 @@ class TambahJadwalController extends GetxController {
   Future<void> _scheduleNotification(String nodePath) async {
     final String scheduleTitle =
         nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
+    final int notificationId =
+        DateTime.now().millisecondsSinceEpoch.remainder(100000) +
+            Random().nextInt(1000);
     print(
         "Scheduling notification for $scheduleTitle at ${selectedTime.value.format(Get.context!)}");
     await _localNotificationService.scheduleNotification(
-      DateTime.now().millisecondsSinceEpoch,
+      notificationId,
       selectedTime.value,
       scheduleTitle,
       "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
@@ -282,134 +287,3 @@ class TambahJadwalController extends GetxController {
     }
   }
 }
-
-/*
-import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:intl/intl.dart';
-import './../../../../app/styles/app_colors.dart';
-import './../../../../app/widgets/dialog/custom_notification.dart';
-import './../../../../app/controllers/notification_service.dart';
-
-class TambahJadwalController extends GetxController {
-  final TextEditingController dateController = TextEditingController();
-  final TextEditingController timeController = TextEditingController();
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController deskripsiController = TextEditingController();
-  final TextEditingController makananController = TextEditingController();
-  final TextEditingController minumanController = TextEditingController();
-  final RxBool isLoading = false.obs;
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-  final LocalNotificationService _localNotificationService = Get.find<LocalNotificationService>();
-
-  @override
-  void onInit() {
-    super.onInit();
-    _localNotificationService.init();
-    _localNotificationService.requestPermissions();
-  }
-
-  Future<void> addManualDataBasedOnTime() async {
-    final User? user = auth.currentUser;
-    if (user == null) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "User Tidak Terdaftar");
-      return;
-    } else if (_validateInputs()) {
-      isLoading.value = true;
-      try {
-        final data = _prepareData();
-        final String nodePath = _getNodePath();
-        final existingScheduleQuery = _getExistingScheduleQuery(user.uid, nodePath);
-        final snapshot = await existingScheduleQuery.get();
-
-        if (snapshot.exists) {
-          CustomNotification.errorNotification("Terjadi Kesalahan", "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
-        } else {
-          await _saveDataToDatabase(user.uid, nodePath, data);
-          await _scheduleNotification(nodePath);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.back();
-            Get.back();
-            Get.back();
-            _clearEditingControllers();
-            CustomNotification.successNotification("Berhasil", "Berhasil Menambahkan Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}");
-          });
-        }
-      } catch (e) {
-        CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
-      } finally {
-        isLoading.value = false;
-        update();
-      }
-    }
-  }
-
-  bool _validateInputs() {
-    if (dateController.text.isEmpty || timeController.text.isEmpty || titleController.text.isEmpty || deskripsiController.text.isEmpty || makananController.text.isEmpty || minumanController.text.isEmpty) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "Isi Form Terlebih Dahulu");
-      return false;
-    }
-    final int? makananValue = int.tryParse(makananController.text);
-    final int? minumanValue = int.tryParse(minumanController.text);
-    if (makananValue == null || makananValue < 0 || makananValue > 120) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "Masukan Jumlah Makanan dengan nilai 0-120 Gram saja");
-      return false;
-    }
-    if (minumanValue == null || minumanValue < 0 || minumanValue > 300) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "Masukan Jumlah Minuman dengan nilai 0-300 Mililiter saja");
-      return false;
-    }
-    return true;
-  }
-
-  Map<String, dynamic> _prepareData() {
-    return {
-      "date": DateTime.now().toIso8601String(),
-      "tanggal": dateController.text,
-      "waktu": timeController.text,
-      "title": titleController.text,
-      "deskripsi": deskripsiController.text,
-      "makanan": makananController.text,
-      "minuman": minumanController.text,
-      "created_at": DateTime.now().toIso8601String(),
-    };
-  }
-
-  String _getNodePath() {
-    return selectedTime.value.hour == 7 ? "jadwalPagi" : "jadwalSore";
-  }
-
-  Query _getExistingScheduleQuery(String uid, String nodePath) {
-    DateTime date = DateFormat.yMd().parse(dateController.text);
-    String formattedDate = DateFormat('MM-dd-yyyy').format(date);
-    return databaseReference.child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate");
-  }
-
-  Future<void> _saveDataToDatabase(String uid, String nodePath, Map<String, dynamic> data) async {
-    DateTime date = DateFormat.yMd().parse(dateController.text);
-    String formattedDate = DateFormat('MM-dd-yyyy').format(date);
-    await databaseReference.child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate").set(data);
-  }
-
-  Future<void> _scheduleNotification(String nodePath) async {
-    DateTime scheduledTime = DateFormat("h:mm a").parse(timeController.text);
-    TimeOfDay time = TimeOfDay.fromDateTime(scheduledTime);
-    String title = "Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}";
-    String body = "Sudah Waktunya Mengonsumsi ${makananController.text} Gram Makanan dan ${minumanController.text} Mililiter Minuman";
-    await _localNotificationService.scheduleNotification(0, time, title, body); // Notification ID as 0 for now
-  }
-
-  void _clearEditingControllers() {
-    titleController.clear();
-    deskripsiController.clear();
-    makananController.clear();
-    minumanController.clear();
-    dateController.clear();
-    timeController.clear();
-  }
-}
-
-*/
