@@ -16,7 +16,12 @@ class LocalNotificationService {
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        print("User tapped on notification: ${response.payload}");
+      },
+    );
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
   }
@@ -36,8 +41,13 @@ class LocalNotificationService {
   Future<void> scheduleNotification(
       int id, TimeOfDay time, String title, String body) async {
     final now = DateTime.now();
-    DateTime scheduledDateTime =
-        DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    DateTime scheduledDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
 
     if (scheduledDateTime.isBefore(now)) {
       scheduledDateTime = scheduledDateTime.add(const Duration(days: 1));

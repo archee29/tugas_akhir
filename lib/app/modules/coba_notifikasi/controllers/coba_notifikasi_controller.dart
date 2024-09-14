@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import '../../../routes/app_pages.dart';
 
-import '../../../controllers/notification_service.dart';
+import '../../../controllers/foreground_service.dart';
 
 class CobaNotifikasiController extends GetxController {
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
@@ -15,15 +15,14 @@ class CobaNotifikasiController extends GetxController {
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   Timer? timer;
 
-  // Tambahkan Notification Service
-  final LocalNotificationService _localNotificationService =
-      Get.find<LocalNotificationService>();
+  final ForegroundNotification _foregroundNotification =
+      Get.find<ForegroundNotification>();
 
   @override
   void onInit() {
     super.onInit();
-    _localNotificationService.init();
-    _localNotificationService.requestPermissions();
+    _foregroundNotification.init();
+    _foregroundNotification.requestPermissions();
 
     Future.delayed(Duration.zero, () {
       if (auth.currentUser != null) {
@@ -39,14 +38,12 @@ class CobaNotifikasiController extends GetxController {
     });
   }
 
-  // Fungsi untuk menampilkan notifikasi ketika tombol diklik
   void showNotification() {
-    _localNotificationService.scheduleNotification(
-      DateTime.now().millisecondsSinceEpoch,
-      TimeOfDay.now(),
-      "Notifikasi Tes",
-      "Ini adalah notifikasi percobaan ketika tombol diklik.",
-    );
+    // _foregroundNotification.showNotification(
+    //   "NOTIFIKASI",
+    //   "TES NOTIFIKASI",
+    //    ,
+    // );
   }
 
   Stream<DatabaseEvent> streamUser() {
