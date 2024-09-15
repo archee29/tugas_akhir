@@ -74,11 +74,9 @@ class MainController extends GetxController {
   Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
 
-    // Stream untuk monitoring
     Stream<DatabaseEvent> monitoringStream =
         databaseReference.child('UsersData/$uid/iot/monitoring').onValue;
 
-    // Dengarkan stream dan hitung total berdasarkan perubahan data
     return monitoringStream.asyncMap((snapshotMonitoring) async {
       final monitoringData =
           Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);

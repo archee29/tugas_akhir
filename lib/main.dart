@@ -32,7 +32,6 @@ void main() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   String? token = await messaging.getToken();
   print("FCM Token: $token");
-  // fcm token : fhtQQQNrQz2d5p3O1Ehgjw:APA91bFByRqo6lMvdLHu4lnqnYzEOLEsA8ggLfpL1NlUNTplCtzLxsn-GAu_n5xd0gxnFtAwRet50Fo-0yZdPQ_ldK76DRYXiLjKqUQxnj8aGFaQX9lzRcWUVgNiaJLPdVU3a58al9ZQ
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('Pesan diterima saat di foreground: ${message.notification?.title}');

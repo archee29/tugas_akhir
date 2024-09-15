@@ -80,16 +80,13 @@ class DataController extends GetxController
   Stream<Map<String, double>> streamMonitoring() {
     String uid = auth.currentUser!.uid;
 
-    // Stream untuk monitoring
     Stream<DatabaseEvent> monitoringStream =
         databaseReference.child('UsersData/$uid/iot/monitoring').onValue;
 
     return monitoringStream.map((snapshotMonitoring) {
-      // Mendapatkan data monitoring dari snapshot
       final monitoringData =
           Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
 
-      // Parsing data monitoring
       double beratWadah =
           double.parse(monitoringData['beratWadah']?.toString() ?? '0');
       double volumeMLWadah =
