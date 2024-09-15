@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import './app/modules/data/controllers/data_controller.dart';
 import './app/modules/edit_jadwal/controllers/edit_jadwal_controller.dart';
 import './app/routes/app_pages.dart';
@@ -20,6 +19,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   LocalNotificationService localNotificationService =
@@ -37,11 +37,11 @@ void main() async {
     print('Pesan diterima saat di foreground: ${message.notification?.title}');
   });
 
+  Get.put(HomeController(), permanent: true);
   Get.put(LocalNotificationService(), permanent: true);
   Get.put(FeederController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DataController(), permanent: true);
-  Get.put(HomeController(), permanent: true);
   Get.put(EditJadwalController(), permanent: true);
 
   runApp(const MyApp());
@@ -55,12 +55,6 @@ class MyApp extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: SplashScreen(),
-          );
-        }
         return GetMaterialApp(
           title: "Tugas Akhir",
           debugShowCheckedModeBanner: false,

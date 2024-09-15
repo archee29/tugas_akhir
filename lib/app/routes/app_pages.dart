@@ -4,6 +4,8 @@ import '../modules/coba_notifikasi/bindings/coba_notifikasi_binding.dart';
 import '../modules/coba_notifikasi/views/coba_notifikasi_view.dart';
 import '../modules/data/bindings/data_binding.dart';
 import '../modules/data/views/data_view.dart';
+import '../modules/detail_feeder/bindings/detail_feeder_binding.dart';
+import '../modules/detail_feeder/views/detail_feeder_view.dart';
 import '../modules/detail_jadwal/bindings/detail_jadwal_binding.dart';
 import '../modules/detail_jadwal/views/detail_jadwal_view.dart';
 import '../modules/edit_jadwal/bindings/edit_jadwal_binding.dart';
@@ -121,6 +123,11 @@ class AppPages {
       name: _Paths.COBA_NOTIFIKASI,
       page: () => const CobaNotifikasiView(),
       binding: CobaNotifikasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_FEEDER,
+      page: () => const DetailFeederView(),
+      binding: DetailFeederBinding(),
     ),
   ];
 }

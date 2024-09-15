@@ -4,18 +4,17 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../styles/app_colors.dart';
-import '../../../widgets/CustomWidgets/custom_data_penjadwalan_widget.dart';
-import '../controllers/data_controller.dart';
+import '../../../widgets/CustomWidgets/custom_data_feeder_widget.dart';
+import '../controllers/detail_feeder_controller.dart';
 
-class DataView extends GetView<DataController> {
-  const DataView({super.key});
+class DetailFeederView extends GetView<DetailFeederController> {
+  const DetailFeederView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       appBar: AppBar(
         title: Text(
-          'Data Penjadwalan',
+          'Data Feeder',
           style: TextStyle(
             color: AppColors.secondary,
             fontSize: 14,
@@ -36,7 +35,7 @@ class DataView extends GetView<DataController> {
       body: TabBarView(
         controller: controller.dataTabController,
         physics: const BouncingScrollPhysics(),
-        children: [DataJadwalPagi(), DataJadwalSore()],
+        children: [DataFeederPagi(), DataFeederSore()],
       ),
     );
   }

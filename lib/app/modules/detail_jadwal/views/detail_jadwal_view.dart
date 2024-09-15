@@ -11,7 +11,10 @@ import '../../data/controllers/data_controller.dart';
 
 class DetailJadwalView extends GetView<DataController> {
   const DetailJadwalView({super.key});
-  Color getProgressColor(String scale) {
+  Color getProgressColor(String scale, double percent) {
+    if (percent > 1.0) {
+      return Colors.red;
+    }
     switch (scale) {
       case "Low":
         return Colors.red;
@@ -101,7 +104,7 @@ class DetailJadwalView extends GetView<DataController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Statistik",
+                              "Statistik Penjadwalan",
                               style: TextStyle(
                                 fontFamily: 'poppins',
                                 fontWeight: FontWeight.w600,
@@ -183,7 +186,7 @@ class DetailJadwalView extends GetView<DataController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Statistik",
+                              "Statistik Feeder",
                               style: TextStyle(
                                 fontFamily: 'poppins',
                                 fontWeight: FontWeight.w600,
@@ -193,7 +196,7 @@ class DetailJadwalView extends GetView<DataController> {
                             DetailTile(
                               title: "IoT Data",
                               icon: SvgPicture.asset('assets/icons/wifi.svg'),
-                              onTap: () {},
+                              onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
                             ),
                           ],
                         ),
@@ -214,16 +217,13 @@ class DetailJadwalView extends GetView<DataController> {
                                 snapshot.data == null) {
                               return const Center(child: Text("No Data"));
                             } else {
-                              // Mengambil data beratWadah dan volumeMLWadah dari snapshot
                               final data = snapshot.data!;
                               double beratWadah = data['beratWadah'] ?? 0;
                               double volumeMLWadah = data['volumeMLWadah'] ?? 0;
 
-                              // Hitung persentase
                               double beratWadahPercent = beratWadah / 120;
                               double volumeMLWadahPercent = volumeMLWadah / 300;
 
-                              // Tentukan skala untuk berat wadah dan volume air
                               String beratWadahScale = beratWadahPercent < 0.33
                                   ? "Low"
                                   : beratWadahPercent < 0.66
@@ -240,11 +240,12 @@ class DetailJadwalView extends GetView<DataController> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
-                                  // Circular Indicator untuk berat wadah (Makanan)
                                   CircularPercentIndicator(
                                     radius: 60.0,
                                     lineWidth: 10.0,
-                                    percent: beratWadahPercent.clamp(0.0, 1.0),
+                                    percent: beratWadahPercent > 1.0
+                                        ? 1.0
+                                        : beratWadahPercent.clamp(0.0, 1.0),
                                     center: Text(
                                       "${(beratWadahPercent * 100).round()}%\n$beratWadahScale",
                                       textAlign: TextAlign.center,
@@ -253,8 +254,8 @@ class DetailJadwalView extends GetView<DataController> {
                                         fontSize: 16.0,
                                       ),
                                     ),
-                                    progressColor:
-                                        getProgressColor(beratWadahScale),
+                                    progressColor: getProgressColor(
+                                        beratWadahScale, beratWadahPercent),
                                     backgroundColor: Colors.grey.shade300,
                                     footer: Padding(
                                       padding: const EdgeInsets.only(top: 8.0),
@@ -270,7 +271,7 @@ class DetailJadwalView extends GetView<DataController> {
                                             ),
                                           ),
                                           Text(
-                                            "Total: ${beratWadah.toStringAsFixed(2)} Gr", // Menampilkan total volumeMLWadah
+                                            "Total: ${beratWadah.toStringAsFixed(2)} Gr",
                                             style: const TextStyle(
                                               fontSize: 14.0,
                                               color: Colors.black54,
@@ -280,13 +281,12 @@ class DetailJadwalView extends GetView<DataController> {
                                       ),
                                     ),
                                   ),
-
-                                  // Circular Indicator untuk volume air (Minuman)
                                   CircularPercentIndicator(
                                     radius: 60.0,
                                     lineWidth: 10.0,
-                                    percent:
-                                        volumeMLWadahPercent.clamp(0.0, 1.0),
+                                    percent: volumeMLWadahPercent > 1.0
+                                        ? 1.0
+                                        : volumeMLWadahPercent.clamp(0.0, 1.0),
                                     center: Text(
                                       "${(volumeMLWadahPercent * 100).round()}%\n$volumeMLWadahScale",
                                       textAlign: TextAlign.center,
@@ -295,8 +295,9 @@ class DetailJadwalView extends GetView<DataController> {
                                         fontSize: 16.0,
                                       ),
                                     ),
-                                    progressColor:
-                                        getProgressColor(volumeMLWadahScale),
+                                    progressColor: getProgressColor(
+                                        volumeMLWadahScale,
+                                        volumeMLWadahPercent),
                                     backgroundColor: Colors.grey.shade300,
                                     footer: Padding(
                                       padding: const EdgeInsets.only(top: 8.0),
@@ -312,7 +313,7 @@ class DetailJadwalView extends GetView<DataController> {
                                             ),
                                           ),
                                           Text(
-                                            "Total: ${volumeMLWadah.toStringAsFixed(2)} mL", // Menampilkan total volumeMLWadah
+                                            "Total: ${volumeMLWadah.toStringAsFixed(2)} mL",
                                             style: const TextStyle(
                                               fontSize: 14.0,
                                               color: Colors.black54,

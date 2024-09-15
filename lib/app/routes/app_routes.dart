@@ -21,6 +21,7 @@ abstract class Routes {
   static const TAMBAH_STATUS_ALAT = _Paths.TAMBAH_STATUS_ALAT;
   static const EDIT_STATUS_ALAT = _Paths.EDIT_STATUS_ALAT;
   static const COBA_NOTIFIKASI = _Paths.COBA_NOTIFIKASI;
+  static const DETAIL_FEEDER = _Paths.DETAIL_FEEDER;
 }
 
 abstract class _Paths {
@@ -41,4 +42,5 @@ abstract class _Paths {
   static const TAMBAH_STATUS_ALAT = '/tambah-status-alat';
   static const EDIT_STATUS_ALAT = '/edit-status-alat';
   static const COBA_NOTIFIKASI = '/coba-notifikasi';
+  static const DETAIL_FEEDER = '/detail-feeder';
 }

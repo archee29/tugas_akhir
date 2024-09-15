@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../routes/app_pages.dart';
 import './../../../../app/widgets/dialog/custom_alert_dialog.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 import './../../data_pengguna.dart';
@@ -15,7 +16,7 @@ class FeederController extends GetxController {
   String? currentTime;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
     _listenToRealtimeClock();
   }
