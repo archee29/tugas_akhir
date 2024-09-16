@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +5,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
-import './../../../../app/controllers/notification_service.dart';
 
 class TambahJadwalController extends GetxController {
   final TextEditingController dateController = TextEditingController();
@@ -22,14 +19,10 @@ class TambahJadwalController extends GetxController {
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-  final LocalNotificationService _localNotificationService =
-      Get.find<LocalNotificationService>();
 
   @override
   void onInit() {
     super.onInit();
-    _localNotificationService.init();
-    _localNotificationService.requestPermissions();
   }
 
   Future<void> addManualDataBasedOnTime() async {
@@ -52,7 +45,6 @@ class TambahJadwalController extends GetxController {
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
-          await _scheduleNotification(nodePath);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.back();
             Get.back();
@@ -128,23 +120,6 @@ class TambahJadwalController extends GetxController {
     await databaseReference
         .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate")
         .set(data);
-  }
-
-  Future<void> _scheduleNotification(String nodePath) async {
-    final String scheduleTitle =
-        nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
-    final int notificationId =
-        DateTime.now().millisecondsSinceEpoch.remainder(100000) +
-            Random().nextInt(1000);
-    print(
-        "Scheduling notification for $scheduleTitle at ${selectedTime.value.format(Get.context!)}");
-    await _localNotificationService.scheduleNotification(
-      notificationId,
-      selectedTime.value,
-      scheduleTitle,
-      "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
-    );
-    print("Notification scheduled successfully for $scheduleTitle.");
   }
 
   void _clearEditingControllers() {

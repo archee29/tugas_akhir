@@ -201,7 +201,7 @@ class FeederController extends GetxController {
             dataFeederToday["afternoonFeeder"] != null) {
           CustomNotification.errorNotification(
             "Terjadi Kesalahan",
-            "Anda sudah memiliki jadwal Pagi dan Sore pada tanggal tersebut",
+            "Anda sudah melakukan pemberian makan dan minum kucing pada hari ini.",
           );
         } else if (dataFeederToday["morningFeeder"] != null &&
             feederType == "afternoon") {

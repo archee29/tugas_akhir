@@ -2,43 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import './app/modules/data/controllers/data_controller.dart';
 import './app/modules/edit_jadwal/controllers/edit_jadwal_controller.dart';
 import './app/routes/app_pages.dart';
 import './app/controllers/page_index_controller.dart';
 import './app/controllers/feeder_controller.dart';
-import './app/widgets/splash_screen.dart';
 import './app/controllers/notification_service.dart';
+// import './app/controllers/local_notification_services.dart';
 import './app/modules/home/controllers/home_controller.dart';
 import 'firebase_options.dart';
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  LocalNotificationService localNotificationService =
-      LocalNotificationService();
-  await localNotificationService.init();
-  await localNotificationService.requestPermissions();
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  String? token = await messaging.getToken();
-  print("FCM Token: $token");
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Pesan diterima saat di foreground: ${message.notification?.title}');
-  });
-
   Get.put(HomeController(), permanent: true);
   Get.put(LocalNotificationService(), permanent: true);
+  // Get.put(NotificationService(), permanent: true);
   Get.put(FeederController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DataController(), permanent: true);

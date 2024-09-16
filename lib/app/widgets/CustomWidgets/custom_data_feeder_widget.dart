@@ -133,17 +133,17 @@ class DataFeederSore extends StatelessWidget {
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
-          } else if (controller.listDataMf.isEmpty) {
+          } else if (controller.listDataAf.isEmpty) {
             return const Center(child: Text('Data Feeder Pagi Tidak Tersedia'));
           } else {
             return ListView.separated(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(20),
-              itemCount: controller.listDataMf.length,
+              itemCount: controller.listDataAf.length,
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                var afData = controller.listDataMf[index];
+                var afData = controller.listDataAf[index];
                 return FeederAFDataCard(afData: afData);
               },
             );

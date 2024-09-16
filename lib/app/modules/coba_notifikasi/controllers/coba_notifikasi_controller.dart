@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import '../../../routes/app_pages.dart';
 
-import '../../../controllers/notification_service.dart';
+import '../../../controllers/local_notification_services.dart';
 
 class CobaNotifikasiController extends GetxController {
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
@@ -15,15 +15,13 @@ class CobaNotifikasiController extends GetxController {
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   Timer? timer;
 
-  final LocalNotificationService localNotificationService =
-      Get.find<LocalNotificationService>();
+  final NotificationService localNotificationService =
+      Get.find<NotificationService>();
 
   @override
   void onInit() {
     super.onInit();
-    localNotificationService.init();
-    localNotificationService.requestPermissions();
-
+    localNotificationService.initNotification();
     Future.delayed(Duration.zero, () {
       if (auth.currentUser != null) {
         streamUser().listen((event) {
@@ -39,12 +37,14 @@ class CobaNotifikasiController extends GetxController {
   }
 
   void showNotification() {
-    localNotificationService.scheduleNotification(
-      DateTime.now().millisecondsSinceEpoch,
-      TimeOfDay.now(),
-      "TES",
-      "TES NOTIFIKASI",
-    );
+    Future.delayed(const Duration(seconds: 5)).then((s) {
+      localNotificationService.showNotification(
+        id: 1,
+        body: "selamat",
+        title: "notifikasi masuk",
+        payload: "sekarang",
+      );
+    });
   }
 
   Stream<DatabaseEvent> streamUser() {
