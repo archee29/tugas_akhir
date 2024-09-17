@@ -8,7 +8,6 @@ import './app/routes/app_pages.dart';
 import './app/controllers/page_index_controller.dart';
 import './app/controllers/feeder_controller.dart';
 import './app/controllers/notification_service.dart';
-// import './app/controllers/local_notification_services.dart';
 import './app/modules/home/controllers/home_controller.dart';
 import 'firebase_options.dart';
 
@@ -18,8 +17,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   Get.put(HomeController(), permanent: true);
-  Get.put(LocalNotificationService(), permanent: true);
-  // Get.put(NotificationService(), permanent: true);
+  Get.put(NotificationService(), permanent: true);
   Get.put(FeederController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DataController(), permanent: true);

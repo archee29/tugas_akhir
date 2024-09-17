@@ -1,67 +1,28 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
-class LocalNotificationService {
+class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
 
   Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        print("User tapped on notification: ${response.payload}");
-      },
-    );
-    tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
-  }
-
-  Future<void> requestPermissions() async {
-    if (Platform.isAndroid && (await Permission.scheduleExactAlarm.isDenied)) {
-      await Permission.scheduleExactAlarm.request();
-    }
-
-    PermissionStatus status = await Permission.notification.request();
-    print('Permission Status: $status');
-    if (status != PermissionStatus.granted) {
-      throw Exception("Notifikasi Tidak Diizinkan");
-    }
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   Future<void> scheduleNotification(
-      int id, TimeOfDay time, String title, String body) async {
-    final now = DateTime.now();
-    DateTime scheduledDateTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-
-    if (scheduledDateTime.isBefore(now)) {
-      scheduledDateTime = scheduledDateTime.add(const Duration(days: 1));
-    }
-
-    final tz.TZDateTime tzScheduledDateTime =
-        tz.TZDateTime.from(scheduledDateTime, tz.local);
-    print(
-        "Notifikasi dijadwalkan pada: $tzScheduledDateTime dengan judul: $title");
-
+      DateTime scheduleTime, String title, String body) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'channel_id',
-      'Channel Name',
-      channelDescription: 'Channel Description',
+      'your_channel_id',
+      'your_channel_name',
+      channelDescription: 'your_channel_description',
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -69,15 +30,72 @@ class LocalNotificationService {
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
+      0,
       title,
       body,
-      tzScheduledDateTime,
+      tz.TZDateTime.from(scheduleTime, tz.local),
       platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
     );
+
+    print("Notifikasi berhasil dijadwalkan pada: $scheduleTime untuk $title");
+  }
+
+  Future<void> fetchAndScheduleNotification(String userId) async {
+    final snapshot =
+        await databaseReference.child("UsersData/$userId/penjadwalan").get();
+
+    if (snapshot.exists && snapshot.value != null) {
+      Map<dynamic, dynamic> schedules = snapshot.value as Map<dynamic, dynamic>;
+
+      schedules.forEach((key, value) {
+        String? tanggal = value['tanggal'];
+        String? waktu = value['waktu'];
+        String title = value['title'] ?? 'No Title';
+        String body = value['deskripsi'] ?? 'No Description';
+
+        if (tanggal != null && waktu != null) {
+          try {
+            DateTime scheduleTime =
+                DateFormat('MM-dd-yyyy HH:mm').parse('$tanggal $waktu');
+
+            scheduleNotification(scheduleTime, title, body);
+
+            print(
+                "Notifikasi dijadwalkan: $title pada $scheduleTime dengan deskripsi: $body");
+          } catch (e) {
+            print("Error parsing date or time: $e");
+          }
+        } else {
+          print("Tanggal atau waktu tidak tersedia untuk $title.");
+        }
+      });
+    } else {
+      print("Tidak ada jadwal yang ditemukan.");
+    }
+  }
+
+  void showSuccessNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'success_channel_id',
+      'success_channel_name',
+      channelDescription: 'Notifikasi sukses',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
+
+    print("Notifikasi sukses ditampilkan: $title - $body");
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import '../../../controllers/notification_service.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 
@@ -19,10 +20,12 @@ class TambahJadwalController extends GetxController {
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  final NotificationService notificationService = NotificationService();
 
   @override
   void onInit() {
     super.onInit();
+    notificationService.init();
   }
 
   Future<void> addManualDataBasedOnTime() async {
@@ -45,6 +48,10 @@ class TambahJadwalController extends GetxController {
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
+          await notificationService.fetchAndScheduleNotification(user.uid);
+          notificationService.showSuccessNotification(
+              "Jadwal Berhasil Ditambahkan",
+              "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil ditambahkan.");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.back();
             Get.back();
