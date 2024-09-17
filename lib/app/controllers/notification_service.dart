@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:tugas_akhir/app/widgets/dialog/custom_notification.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -39,8 +40,6 @@ class NotificationService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
-
-    print("Notifikasi berhasil dijadwalkan pada: $scheduleTime untuk $title");
   }
 
   Future<void> fetchAndScheduleNotification(String userId) async {
@@ -62,18 +61,17 @@ class NotificationService {
                 DateFormat('MM-dd-yyyy HH:mm').parse('$tanggal $waktu');
 
             scheduleNotification(scheduleTime, title, body);
-
-            print(
-                "Notifikasi dijadwalkan: $title pada $scheduleTime dengan deskripsi: $body");
           } catch (e) {
-            print("Error parsing date or time: $e");
+            CustomNotification.errorNotification("Error", "Parsing Waktu :$e");
           }
         } else {
-          print("Tanggal atau waktu tidak tersedia untuk $title.");
+          CustomNotification.errorNotification(
+              "Error", "Tangal/Waktu tidak tersedia :$title");
         }
       });
     } else {
-      print("Tidak ada jadwal yang ditemukan.");
+      CustomNotification.errorNotification(
+          "Error", "Tidak Ada Jadwal Yang Ditemukan");
     }
   }
 
@@ -95,7 +93,5 @@ class NotificationService {
       body,
       platformChannelSpecifics,
     );
-
-    print("Notifikasi sukses ditampilkan: $title - $body");
   }
 }
