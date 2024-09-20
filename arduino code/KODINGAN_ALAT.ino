@@ -104,50 +104,6 @@ void sensorUltrasonic(long &tinggiAirWadah, long &tinggiAirTabung) {
   tinggiAirTabung = readUltrasonic(trigPinTabung, echoPinTabung);
 }
 
-// void tabungMinum(int &volumeMLTabung) {
-//   digitalWrite(trigPinTabung, LOW);
-//   delayMicroseconds(2);
-//   digitalWrite(trigPinTabung, HIGH);
-//   delayMicroseconds(10);
-//   digitalWrite(trigPinTabung, LOW);
-//   durasiTabung = pulseIn(echoPinTabung, HIGH);
-//   if (durasiTabung == 0) {
-//     return;
-//   }
-//   int tinggiAirTabung = durasiTabung * 0.034 / 2;
-//   if (tinggiAirTabung > maxTinggiTabung) {
-//     tinggiAirTabung = maxTinggiTabung;
-//   }
-//   int airTabung = maxTinggiTabung - tinggiAirTabung;
-//   if (airTabung < 0) {
-//     airTabung = 0;
-//   }
-//   int volumeTabung = 3.14159 * radiusTabung * radiusTabung * airTabung;
-//   volumeMLTabung = volumeTabung;
-// }
-
-// void wadahMinum(int &volumeMLWadah) {
-//   digitalWrite(trigPinWadah, LOW);
-//   delayMicroseconds(2);
-//   digitalWrite(trigPinWadah, HIGH);
-//   delayMicroseconds(10);
-//   digitalWrite(trigPinWadah, LOW);
-//   durasiWadah = pulseIn(echoPinWadah, HIGH);
-//   if (durasiWadah == 0) {
-//     return;
-//   }
-//   int tinggiAirWadah = durasiWadah * 0.034 / 2;
-//   if (tinggiAirWadah > maxTinggiWadah) {
-//     tinggiAirWadah = maxTinggiWadah;
-//   }
-//   int airWadah = maxTinggiWadah - tinggiAirWadah;
-//   if (airWadah < 0) {
-//     airWadah = 0;
-//   }
-//   int volumeWadah = 3.14159 * semiMayorWadah * semiMinorWadah * airWadah;
-//   volumeMLWadah = volumeWadah;
-// }
-
 void bukaServo(int jumlah) {
   for (int i = 0; i < jumlah; i++) {
     for (int posisi = 0; posisi <= 90; posisi++) {
@@ -174,8 +130,6 @@ void readSensor(int &beratWadah, long &tinggiAirWadah, long &tinggiAirTabung) {
   initRTC();
   wadahPakan(beratWadah);
   sensorUltrasonic(tinggiAirWadah, tinggiAirTabung);
-  // tabungMinum(volumeMLTabung);
-  // wadahMinum(volumeMLWadah);
 }
 
 void monitoringNotification(String tittle, String message, int delayTime) {
