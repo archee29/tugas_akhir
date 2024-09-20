@@ -23,18 +23,13 @@ class TambahJadwalController extends GetxController {
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   final NotificationService notificationService = NotificationService();
 
-  final LocalNotificationService _localNotificationService =
-      Get.find<LocalNotificationService>();
+  final NotificationService _localNotificationService =
+      Get.find<NotificationService>();
 
   @override
   void onInit() {
     super.onInit();
-<<<<<<< HEAD
     _localNotificationService.init();
-    _localNotificationService.requestPermissions();
-=======
-    notificationService.init();
->>>>>>> 0d11d5de86216d20b1e31f0262394252ab135288
   }
 
   Future<void> addManualDataBasedOnTime() async {
@@ -57,14 +52,10 @@ class TambahJadwalController extends GetxController {
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
-<<<<<<< HEAD
-          await _scheduleNotification(nodePath);
-=======
           await notificationService.fetchAndScheduleNotification(user.uid);
           notificationService.showSuccessNotification(
               "Jadwal Berhasil Ditambahkan",
               "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil ditambahkan.");
->>>>>>> 0d11d5de86216d20b1e31f0262394252ab135288
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.back();
             Get.back();
@@ -140,20 +131,6 @@ class TambahJadwalController extends GetxController {
     await databaseReference
         .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate")
         .set(data);
-  }
-
-  Future<void> _scheduleNotification(String nodePath) async {
-    final String scheduleTitle =
-        nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
-    print(
-        "Scheduling notification for $scheduleTitle at ${selectedTime.value.format(Get.context!)}");
-    await _localNotificationService.scheduleNotification(
-      0,
-      selectedTime.value,
-      scheduleTitle,
-      "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
-    );
-    print("Notification scheduled successfully for $scheduleTitle.");
   }
 
   void _clearEditingControllers() {
