@@ -17,7 +17,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   Get.put(HomeController(), permanent: true);
+<<<<<<< HEAD
   Get.put(LocalNotificationService(), permanent: true);
+=======
+  Get.put(NotificationService(), permanent: true);
+>>>>>>> 0d11d5de86216d20b1e31f0262394252ab135288
   Get.put(FeederController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DataController(), permanent: true);

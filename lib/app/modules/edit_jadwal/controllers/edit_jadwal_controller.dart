@@ -22,8 +22,7 @@ class EditJadwalController extends GetxController {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-  final LocalNotificationService _localNotificationService =
-      Get.find<LocalNotificationService>();
+  final NotificationService notificationService = NotificationService();
 
   String? nodePath;
   String? scheduleKey;
@@ -31,7 +30,7 @@ class EditJadwalController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _localNotificationService.init();
+    notificationService.init();
   }
 
   void setInitialValues(Map<String, dynamic> scheduleData) {
@@ -66,7 +65,10 @@ class EditJadwalController extends GetxController {
         final snapshot = await existingScheduleQuery.get();
         if (snapshot.exists) {
           await _updateDataToDatabase(user.uid, nodePath, data);
-          await _scheduleNotification(nodePath);
+          await notificationService.fetchAndScheduleNotification(user.uid);
+          notificationService.showSuccessNotification(
+              "Jadwal Berhasil Diperbarui",
+              "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil diperbarui.");
           Get.back();
           Get.back();
           Get.back();
@@ -146,17 +148,6 @@ class EditJadwalController extends GetxController {
     await databaseReference
         .child("UsersData/$uid/penjadwalan/$nodePath/$formattedDate")
         .update(data);
-  }
-
-  Future<void> _scheduleNotification(String nodePath) async {
-    final String scheduleTitle =
-        nodePath == "jadwalPagi" ? "Jadwal Pagi" : "Jadwal Sore";
-    await _localNotificationService.scheduleNotification(
-      DateTime.now().millisecondsSinceEpoch,
-      selectedTime.value,
-      scheduleTitle,
-      "Sudah Waktunya Makan ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}",
-    );
   }
 
   void _clearEditingControllers() {

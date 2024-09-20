@@ -84,20 +84,13 @@ class SettingView extends GetView<SettingController> {
                       ),
                       if (userData["role"] == "admin")
                         MenuTile(
-                          title: 'Tambah User',
-                          icon: SvgPicture.asset(
-                            'assets/icons/people.svg',
-                          ),
-                          onTap: () => Get.toNamed(Routes.REGISTER),
-                        ),
-                      MenuTile(
-                          title: "Tambah Status Alat",
-                          icon: SvgPicture.asset(
-                            'assets/icons/tools-setting.svg',
-                          ),
-                          onTap: () async {
-                            controller.checkAndNavigate();
-                          }),
+                            title: "Tambah Status Alat",
+                            icon: SvgPicture.asset(
+                              'assets/icons/tools-setting.svg',
+                            ),
+                            onTap: () async {
+                              controller.checkAndNavigate();
+                            }),
                       MenuTile(
                         title: "Ubah Password",
                         icon: SvgPicture.asset(
