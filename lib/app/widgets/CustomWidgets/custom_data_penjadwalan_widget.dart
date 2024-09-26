@@ -50,7 +50,6 @@ class ManualMfDataTile extends GetView<DataController> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Get.toNamed(Routes.DETAIL_JADWAL),
       child: Column(
         children: [
           Container(
@@ -301,7 +300,6 @@ class ManualAfDataTile extends GetView<DataController> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Get.toNamed(Routes.DETAIL_JADWAL),
       child: Column(
         children: [
           Container(

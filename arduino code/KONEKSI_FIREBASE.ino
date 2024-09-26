@@ -3,10 +3,8 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-// #define WIFI_SSID "Tugasakhir"
-// #define WIFI_PASSWORD "wifisigit"
-#define WIFI_SSID "HOME 2G"
-#define WIFI_PASSWORD "wifirumah2"
+#define WIFI_SSID "Tugasakhir"
+#define WIFI_PASSWORD "wifisigit"
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
@@ -137,9 +135,9 @@ void getControlData() {
     FirebaseJson controlJson = firebaseData.jsonObject();
     bool pumpOn, servoOn;
 
-    controlJson.get(jsonData, "pumpStatus");
+    controlJson.get(jsonData, "pumpControl");
     pumpOn = jsonData.boolValue;
-    controlJson.get(jsonData, "servoStatus");
+    controlJson.get(jsonData, "servoControl");
     servoOn = jsonData.boolValue;
 
     if (pumpOn) {

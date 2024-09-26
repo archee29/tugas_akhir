@@ -69,7 +69,6 @@ class CobaNotifikasiController extends GetxController {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.back();
             Get.back();
-            Get.back();
             _clearEditingControllers();
             CustomNotification.successNotification(
                 "Berhasil", "Berhasil Menambahkan Jadwal");

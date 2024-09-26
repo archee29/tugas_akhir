@@ -13,7 +13,7 @@ class DetailJadwalView extends GetView<DataController> {
   const DetailJadwalView({super.key});
   Color getProgressColor(String scale, double percent) {
     if (percent > 1.0) {
-      return Colors.red;
+      return Colors.orange;
     }
     switch (scale) {
       case "Low":
@@ -224,17 +224,22 @@ class DetailJadwalView extends GetView<DataController> {
                               double beratWadahPercent = beratWadah / 120;
                               double volumeMLWadahPercent = volumeMLWadah / 300;
 
-                              String beratWadahScale = beratWadahPercent < 0.33
-                                  ? "Low"
-                                  : beratWadahPercent < 0.66
-                                      ? "Medium"
-                                      : "High";
-                              String volumeMLWadahScale =
-                                  volumeMLWadahPercent < 0.33
+                              String beratWadahScale = beratWadahPercent > 1.0
+                                  ? "Over"
+                                  : beratWadahPercent < 0.33
                                       ? "Low"
-                                      : volumeMLWadahPercent < 0.66
+                                      : beratWadahPercent < 0.66
                                           ? "Medium"
                                           : "High";
+
+                              String volumeMLWadahScale =
+                                  volumeMLWadahPercent > 1.0
+                                      ? "Over"
+                                      : volumeMLWadahPercent < 0.33
+                                          ? "Low"
+                                          : volumeMLWadahPercent < 0.66
+                                              ? "Medium"
+                                              : "High";
 
                               return Row(
                                 mainAxisAlignment:

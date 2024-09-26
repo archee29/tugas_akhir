@@ -18,7 +18,6 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: const CustomBottomNavigationBar(),
-      extendBody: true,
       body: StreamBuilder<DatabaseEvent>(
         stream: controller.streamUser(),
         builder: (context, userSnapshot) {
@@ -35,7 +34,8 @@ class HomeView extends GetView<HomeController> {
             return ListView(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
+              padding: const EdgeInsets.only(
+                  left: 20, right: 20, top: 36, bottom: 15),
               children: [
                 const SizedBox(height: 16),
                 // Menampilkan Foto dan Nama Admin
@@ -231,8 +231,7 @@ class HomeView extends GetView<HomeController> {
                       color: AppColors.primaryExtraSoft,
                     ),
                   ),
-                  padding: const EdgeInsets.only(
-                      left: 24, top: 20, right: 29, bottom: 20),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
                       // Header Info Feeder
