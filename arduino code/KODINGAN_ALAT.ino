@@ -202,7 +202,7 @@ void monitoring(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
   }
 }
 
-void feeder() {  
+void feeder() {
   if (jam == 7 && menit == 0 && detik == 0) {
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
     showNotification("NOTIFIKASI !!!", "MORNING FEEDING!!!!!", 2000);
@@ -257,24 +257,19 @@ void sendData(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
 }
 
 void reqData() {
-  if (Serial.available() > 0) {
+if (Serial.available() > 0) {
     String command = Serial.readStringUntil('\n');
     if (command == "Pump_ON") {
       onPump();
-      pumpStatus = true;
-      Serial.println("Pump is ON");
     } else if (command == "Pump_OFF") {
       digitalWrite(relayPin, LOW);
       pumpStatus = false;
-      Serial.println("Pump is OFF");
     } else if (command == "Servo_ON") {
       bukaServo(4);
       servoStatus = true;
-      Serial.println("Servo is ON");
     } else if (command == "Servo_OFF") {
       myServo.write(0);
       servoStatus = false;
-      Serial.println("Servo is OFF");
     }
   }
 }
@@ -572,7 +567,7 @@ void loop() {
 //   }
 // }
 
-// void feeder() {  
+// void feeder() {
 //   if (jam == 0 && menit == 28 && detik == 0) {
 //     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
 //     showNotification("NOTIFIKASI !!!", "MORNING FEEDING!!!!!", 2000);

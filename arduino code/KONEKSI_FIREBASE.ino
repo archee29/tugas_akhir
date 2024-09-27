@@ -131,27 +131,25 @@ void sendDataToFirebase(int beratWadah, int volumeMLTabung, int volumeMLWadah, b
 
 void getControlData() {
   controlNode = databasePath + "/iot/control";
-  if (Firebase.getJSON(firebaseData, controlNode.c_str())) {
-    FirebaseJson controlJson = firebaseData.jsonObject();
-    bool pumpOn, servoOn;
-
-    controlJson.get(jsonData, "pumpControl");
-    pumpOn = jsonData.boolValue;
-    controlJson.get(jsonData, "servoControl");
-    servoOn = jsonData.boolValue;
-
-    if (pumpOn) {
+  if (Firebase.getBool(firebaseData, controlNode + "/pumpControl")) {
+    bool pumpControl = firebaseData.boolData();
+    if (pumpControl) {
       Serial.println("Pump_ON");
     } else {
       Serial.println("Pump_OFF");
     }
+  } else {
+    Serial.println("Gagal mendapatkan data pumpControl: " + firebaseData.errorReason());
+  }
 
-    if (servoOn) {
+  if (Firebase.getBool(firebaseData, controlNode + "/servoControl")) {
+    bool servoControl = firebaseData.boolData();
+    if (servoControl) {
       Serial.println("Servo_ON");
     } else {
       Serial.println("Servo_OFF");
     }
   } else {
-    Serial.println("Error mendapatkan data kontrol: " + firebaseData.errorReason());
+    Serial.println("Gagal mendapatkan data servoControl: " + firebaseData.errorReason());
   }
 }

@@ -23,7 +23,6 @@ class MainView extends GetView<MainController> {
     MainController mc = Get.put(MainController());
     return Scaffold(
         bottomNavigationBar: const CustomBottomNavigationBar(),
-        extendBody: true,
         body: StreamBuilder<DatabaseEvent>(
           stream: controller.streamUser(),
           builder: (context, snapshot) {
@@ -43,8 +42,8 @@ class MainView extends GetView<MainController> {
               }
               return ListView(
                 physics: const BouncingScrollPhysics(),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
+                padding: const EdgeInsets.only(
+                  left: 20, right: 20, top: 36, bottom: 15),
                 children: [
                   const SizedBox(height: 16),
                   Container(
