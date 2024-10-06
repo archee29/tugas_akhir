@@ -54,10 +54,9 @@ class TambahJadwalController extends GetxController {
           await _saveDataToDatabase(user.uid, nodePath, data);
           await notificationService.fetchAndScheduleNotification(user.uid);
           notificationService.showSuccessNotification(
-              "Jadwal Berhasil Ditambahkan",
-              "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil ditambahkan.");
+              "Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} | ${nodePath == 'waktu' ? '7:00' : '17:00'}",
+              "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.back();
             Get.back();
             Get.back();
             _clearEditingControllers();

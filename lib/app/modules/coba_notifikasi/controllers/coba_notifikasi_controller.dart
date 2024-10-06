@@ -4,7 +4,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../../../routes/app_pages.dart';
 import '../../../controllers/notification_service.dart';
 import '../../../styles/app_colors.dart';
 import '../../../widgets/dialog/custom_notification.dart';
@@ -63,7 +62,7 @@ class CobaNotifikasiController extends GetxController {
           await _saveDataToDatabase(user.uid, formattedDate, data);
           await notificationService.fetchAndScheduleNotification(user.uid);
           notificationService.showSuccessNotification(
-            "Jadwal Berhasil Ditambahkan",
+            "Notifikasi",
             "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil ditambahkan.",
           );
           WidgetsBinding.instance.addPostFrameCallback((_) {

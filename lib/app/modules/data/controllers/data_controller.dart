@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../../styles/app_colors.dart';
 import './../../../widgets/dialog/custom_alert_dialog.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 import './../../../../app/routes/app_pages.dart';
@@ -198,17 +199,76 @@ class DataController extends GetxController
       content: SingleChildScrollView(
         child: Column(
           children: events.map((event) {
+            String jadwal =
+                event['waktu'] == '07:00' ? "Jadwal Pagi" : "Jadwal Sore";
             return Card(
               child: ListTile(
-                title: Text("Judul\t\t\t\t\t: ${event['title']}"),
+                title: Text(
+                  jadwal,
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontFamily: 'poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Deskripsi\t: ${event['deskripsi']}"),
-                    Text("Tanggal\t\t\t: ${event['tanggal']}"),
-                    Text("Waktu\t\t\t\t\t\t: ${event['waktu']}"),
-                    Text("Makanan\t: ${event['makanan']}Gr"),
-                    Text("Minuman\t: ${event['minuman']}mL"),
+                    Text(
+                      "Title\t\t\t\t\t\t\t\t\t\t\t: ${event['title']}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Deskripsi\t\t: ${event['deskripsi']}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Tanggal\t\t\t: ${event['tanggal']}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Waktu\t\t\t\t\t\t\t: ${event['waktu']}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Makanan\t: ${event['makanan']}Gr",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Minuman\t: ${event['minuman']}mL",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ],
                 ),
               ),
