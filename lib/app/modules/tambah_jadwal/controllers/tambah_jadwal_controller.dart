@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../../controllers/notification_service.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
-import './../../../../app/controllers/notification_service.dart';
 
 class TambahJadwalController extends GetxController {
   final TextEditingController dateController = TextEditingController();
@@ -30,6 +29,7 @@ class TambahJadwalController extends GetxController {
   void onInit() {
     super.onInit();
     _localNotificationService.init();
+    _localNotificationService.requestPermissions();
   }
 
   Future<void> addManualDataBasedOnTime() async {
@@ -52,14 +52,14 @@ class TambahJadwalController extends GetxController {
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
+
           await notificationService.fetchAndScheduleNotification(user.uid);
-          notificationService.showSuccessNotification(
-              "Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} | ${nodePath == 'waktu' ? '7:00' : '17:00'}",
-              "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.back();
-            Get.back();
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            Get.until((route) => route.isFirst);
             _clearEditingControllers();
+            notificationService.showSuccessNotification(
+                "Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} |  ${selectedTime.value.format(Get.context!)}",
+                "Berhasil Melakukan Penjadwalan Pada ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
             CustomNotification.successNotification("Berhasil",
                 "Berhasil Menambahkan Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}");
           });

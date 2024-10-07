@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:tugas_akhir/app/widgets/dialog/custom_notification.dart';
 
-class NotificationService {
+class CobaNotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
@@ -58,7 +58,7 @@ class NotificationService {
 
   Future<void> fetchAndScheduleNotification(String userId) async {
     final snapshot =
-        await databaseReference.child("UsersData/$userId/penjadwalan").get();
+        await databaseReference.child("UsersData/$userId/cobaNotifikasi").get();
 
     if (snapshot.exists && snapshot.value != null) {
       Map<dynamic, dynamic> schedules = snapshot.value as Map<dynamic, dynamic>;
@@ -78,8 +78,14 @@ class NotificationService {
           } catch (e) {
             CustomNotification.errorNotification("Error", "Parsing Waktu :$e");
           }
+        } else {
+          CustomNotification.errorNotification(
+              "Error", "Tangal/Waktu tidak tersedia :$title");
         }
       });
+    } else {
+      CustomNotification.errorNotification(
+          "Error", "Tidak Ada Jadwal Yang Ditemukan");
     }
   }
 

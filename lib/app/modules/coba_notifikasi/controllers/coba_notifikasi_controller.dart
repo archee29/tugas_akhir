@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../../../controllers/notification_service.dart';
+import '../../../controllers/coba_notification_service.dart';
 import '../../../styles/app_colors.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 
@@ -28,12 +28,14 @@ class CobaNotifikasiController extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseDatabase database = FirebaseDatabase.instance;
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-  final NotificationService notificationService = NotificationService();
+  final CobaNotificationService cobaNotificationService =
+      CobaNotificationService();
 
   @override
   void onInit() {
     super.onInit();
-    notificationService.init();
+    cobaNotificationService.init();
+    cobaNotificationService.requestPermissions();
   }
 
   Future<void> cobaNotifikasi() async {
@@ -60,15 +62,28 @@ class CobaNotifikasiController extends GetxController {
           );
         } else {
           await _saveDataToDatabase(user.uid, formattedDate, data);
-          await notificationService.fetchAndScheduleNotification(user.uid);
-          notificationService.showSuccessNotification(
-            "Notifikasi",
-            "Jadwal untuk ${data['title']} pada ${data['tanggal']} pukul ${data['waktu']} berhasil ditambahkan.",
+          await cobaNotificationService.fetchAndScheduleNotification(user.uid);
+
+          DateTime selectedDateTime = DateFormat('MM-dd-yyyy HH:mm')
+              .parse('${dateController.text} ${timeController.text}');
+
+          String notificationTitle = "Alarm | Jadwal ${data['waktu']}";
+          String notificationBody =
+              "Sudah Saatnya Memberikan Makan di Jam ${data['waktu']}";
+
+          await cobaNotificationService.scheduleNotification(
+            selectedDateTime,
+            notificationTitle,
+            notificationBody,
           );
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.back();
-            Get.back();
+            Get.until((route) => route.isFirst);
             _clearEditingControllers();
+            cobaNotificationService.showSuccessNotification(
+              "Notifikasi Sukses",
+              "Jadwal untuk ${data['waktu']}, \n Berhasil Ditambahkan.",
+            );
             CustomNotification.successNotification(
                 "Berhasil", "Berhasil Menambahkan Jadwal");
           });
