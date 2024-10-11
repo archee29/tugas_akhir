@@ -53,6 +53,17 @@ class TambahJadwalController extends GetxController {
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
 
+          DateTime notificationTime = DateTime(
+              selectedDate.value.year,
+              selectedDate.value.month,
+              selectedDate.value.day,
+              selectedTime.value.hour,
+              selectedTime.value.minute);
+          await notificationService.scheduleNotification(
+              notificationTime,
+              "Alarm Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} |  ${selectedTime.value.format(Get.context!)}",
+              "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
+
           await notificationService.fetchAndScheduleNotification(user.uid);
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             Get.until((route) => route.isFirst);

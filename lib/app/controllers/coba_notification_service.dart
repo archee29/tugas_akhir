@@ -77,6 +77,7 @@ class CobaNotificationService {
             scheduleNotification(scheduleTime, title, body);
           } catch (e) {
             CustomNotification.errorNotification("Error", "Parsing Waktu :$e");
+            print("Error : $e");
           }
         } else {
           CustomNotification.errorNotification(

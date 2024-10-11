@@ -55,6 +55,7 @@ class CobaNotifikasiController extends GetxController {
         final existingScheduleQuery =
             _getExistingScheduleQuery(user.uid, formattedDate);
         final snapshot = await existingScheduleQuery.get();
+
         if (snapshot.exists) {
           CustomNotification.errorNotification(
             "Terjadi Kesalahan",
@@ -64,25 +65,25 @@ class CobaNotifikasiController extends GetxController {
           await _saveDataToDatabase(user.uid, formattedDate, data);
           await cobaNotificationService.fetchAndScheduleNotification(user.uid);
 
-          DateTime selectedDateTime = DateFormat('MM-dd-yyyy HH:mm')
-              .parse('${dateController.text} ${timeController.text}');
-
-          String notificationTitle = "Alarm | Jadwal ${data['waktu']}";
-          String notificationBody =
-              "Sudah Saatnya Memberikan Makan di Jam ${data['waktu']}";
+          DateTime scheduleTime = DateTime(
+            selectedDate.value.year,
+            selectedDate.value.month,
+            selectedDate.value.day,
+            selectedTime.value.hour,
+            selectedTime.value.minute,
+          );
 
           await cobaNotificationService.scheduleNotification(
-            selectedDateTime,
-            notificationTitle,
-            notificationBody,
-          );
+              scheduleTime,
+              "Alarm Notifikasi | ${data['title']} ",
+              "Sudah Saatnya Memberikan Makan di ${data['waktu']}");
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.until((route) => route.isFirst);
             _clearEditingControllers();
             cobaNotificationService.showSuccessNotification(
               "Notifikasi Sukses",
-              "Jadwal untuk ${data['waktu']}, \n Berhasil Ditambahkan.",
+              "Jadwal untuk ${data['waktu']}, Berhasil Ditambahkan.",
             );
             CustomNotification.successNotification(
                 "Berhasil", "Berhasil Menambahkan Jadwal");
