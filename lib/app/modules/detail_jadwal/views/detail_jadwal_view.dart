@@ -186,7 +186,7 @@ class DetailJadwalView extends GetView<DataController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Statistik Feeder",
+                              "Statistik Monitoring",
                               style: TextStyle(
                                 fontFamily: 'poppins',
                                 fontWeight: FontWeight.w600,
@@ -332,7 +332,89 @@ class DetailJadwalView extends GetView<DataController> {
                               );
                             }
                           },
-                        )
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Statistik Feeder",
+                              style: TextStyle(
+                                fontFamily: 'poppins',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                              ),
+                            ),
+                            DetailTile(
+                              title: "Log Data",
+                              icon:
+                                  SvgPicture.asset('assets/icons/database.svg'),
+                              onTap: () => Get.toNamed(Routes.DATA),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          height: 300,
+                          child: SfCartesianChart(
+                            title: const ChartTitle(
+                                text: 'Data Makanan dan Minuman'),
+                            legend: const Legend(isVisible: true),
+                            tooltipBehavior: TooltipBehavior(enable: true),
+                            primaryXAxis: const CategoryAxis(),
+                            primaryYAxis: const NumericAxis(),
+                            series: <CartesianSeries>[
+                              ColumnSeries<Map<String, dynamic>, String>(
+                                dataSource: controller.listDataMf
+                                  ..sort((a, b) =>
+                                      a['tanggal'].compareTo(b['tanggal'])),
+                                xValueMapper: (Map<String, dynamic> data, _) =>
+                                    data['tanggal'] as String,
+                                yValueMapper: (Map<String, dynamic> data, _) =>
+                                    int.tryParse(data['makanan'] ?? '0'),
+                                name: 'Makanan Pagi',
+                                color: Colors.blue,
+                                dataLabelSettings:
+                                    const DataLabelSettings(isVisible: false),
+                              ),
+                              ColumnSeries<Map<String, dynamic>, String>(
+                                dataSource: controller.listDataMf,
+                                xValueMapper: (Map<String, dynamic> data, _) =>
+                                    data['tanggal'] as String,
+                                yValueMapper: (Map<String, dynamic> data, _) =>
+                                    int.tryParse(data['minuman'] ?? '0'),
+                                name: 'Minuman Pagi',
+                                color: Colors.green,
+                                dataLabelSettings:
+                                    const DataLabelSettings(isVisible: false),
+                              ),
+                              ColumnSeries<Map<String, dynamic>, String>(
+                                dataSource: controller.listDataAf
+                                  ..sort((a, b) =>
+                                      a['tanggal'].compareTo(b['tanggal'])),
+                                xValueMapper: (Map<String, dynamic> data, _) =>
+                                    data['tanggal'] as String,
+                                yValueMapper: (Map<String, dynamic> data, _) =>
+                                    int.tryParse(data['makanan'] ?? '0'),
+                                name: 'Makanan Sore',
+                                color: Colors.yellow,
+                                dataLabelSettings:
+                                    const DataLabelSettings(isVisible: false),
+                              ),
+                              ColumnSeries<Map<String, dynamic>, String>(
+                                dataSource: controller.listDataAf,
+                                xValueMapper: (Map<String, dynamic> data, _) =>
+                                    data['tanggal'] as String,
+                                yValueMapper: (Map<String, dynamic> data, _) =>
+                                    int.tryParse(data['minuman'] ?? '0'),
+                                name: 'Minuman Sore',
+                                color: AppColors.primary,
+                                dataLabelSettings:
+                                    const DataLabelSettings(isVisible: false),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

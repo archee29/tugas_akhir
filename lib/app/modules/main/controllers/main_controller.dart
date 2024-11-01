@@ -73,37 +73,53 @@ class MainController extends GetxController {
 
   Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
+    Stream<DatabaseEvent> feederStream =
+        databaseReference.child('UsersData/$uid/feeder').onValue;
 
-    Stream<DatabaseEvent> monitoringStream =
-        databaseReference.child('UsersData/$uid/iot/monitoring').onValue;
-
-    return monitoringStream.asyncMap((snapshotMonitoring) async {
-      final monitoringData =
-          Map<String, dynamic>.from(snapshotMonitoring.snapshot.value as Map);
+    return feederStream.asyncMap((snapshotFeeder) async {
+      final feederEntries = Map<String, dynamic>.from(
+          snapshotFeeder.snapshot.value as Map? ?? {});
 
       double totalFoodDay = 0;
       double totalWaterDay = 0;
       double totalFoodWeek = 0;
       double totalWaterWeek = 0;
 
-      totalFoodDay =
-          double.parse(monitoringData['beratWadah']?.toString() ?? '0');
-      totalWaterDay =
-          double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
-
-      for (int i = 0; i < 7; i++) {
-        final weeklySnapshot = await databaseReference
-            .child('UsersData/$uid/iot/monitoring/day$i')
-            .once();
-        final weeklyData =
-            weeklySnapshot.snapshot.value as Map<String, dynamic>? ?? {};
-
-        totalFoodWeek +=
-            double.parse(weeklyData['beratWadah']?.toString() ?? '0');
-        totalWaterWeek +=
-            double.parse(weeklyData['volumeMLWadah']?.toString() ?? '0');
-      }
-
+      feederEntries.forEach((dateId, feederData) {
+        if (feederData.containsKey('morningFeeder')) {
+          totalFoodDay += double.parse(
+              feederData['morningFeeder']['beratWadah']?.toString() ?? '0');
+          totalWaterDay += double.parse(
+              feederData['morningFeeder']['volumeMLWadah']?.toString() ?? '0');
+        }
+        if (feederData.containsKey('afternoonFeeder')) {
+          totalFoodDay += double.parse(
+              feederData['afternoonFeeder']['beratWadah']?.toString() ?? '0');
+          totalWaterDay += double.parse(
+              feederData['afternoonFeeder']['volumeMLWadah']?.toString() ??
+                  '0');
+        }
+      });
+      int counter = 0;
+      feederEntries.forEach((dateId, feederData) {
+        if (counter < 7) {
+          if (feederData.containsKey('morningFeeder')) {
+            totalFoodWeek += double.parse(
+                feederData['morningFeeder']['beratWadah']?.toString() ?? '0');
+            totalWaterWeek += double.parse(
+                feederData['morningFeeder']['volumeMLWadah']?.toString() ??
+                    '0');
+          }
+          if (feederData.containsKey('afternoonFeeder')) {
+            totalFoodWeek += double.parse(
+                feederData['afternoonFeeder']['beratWadah']?.toString() ?? '0');
+            totalWaterWeek += double.parse(
+                feederData['afternoonFeeder']['volumeMLWadah']?.toString() ??
+                    '0');
+          }
+          counter++;
+        }
+      });
       return {
         'totalFoodDay': totalFoodDay,
         'totalWaterDay': totalWaterDay,

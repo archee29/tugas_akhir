@@ -120,7 +120,7 @@ class HomeController extends GetxController {
     if (uid != null) {
       String todayDocId =
           DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-      return database.ref('UsersData/$uid/manual/$todayDocId').onValue;
+      return database.ref('UsersData/$uid/iot/feeder/$todayDocId').onValue;
     } else {
       return const Stream.empty();
     }

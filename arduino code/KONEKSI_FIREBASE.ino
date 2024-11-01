@@ -14,12 +14,19 @@ FirebaseData firebaseData;
 FirebaseAuth auth;
 FirebaseConfig config;
 FirebaseJson monitoringJson;
+FirebaseJson feederJson;
 FirebaseJsonData jsonData;
 
-String uid, databasePath, monitoringNode, controlNode;
+String uid, databasePath, feederPath, feederNode, dateNode, feederFullPath, monitoringNode, controlNode;
 
-unsigned long sendDataPrevMillis = 0;
-unsigned long timerDelay = 3000;
+unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
+unsigned long sendDataMonitoringToFirebaseDelay = 3000;
+
+unsigned long sendDataFeedingToFirebasePrevMillis = 0;
+unsigned long sendDataFeedingToFirebasePrevDelay = 1000;
+
+unsigned long receiveDataControlFromFirebasePrevMillis = 0;
+unsigned long receiveDataControlFromFirebaseDelay = 1000;
 
 void initWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -70,48 +77,44 @@ void loop() {
     Firebase.refreshToken(&config);
     Serial.println("Memperbarui Token");
   } else if (Firebase.ready()) {
-    receiveDataFromUno();
-    getControlData();
+    receiveDataMonitoringFromTransmitter();
+    receiveDataFeedingFromTransmitter();
+    receiveDataControlFromDatabase();
+    receiveDataStatusFromTransmitter();
   } else {
     Serial.println("Kodingan Loop berjalan");
   }
 }
 
-void receiveDataFromUno() {
-  String receivedData = "";
+void receiveDataMonitoringFromTransmitter() {
+  String receivedDataMonitoring = "";
   while (Serial.available()) {
-    receivedData = Serial.readStringUntil('\n');
+    receivedDataMonitoring = Serial.readStringUntil('\n');
   }
-  if (receivedData.length() > 0) {
-    int separator1 = receivedData.indexOf('#');
-    int separator2 = receivedData.indexOf('#', separator1 + 1);
-    int separator3 = receivedData.indexOf('#', separator2 + 1);
-    int separator4 = receivedData.indexOf('#', separator3 + 1);
-    int separator5 = receivedData.indexOf('#', separator4 + 1);
-    int separator6 = receivedData.indexOf('#', separator5 + 1);
+  if (receivedDataMonitoring.length() > 0) {
+    int separator1 = receivedDataMonitoring.indexOf('#');
+    int separator2 = receivedDataMonitoring.indexOf('#', separator1 + 1);
+    int separator3 = receivedDataMonitoring.indexOf('#', separator2 + 1);
+    int separator4 = receivedDataMonitoring.indexOf('#', separator3 + 1);
 
-    int beratWadah = receivedData.substring(0, separator1).toInt();
-    int volumeMLTabung = receivedData.substring(separator1 + 1, separator2).toInt();
-    int volumeMLWadah = receivedData.substring(separator2 + 1, separator3).toInt();
-    bool pumpStatus = receivedData.substring(separator3 + 1, separator4) == "1";
-    bool servoStatus = receivedData.substring(separator4 + 1, separator5) == "1";
-    String ketHari = receivedData.substring(separator5 + 1, separator6);
-    String ketWaktu = receivedData.substring(separator6 + 1);
+    int beratWadah = receivedDataMonitoring.substring(0, separator1).toInt();
+    int tinggiAirWadah = receivedDataMonitoring.substring(separator1 + 1, separator2).toInt();
+    int tinggiAirTabung = receivedDataMonitoring.substring(separator2 + 1, separator3).toInt();
+    String ketHari = receivedDataMonitoring.substring(separator3 + 1, separator4);
+    String ketWaktu = receivedDataMonitoring.substring(separator4 + 1);
 
-    sendDataToFirebase(beratWadah, volumeMLTabung, volumeMLWadah, pumpStatus, servoStatus, ketHari, ketWaktu);
+    sendDataMonitoringToFirebase(beratWadah, tinggiAirWadah, tinggiAirTabung, ketHari, ketWaktu);
   }
 }
 
-void sendDataToFirebase(int beratWadah, int volumeMLTabung, int volumeMLWadah, bool pumpStatus, bool servoStatus, String ketHari, String ketWaktu) {
+void sendDataMonitoringToFirebase(int beratWadah, int tinggiAirWadah, int tinggiAirTabung, String ketHari, String ketWaktu) {
   unsigned long currentMillis = millis();
-  if (currentMillis - sendDataPrevMillis > timerDelay || sendDataPrevMillis == 0) {
-    sendDataPrevMillis = currentMillis;
+  if (currentMillis - sendDataMonitoringToFirebasePrevMillis > sendDataMonitoringToFirebaseDelay || sendDataMonitoringToFirebasePrevMillis == 0) {
+    sendDataMonitoringToFirebasePrevMillis = currentMillis;
     monitoringNode = databasePath + "/iot/monitoring";
     monitoringJson.set("beratWadah", beratWadah);
-    monitoringJson.set("volumeMLTabung", volumeMLTabung);
-    monitoringJson.set("volumeMLWadah", volumeMLWadah);
-    monitoringJson.set("pumpStatus", pumpStatus);
-    monitoringJson.set("servoStatus", servoStatus);
+    monitoringJson.set("volumeMLWadah", tinggiAirWadah);
+    monitoringJson.set("volumeMLTabung", tinggiAirTabung);
     monitoringJson.set("ketHari", ketHari);
     monitoringJson.set("ketWaktu", ketWaktu);
     if (Firebase.setJSON(firebaseData, monitoringNode.c_str(), monitoringJson)) {
@@ -129,29 +132,110 @@ void sendDataToFirebase(int beratWadah, int volumeMLTabung, int volumeMLWadah, b
   }
 }
 
-void getControlData() {
-  controlNode = databasePath + "/iot/control";
-  if (Firebase.getJSON(firebaseData, controlNode.c_str())) {
-    FirebaseJson controlJson = firebaseData.jsonObject();
-    bool pumpOn, servoOn;
+void receiveDataFeedingFromTransmitter() {
+  String receivedDataFeeding = "";
 
-    controlJson.get(jsonData, "pumpControl");
-    pumpOn = jsonData.boolValue;
-    controlJson.get(jsonData, "servoControl");
-    servoOn = jsonData.boolValue;
+  while (Serial.available()) {
+    receivedDataFeeding = Serial.readStringUntil('\n');
+  }
 
-    if (pumpOn) {
-      Serial.println("Pump_ON");
-    } else {
-      Serial.println("Pump_OFF");
+  if (receivedDataFeeding.startsWith("morningFeeder") || receivedDataFeeding.startsWith("afternoonFeeder")) {
+    if (receivedDataFeeding.length() > 0) {
+      int separator1 = receivedDataFeeding.indexOf('@');
+      int separator2 = receivedDataFeeding.indexOf('@', separator1 + 1);
+      int separator3 = receivedDataFeeding.indexOf('@', separator2 + 1);
+      int separator4 = receivedDataFeeding.indexOf('@', separator3 + 1);
+      int separator5 = receivedDataFeeding.indexOf('@', separator4 + 1);
+
+      String waktuFeeding = receivedDataFeeding.substring(0, separator1);
+      int beratWadah = receivedDataFeeding.substring(separator1 + 1, separator2).toInt();
+      int tinggiAirWadah = receivedDataFeeding.substring(separator2 + 1, separator3).toInt();
+      int tinggiAirTabung = receivedDataFeeding.substring(separator3 + 1, separator4).toInt();
+      String ketHari = receivedDataFeeding.substring(separator4 + 1, separator5);
+      String ketWaktu = receivedDataFeeding.substring(separator5 + 1);
+
+      sendDataFeedingToFirebase(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung, ketHari, ketWaktu);
     }
+  }
+}
 
-    if (servoOn) {
-      Serial.println("Servo_ON");
+void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int tinggiAirWadah, int tinggiAirTabung, String ketHari, String ketWaktu) {
+  unsigned long currentMillis = millis();
+  if (currentMillis - sendDataFeedingToFirebasePrevMillis > sendDataFeedingToFirebasePrevDelay || sendDataFeedingToFirebasePrevMillis == 0) {
+    sendDataFeedingToFirebasePrevMillis = currentMillis;
+    dateNode = ketHari;
+    feederPath = waktuFeeding;
+
+    feederNode = databasePath + "iot/feeder/";
+    feederFullPath = feederNode + dateNode + "/" + feederPath;
+
+    feederJson.set("beratWadah", beratWadah);
+    feederJson.set("volumeMLWadah", tinggiAirWadah);
+    feederJson.set("volumeMLTabung", tinggiAirTabung);
+    feederJson.set("ketHari", ketHari);
+    feederJson.set("ketWaktu", ketWaktu);
+    if (Firebase.pushJSON(firebaseData, feederFullPath.c_str(), feederJson)) {
+      Serial.println("DATA TERKIRIM");
+      Serial.println("PATH : " + firebaseData.dataPath());
+      Serial.println("TYPE: " + firebaseData.dataType());
+      Serial.print("VALUE: ");
+      printResult(firebaseData);
+      Serial.println("------------------------------------");
     } else {
-      Serial.println("Servo_OFF");
+      Serial.println("GAGAL MENGIRIM DATA");
+      Serial.println("Error : " + firebaseData.errorReason());
+      Serial.println("------------------------------------");
     }
-  } else {
-    Serial.println("Error mendapatkan data kontrol: " + firebaseData.errorReason());
+  }
+}
+
+void sendDataControlToTransmitter(String command) {
+  Serial.println(command);
+}
+
+void receiveDataControlFromDatabase() {
+  unsigned long currentMillis = millis();
+  if (currentMillis - receiveDataControlFromFirebasePrevMillis > receiveDataControlFromFirebaseDelay || receiveDataControlFromFirebasePrevMillis == 0) {
+    receiveDataControlFromFirebasePrevMillis = currentMillis;
+    controlNode = databasePath + "/iot/control";
+    if (Firebase.getJSON(firebaseData, controlNode.c_str())) {
+      FirebaseJson controlJson = firebaseData.jsonObject();
+      bool pumpControl, servoControl;
+      controlJson.get(jsonData, "pumpControl");
+      pumpControl = jsonData.boolValue;
+      controlJson.get(jsonData, "servoControl");
+      servoControl = jsonData.boolValue;
+      if (pumpControl == true) {
+        sendDataControlToTransmitter("Pump_ON");
+      } else {
+        sendDataControlToTransmitter("Pump_OFF");
+      }
+
+      if (servoControl == true) {
+        sendDataControlToTransmitter("Servo_ON");
+      } else {
+        sendDataControlToTransmitter("Servo_OFF");
+      }
+    } else {
+      Serial.println("Error mendapatkan data kontrol: " + firebaseData.errorReason());
+    }
+  }
+}
+
+void receiveDataStatusFromTransmitter() {
+  if (Serial.available()) {
+    String receivedStatus = Serial.readStringUntil('\n');
+    if (receivedStatus == "Pump_OFF" || receivedStatus == "Servo_OFF") {
+      updateFirebaseControlStatus(receivedStatus);
+    }
+  }
+}
+
+void updateFirebaseControlStatus(String status) {
+  String controlPath = controlNode + "/";
+  if (status == "Pump_OFF") {
+    Firebase.setBool(firebaseData, controlPath + "pumpControl", false);
+  } else if (status == "Servo_OFF") {
+    Firebase.setBool(firebaseData, controlPath + "servoControl", false);
   }
 }

@@ -4,7 +4,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../routes/app_pages.dart';
 import './../../../../app/widgets/dialog/custom_alert_dialog.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 import './../../data_pengguna.dart';
@@ -101,7 +100,6 @@ class FeederController extends GetxController {
       onCancel: () => Get.back(),
       onConfirm: () async {
         await feederRef.child(todayDocId).set({
-          "date": DateTime.now().toIso8601String(),
           "morningFeeder": {
             "date": DateTime.now().toIso8601String(),
             "latitude": position.latitude,
@@ -133,7 +131,6 @@ class FeederController extends GetxController {
       onCancel: () => Get.back(),
       onConfirm: () async {
         await feederRef.child(todayDocId).set({
-          "date": DateTime.now().toIso8601String(),
           "morningFeeder": {
             "date": DateTime.now().toIso8601String(),
             "latitude": position.latitude,
@@ -186,7 +183,7 @@ class FeederController extends GetxController {
     String uid = auth.currentUser!.uid;
     String todayDocId =
         DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-    DatabaseReference feederRef = database.child("UsersData/$uid/manual");
+    DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
     DatabaseEvent snapshotPreference = await feederRef.once();
     bool inArea = distance <= 200;
     if (snapshotPreference.snapshot.value == null) {

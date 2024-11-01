@@ -43,7 +43,7 @@ class MainView extends GetView<MainController> {
               return ListView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(
-                  left: 20, right: 20, top: 36, bottom: 15),
+                    left: 20, right: 20, top: 36, bottom: 15),
                 children: [
                   const SizedBox(height: 16),
                   Container(
