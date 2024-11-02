@@ -139,7 +139,7 @@ class MainController extends GetxController {
 
   String formatWaterOutput(double value) {
     if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} liter';
+      return '${(value / 1000).toStringAsFixed(1)} Liter';
     } else {
       return '${value.toStringAsFixed(0)} mL';
     }
