@@ -11,7 +11,6 @@ class DetailFeederController extends GetxController
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
 
-  // List untuk menyimpan data pagi dan sore
   final listDataMf = <Map<String, dynamic>>[].obs;
   final listDataAf = <Map<String, dynamic>>[].obs;
 
@@ -67,29 +66,22 @@ class DetailFeederController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference.child("UsersData/$uid/manual").onValue.listen((event) {
+      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
+          (event) {
         isLoading.value = true;
         if (event.snapshot.value != null) {
-          final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final todayDocId =
-              DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-          final todayData = data[todayDocId];
-          if (todayData != null) {
-            final morningFeeder = todayData["morningFeeder"];
+          final allData =
+              Map<String, dynamic>.from(event.snapshot.value as Map);
+          listDataMf
+              .clear(); // Clear list sebelumnya agar tidak terjadi duplikasi data
+          allData.forEach((dateKey, feederData) {
+            final morningFeeder = feederData["morningFeeder"];
             if (morningFeeder != null) {
               final parsedValues = Map<String, dynamic>.from(morningFeeder);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                listDataMf.assignAll([parsedValues]);
-                isLoading.value = false;
-              });
-            } else {
-              listDataMf.clear();
-              isLoading.value = false;
+              listDataMf.add(parsedValues); // Tambahkan data ke list
             }
-          } else {
-            listDataMf.clear();
-            isLoading.value = false;
-          }
+          });
+          isLoading.value = false;
         } else {
           listDataMf.clear();
           isLoading.value = false;
@@ -107,29 +99,22 @@ class DetailFeederController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference.child("UsersData/$uid/manual").onValue.listen((event) {
+      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
+          (event) {
         isLoading.value = true;
         if (event.snapshot.value != null) {
-          final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final todayDocId =
-              DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-          final todayData = data[todayDocId];
-          if (todayData != null) {
-            final afternoonFeeder = todayData["afternoonFeeder"];
+          final allData =
+              Map<String, dynamic>.from(event.snapshot.value as Map);
+          listDataAf
+              .clear(); // Clear list sebelumnya agar tidak terjadi duplikasi data
+          allData.forEach((dateKey, feederData) {
+            final afternoonFeeder = feederData["afternoonFeeder"];
             if (afternoonFeeder != null) {
               final parsedValues = Map<String, dynamic>.from(afternoonFeeder);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                listDataAf.assignAll([parsedValues]);
-                isLoading.value = false;
-              });
-            } else {
-              listDataAf.clear();
-              isLoading.value = false;
+              listDataAf.add(parsedValues); // Tambahkan data ke list
             }
-          } else {
-            listDataAf.clear();
-            isLoading.value = false;
-          }
+          });
+          isLoading.value = false;
         } else {
           listDataAf.clear();
           isLoading.value = false;

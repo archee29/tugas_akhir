@@ -215,7 +215,8 @@ class DetailJadwalView extends GetView<DataController> {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Center(
-                                    child: CircularProgressIndicator());
+                                  child: CircularProgressIndicator(),
+                                );
                               } else if (snapshot.hasError) {
                                 return Center(
                                   child: Text(
@@ -230,10 +231,18 @@ class DetailJadwalView extends GetView<DataController> {
                                 double volumeMLWadah =
                                     data['volumeMLWadah'] ?? 0;
 
+                                // Conversion logic
+                                String beratWadahDisplay = beratWadah > 999
+                                    ? "${(beratWadah / 1000).toStringAsFixed(2)} Kg"
+                                    : "${beratWadah.toStringAsFixed(2)} Gr";
+                                String volumeMLWadahDisplay = volumeMLWadah >
+                                        999
+                                    ? "${(volumeMLWadah / 1000).toStringAsFixed(2)} L"
+                                    : "${volumeMLWadah.toStringAsFixed(2)} mL";
+
                                 double beratWadahPercent = beratWadah / 120;
                                 double volumeMLWadahPercent =
                                     volumeMLWadah / 300;
-
                                 String beratWadahScale = beratWadahPercent > 1.0
                                     ? "Over"
                                     : beratWadahPercent < 0.33
@@ -241,7 +250,6 @@ class DetailJadwalView extends GetView<DataController> {
                                         : beratWadahPercent < 0.66
                                             ? "Medium"
                                             : "High";
-
                                 String volumeMLWadahScale =
                                     volumeMLWadahPercent > 1.0
                                         ? "Over"
@@ -287,7 +295,7 @@ class DetailJadwalView extends GetView<DataController> {
                                               ),
                                             ),
                                             Text(
-                                              "Total: ${beratWadah.toStringAsFixed(2)} Gr",
+                                              "Total: $beratWadahDisplay",
                                               style: const TextStyle(
                                                 fontSize: 14.0,
                                                 color: Colors.black54,
@@ -331,7 +339,7 @@ class DetailJadwalView extends GetView<DataController> {
                                               ),
                                             ),
                                             Text(
-                                              "Total: ${volumeMLWadah.toStringAsFixed(2)} mL",
+                                              "Total: $volumeMLWadahDisplay",
                                               style: const TextStyle(
                                                 fontSize: 14.0,
                                                 color: Colors.black54,

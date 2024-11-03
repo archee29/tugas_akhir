@@ -134,7 +134,7 @@ class DataFeederSore extends StatelessWidget {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           } else if (controller.listDataAf.isEmpty) {
-            return const Center(child: Text('Data Feeder Pagi Tidak Tersedia'));
+            return const Center(child: Text('Data Feeder Sore Tidak Tersedia'));
           } else {
             return ListView.separated(
               shrinkWrap: true,

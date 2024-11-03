@@ -13,6 +13,7 @@ class FeederController extends GetxController {
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference database = FirebaseDatabase.instance.ref();
   String? currentTime;
+  String? currentDay;
 
   @override
   Future<void> onInit() async {
@@ -26,7 +27,10 @@ class FeederController extends GetxController {
         .child("UsersData/$uid/iot/monitoring/ketWaktu")
         .onValue
         .listen((event) {
-      currentTime = event.snapshot.value?.toString();
+      Map<String, dynamic> data =
+          Map<String, dynamic>.from(event.snapshot.value as Map);
+      currentTime = data['waktu']?.toString();
+      currentDay = data['ketHari']?.toString(); // Retrieve ketHari here
     });
   }
 
@@ -181,7 +185,7 @@ class FeederController extends GetxController {
   Future<void> processFeeder(Position position, String alamat, double distance,
       String feederType) async {
     String uid = auth.currentUser!.uid;
-    String todayDocId =
+    String todayDocId = currentDay ??
         DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
     DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
     DatabaseEvent snapshotPreference = await feederRef.once();

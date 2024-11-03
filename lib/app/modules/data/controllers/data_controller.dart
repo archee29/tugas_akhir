@@ -18,6 +18,9 @@ class DataController extends GetxController
   final listDataMf = <Map<String, dynamic>>[].obs;
   final listDataAf = <Map<String, dynamic>>[].obs;
 
+  final listDataIotMf = <Map<String, dynamic>>[].obs;
+  final listDataIotAf = <Map<String, dynamic>>[].obs;
+
   var events = <DateTime, List<String>>{}.obs;
   var selectedDay = Rx<DateTime?>(null);
   var focusedDay = DateTime.now().obs;
