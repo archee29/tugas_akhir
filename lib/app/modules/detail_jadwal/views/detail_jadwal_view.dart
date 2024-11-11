@@ -104,7 +104,7 @@ class DetailJadwalView extends GetView<DataController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                "Statistik Penjadwalan",
+                                "Chart Jadwal",
                                 style: TextStyle(
                                   fontFamily: 'poppins',
                                   fontWeight: FontWeight.w600,
@@ -112,7 +112,7 @@ class DetailJadwalView extends GetView<DataController> {
                                 ),
                               ),
                               DetailTile(
-                                title: "Log Data",
+                                title: "Data Penjadwalan",
                                 icon: SvgPicture.asset(
                                     'assets/icons/database.svg'),
                                 onTap: () => Get.toNamed(Routes.DATA),
@@ -123,8 +123,8 @@ class DetailJadwalView extends GetView<DataController> {
                           SizedBox(
                             height: 300,
                             child: SfCartesianChart(
-                              title: const ChartTitle(
-                                  text: 'Data Makanan dan Minuman'),
+                              title:
+                                  const ChartTitle(text: 'Chart Penjadwalan'),
                               legend: const Legend(isVisible: true),
                               tooltipBehavior: TooltipBehavior(enable: true),
                               primaryXAxis: const CategoryAxis(),
@@ -359,7 +359,7 @@ class DetailJadwalView extends GetView<DataController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                "Statistik Feeder",
+                                "Chart Feeder",
                                 style: TextStyle(
                                   fontFamily: 'poppins',
                                   fontWeight: FontWeight.w600,
@@ -367,7 +367,7 @@ class DetailJadwalView extends GetView<DataController> {
                                 ),
                               ),
                               DetailTile(
-                                title: "Log Data",
+                                title: "Data Feeder",
                                 icon: SvgPicture.asset(
                                     'assets/icons/database.svg'),
                                 onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
@@ -378,8 +378,7 @@ class DetailJadwalView extends GetView<DataController> {
                           SizedBox(
                             height: 300,
                             child: SfCartesianChart(
-                              title: const ChartTitle(
-                                  text: 'Data Makanan dan Minuman'),
+                              title: const ChartTitle(text: 'Chart Feeder'),
                               legend: const Legend(isVisible: true),
                               tooltipBehavior: TooltipBehavior(enable: true),
                               primaryXAxis: const CategoryAxis(),
@@ -392,11 +391,11 @@ class DetailJadwalView extends GetView<DataController> {
                                   xValueMapper:
                                       (Map<String, dynamic> data, _) =>
                                           data['tanggal'] as String,
-                                  yValueMapper:
-                                      (Map<String, dynamic> data, _) =>
-                                          int.tryParse(data['makanan'] ?? '0'),
+                                  yValueMapper: (Map<String, dynamic> data,
+                                          _) =>
+                                      int.tryParse(data['beratWadah'] ?? '0'),
                                   name: 'Makanan Pagi',
-                                  color: Colors.blue,
+                                  color: const Color(0x00e06666),
                                   dataLabelSettings:
                                       const DataLabelSettings(isVisible: false),
                                 ),
@@ -407,9 +406,10 @@ class DetailJadwalView extends GetView<DataController> {
                                           data['tanggal'] as String,
                                   yValueMapper:
                                       (Map<String, dynamic> data, _) =>
-                                          int.tryParse(data['minuman'] ?? '0'),
+                                          int.tryParse(
+                                              data['volumeMLWadah'] ?? '0'),
                                   name: 'Minuman Pagi',
-                                  color: Colors.green,
+                                  color: const Color(0x0000ffff),
                                   dataLabelSettings:
                                       const DataLabelSettings(isVisible: false),
                                 ),
@@ -420,11 +420,11 @@ class DetailJadwalView extends GetView<DataController> {
                                   xValueMapper:
                                       (Map<String, dynamic> data, _) =>
                                           data['tanggal'] as String,
-                                  yValueMapper:
-                                      (Map<String, dynamic> data, _) =>
-                                          int.tryParse(data['makanan'] ?? '0'),
+                                  yValueMapper: (Map<String, dynamic> data,
+                                          _) =>
+                                      int.tryParse(data['beratWadah'] ?? '0'),
                                   name: 'Makanan Sore',
-                                  color: Colors.yellow,
+                                  color: const Color(0x009900ff),
                                   dataLabelSettings:
                                       const DataLabelSettings(isVisible: false),
                                 ),
@@ -435,9 +435,10 @@ class DetailJadwalView extends GetView<DataController> {
                                           data['tanggal'] as String,
                                   yValueMapper:
                                       (Map<String, dynamic> data, _) =>
-                                          int.tryParse(data['minuman'] ?? '0'),
+                                          int.tryParse(
+                                              data['volumeMLWadah'] ?? '0'),
                                   name: 'Minuman Sore',
-                                  color: AppColors.primary,
+                                  color: const Color(0x00ff9900),
                                   dataLabelSettings:
                                       const DataLabelSettings(isVisible: false),
                                 ),

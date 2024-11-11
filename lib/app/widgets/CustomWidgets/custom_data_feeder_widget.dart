@@ -86,8 +86,10 @@ class FeederMFDataCard extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  DateFormat.yMMMMEEEEd()
-                      .format(DateTime.now()), // Tampilkan tanggal hari ini
+                  (mfData["date"] == null)
+                      ? "-"
+                      : DateFormat('yMMMMEEEEd')
+                          .format(DateTime.parse(mfData["date"])),
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -111,6 +113,43 @@ class FeederMFDataCard extends StatelessWidget {
             style: const TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
           ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Berat Wadah',
+                    style: TextStyle(color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(
+                  (mfData["beratWadah"] == null)
+                      ? "-"
+                      : "${mfData["beratWadah"]} Gr",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Air Wadah', style: TextStyle(color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(
+                  (mfData["volumeMLWadah"] == null)
+                      ? "-"
+                      : "${mfData["volumeMLWadah"]} mL",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ])
         ],
       ),
     );
@@ -197,11 +236,10 @@ class FeederAFDataCard extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Text(
-                  DateFormat.yMMMMEEEEd()
-                      .format(DateTime.now()), // Tampilkan tanggal hari ini
-                  style: const TextStyle(color: Colors.black),
-                ),
+                child: Text((afData["date"] == null)
+                    ? "-"
+                    : DateFormat('yMMMMEEEEd')
+                        .format(DateTime.parse(afData["date"]))),
               ),
             ],
           ),
@@ -223,6 +261,44 @@ class FeederAFDataCard extends StatelessWidget {
             style: const TextStyle(
                 color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
           ),
+          const SizedBox(height: 14),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Berat Wadah',
+                    style: TextStyle(color: Colors.black)),
+                const SizedBox(height: 4),
+                Text(
+                  (afData["beratWadah"] == null)
+                      ? "-"
+                      : "${afData["beratWadah"]} Gr",
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Air Wadah', style: TextStyle(color: Colors.black)),
+                const SizedBox(height: 4),
+                Text(
+                  (afData["volumeMLWadah"] == null)
+                      ? "-"
+                      : "${afData["volumeMLWadah"]} mL",
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ])
         ],
       ),
     );

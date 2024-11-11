@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../widgets/CustomWidgets/custom_all_time_input.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_time_input.dart';
 
@@ -68,15 +67,6 @@ class TambahJadwalView extends GetView<TambahJadwalController> {
             onTimeChanged: controller.onTimeChanged,
             disabled: true,
           ),
-
-          // custom time input for test all time schedule
-          // CustomAllTimeInput(
-          //   controller: controller,
-          //   label: "Test Waktu",
-          //   hint: "Test Waktu",
-          //   onTap: controller.selectedTime,
-          //   onTimeChanged: onTimeChanged,
-          // ),
 
           // Input Judul
           CustomInput(

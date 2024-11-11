@@ -2,7 +2,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../../widgets/card/day_card.dart';
 import './../../../../app/routes/app_pages.dart';
 import './../../../../app/styles/app_colors.dart';

@@ -23,14 +23,11 @@ class FeederController extends GetxController {
 
   void _listenToRealtimeClock() {
     String uid = auth.currentUser!.uid;
-    database
-        .child("UsersData/$uid/iot/monitoring/ketWaktu")
-        .onValue
-        .listen((event) {
+    database.child("UsersData/$uid/iot/monitoring").onValue.listen((event) {
       Map<String, dynamic> data =
           Map<String, dynamic>.from(event.snapshot.value as Map);
-      currentTime = data['waktu']?.toString();
-      currentDay = data['ketHari']?.toString(); // Retrieve ketHari here
+      currentTime = data['ketWaktu']?.toString();
+      currentDay = data['ketHari']?.toString();
     });
   }
 
@@ -98,9 +95,9 @@ class FeederController extends GetxController {
     bool inArea,
   ) async {
     CustomAlertDialog.showFeederAlert(
-      title: "Add Feeder",
+      title: "Tambah Feeder",
       message:
-          "Konfirmasi Terlebih Dahulu \n Untuk Memberi makan dan Minum Sekarang",
+          "Konfirmasi Terlebih Dahulu \n Untuk Memberi Makan dan Minum Kucing",
       onCancel: () => Get.back(),
       onConfirm: () async {
         await feederRef.child(todayDocId).set({
@@ -115,7 +112,7 @@ class FeederController extends GetxController {
         });
         Get.back();
         CustomNotification.successNotification(
-            "Sukses", "Tambah Feeder Berhasil");
+            "Sukses", "Berhasil Menambahkan Feeder");
       },
     );
   }
@@ -129,9 +126,9 @@ class FeederController extends GetxController {
     bool inArea,
   ) async {
     CustomAlertDialog.showFeederAlert(
-      title: "Tambah Jadwal Pagi",
+      title: "Tambah Feeder Pagi",
       message:
-          "Konfirmasi Terlebih Dahulu \n Untuk Melakukan Pengisian Tempat Makan dan Minum Kucing",
+          "Konfirmasi Terlebih Dahulu \n Untuk Melakukan Pengisian Tempat Makan dan Minum Kucing di Pagi Hari",
       onCancel: () => Get.back(),
       onConfirm: () async {
         await feederRef.child(todayDocId).set({
@@ -146,7 +143,7 @@ class FeederController extends GetxController {
         });
         Get.back();
         CustomNotification.successNotification(
-            "Sukses", "Berhasil memberikan makan dan minum di Jadwal Pagi");
+            "Sukses", "Berhasil Melakukan Feeder di Pagi Hari");
       },
     );
   }
@@ -160,9 +157,9 @@ class FeederController extends GetxController {
     bool inArea,
   ) async {
     CustomAlertDialog.showFeederAlert(
-      title: "Tambah Jadwal Sore",
+      title: "Tambah Feeder Sore",
       message:
-          "Konfirmasi Terlebih dahulu\nUntuk Melakukan Pengisian Pakan di Sore Hari",
+          "Konfirmasi Terlebih dahulu\nUntuk Melakukan Pengisian Tempan Makan dan Minum Kucing di Sore Hari",
       onCancel: () => Get.back(),
       onConfirm: () async {
         await feederRef.child(todayDocId).update({
@@ -177,7 +174,7 @@ class FeederController extends GetxController {
         });
         Get.back();
         CustomNotification.successNotification(
-            "Sukses", "Berhasil Memberi Makan di Sore Hari");
+            "Sukses", "Berhasil Menambahkan Feeder di Sore Hari");
       },
     );
   }

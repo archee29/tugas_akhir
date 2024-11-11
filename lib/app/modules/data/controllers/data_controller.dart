@@ -179,6 +179,82 @@ class DataController extends GetxController
     }
   }
 
+  Future<void> retrieveDataIotMF() async {
+    User? currentUser = auth.currentUser;
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('tanggal')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataIotMf.assignAll(parsedValues);
+            isLoading.value = false;
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataIotMf.clear();
+            isLoading.value = false;
+          });
+        }
+      });
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
+  }
+
+  Future<void> retrieveDataIotAf() async {
+    User? currentUser = auth.currentUser;
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('tanggal')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataIotAf.assignAll(parsedValues);
+            isLoading.value = false;
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataIotAf.clear();
+            isLoading.value = false;
+          });
+        }
+      });
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
+  }
+
   List getEvents(DateTime day) {
     List events = [];
     for (var event in listDataMf) {
