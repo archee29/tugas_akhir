@@ -6,6 +6,7 @@ import 'package:rxdart/rxdart.dart';
 import 'dart:async';
 
 import '../../../routes/app_pages.dart';
+import '../../../widgets/dialog/custom_notification.dart';
 
 class HomeController extends GetxController {
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
@@ -30,7 +31,8 @@ class HomeController extends GetxController {
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
         }, onError: (error) {
-          print('Error streaming user data: $error');
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
         });
         streamTodayFeeder().listen((event) {
           if (event.snapshot.value != null) {
@@ -40,7 +42,8 @@ class HomeController extends GetxController {
             dataMorningFeeder.value = {};
           }
         }, onError: (error) {
-          print('Error streaming feeder data: $error');
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
         });
         streamOutput();
       } else {
@@ -87,7 +90,8 @@ class HomeController extends GetxController {
       latestMakanan.value = latestMakananValue;
       latestMinuman.value = latestMinumanValue;
     }, onError: (error) {
-      print('Error fetching schedule data: $error');
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan", "Error : $error");
     });
   }
 

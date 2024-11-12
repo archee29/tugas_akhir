@@ -18,8 +18,8 @@ class DataController extends GetxController
   final listDataMf = <Map<String, dynamic>>[].obs;
   final listDataAf = <Map<String, dynamic>>[].obs;
 
-  final listDataIotMf = <Map<String, dynamic>>[].obs;
-  final listDataIotAf = <Map<String, dynamic>>[].obs;
+  final listMorningFeeder = <Map<String, dynamic>>[].obs;
+  final listAfternoonFeeder = <Map<String, dynamic>>[].obs;
 
   var events = <DateTime, List<String>>{}.obs;
   var selectedDay = Rx<DateTime?>(null);
@@ -54,11 +54,14 @@ class DataController extends GetxController
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
         }, onError: (error) {
-          print('Error streaming user data: $error');
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
         });
         streamMonitoring();
         retrieveDataMF();
         retrieveDataAf();
+        retrieveDataFeederMF();
+        retrieveDataFeederAF();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -179,77 +182,79 @@ class DataController extends GetxController
     }
   }
 
-  Future<void> retrieveDataIotMF() async {
+  Future<void> retrieveDataFeederMF() async {
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference
-          .child("UsersData/$uid/iot/feeder")
-          .onValue
-          .listen((event) {
-        if (event.snapshot.value != null) {
-          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final parsedValues = values.entries
-              .map((e) {
-                var value = Map<String, dynamic>.from(e.value);
-                value['key'] = e.key;
-                if (value.containsKey('tanggal')) {
-                  return value;
-                }
-                return null;
-              })
-              .where((element) => element != null)
-              .cast<Map<String, dynamic>>()
-              .toList();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            listDataIotMf.assignAll(parsedValues);
+
+      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
+        (event) {
+          isLoading.value = true;
+
+          if (event.snapshot.value != null) {
+            final allData =
+                Map<String, dynamic>.from(event.snapshot.value as Map);
+            listMorningFeeder.clear();
+
+            allData.forEach((dateKey, feederData) {
+              final morningFeeder = feederData["morningFeeder"];
+              if (morningFeeder != null) {
+                final parsedValues = Map<String, dynamic>.from(morningFeeder);
+                listMorningFeeder.add(parsedValues);
+              }
+            });
+
             isLoading.value = false;
-          });
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            listDataIotMf.clear();
+          } else {
+            listMorningFeeder.clear();
             isLoading.value = false;
-          });
-        }
-      });
+          }
+        },
+        onError: (error) {
+          isLoading.value = false;
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
+        },
+      );
     } else {
       Get.offAllNamed(Routes.LOGIN);
     }
   }
 
-  Future<void> retrieveDataIotAf() async {
+  Future<void> retrieveDataFeederAF() async {
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference
-          .child("UsersData/$uid/iot/feeder")
-          .onValue
-          .listen((event) {
-        if (event.snapshot.value != null) {
-          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
-          final parsedValues = values.entries
-              .map((e) {
-                var value = Map<String, dynamic>.from(e.value);
-                value['key'] = e.key;
-                if (value.containsKey('tanggal')) {
-                  return value;
-                }
-                return null;
-              })
-              .where((element) => element != null)
-              .cast<Map<String, dynamic>>()
-              .toList();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            listDataIotAf.assignAll(parsedValues);
+
+      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
+        (event) {
+          isLoading.value = true;
+
+          if (event.snapshot.value != null) {
+            final allData =
+                Map<String, dynamic>.from(event.snapshot.value as Map);
+            listAfternoonFeeder.clear();
+
+            allData.forEach((dateKey, feederData) {
+              final afternoonFeeder = feederData["afternoonFeeder"];
+              if (afternoonFeeder != null) {
+                final parsedValues = Map<String, dynamic>.from(afternoonFeeder);
+                listAfternoonFeeder.add(parsedValues);
+              }
+            });
+
             isLoading.value = false;
-          });
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            listDataIotAf.clear();
+          } else {
+            listAfternoonFeeder.clear();
             isLoading.value = false;
-          });
-        }
-      });
+          }
+        },
+        onError: (error) {
+          isLoading.value = false;
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
+        },
+      );
     } else {
       Get.offAllNamed(Routes.LOGIN);
     }

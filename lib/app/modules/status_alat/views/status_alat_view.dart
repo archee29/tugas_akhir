@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../routes/app_pages.dart';
-import '../../edit_status_alat/views/edit_status_alat_view.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../controllers/status_alat_controller.dart';
@@ -119,6 +118,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                 children: [
                                   SvgPicture.asset(
                                     'assets/icons/tools.svg',
+                                    // ignore: deprecated_member_use
                                     color: Colors.white,
                                     width: 24,
                                     height: 24,

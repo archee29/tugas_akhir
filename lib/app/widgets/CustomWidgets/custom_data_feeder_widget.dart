@@ -113,6 +113,7 @@ class FeederMFDataCard extends StatelessWidget {
             style: const TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
           ),
+          const SizedBox(height: 14),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

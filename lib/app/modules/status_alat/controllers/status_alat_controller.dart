@@ -25,7 +25,8 @@ class StatusAlatController extends GetxController {
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
         }, onError: (error) {
-          print('Error streaming user data: $error');
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
         });
         streamStatusAlat().listen((event) {
           if (event.snapshot.value != null) {

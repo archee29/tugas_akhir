@@ -13,7 +13,7 @@ class CustomAllTimeInput extends StatefulWidget {
   final ValueChanged<String> onTimeChanged;
 
   const CustomAllTimeInput({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     required this.hint,
@@ -23,7 +23,7 @@ class CustomAllTimeInput extends StatefulWidget {
     this.margin = const EdgeInsets.only(bottom: 16),
     this.obsecureText = false,
     this.suffixIcon,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomAllTimeInput> createState() => _CustomTimeInputState();

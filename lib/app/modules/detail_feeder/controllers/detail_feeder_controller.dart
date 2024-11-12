@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../widgets/dialog/custom_notification.dart';
 import './../../../../app/routes/app_pages.dart';
 
 class DetailFeederController extends GetxController
@@ -35,7 +36,8 @@ class DetailFeederController extends GetxController
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
         }, onError: (error) {
-          print('Error streaming user data: $error');
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
         });
         retrieveDataFeederMF();
         retrieveDataFeederAF();
@@ -86,7 +88,8 @@ class DetailFeederController extends GetxController
           isLoading.value = false;
         }
       }, onError: (error) {
-        print('Error retrieving morning feeder data: $error');
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Error : $error");
         isLoading.value = false;
       });
     } else {
@@ -119,7 +122,8 @@ class DetailFeederController extends GetxController
           isLoading.value = false;
         }
       }, onError: (error) {
-        print('Error retrieving afternoon feeder data: $error');
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Error : $error");
         isLoading.value = false;
       });
     } else {

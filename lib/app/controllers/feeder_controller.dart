@@ -13,8 +13,6 @@ class FeederController extends GetxController {
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference database = FirebaseDatabase.instance.ref();
   String? currentTime;
-  String? currentDay;
-
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -27,7 +25,6 @@ class FeederController extends GetxController {
       Map<String, dynamic> data =
           Map<String, dynamic>.from(event.snapshot.value as Map);
       currentTime = data['ketWaktu']?.toString();
-      currentDay = data['ketHari']?.toString();
     });
   }
 
@@ -79,10 +76,8 @@ class FeederController extends GetxController {
       int toleranceBefore, int toleranceAfter) {
     DateTime current = DateFormat("HH:mm").parse(currentTime);
     DateTime feed = DateFormat("HH:mm").parse(feedTime);
-
     DateTime startValidTime = feed.subtract(Duration(minutes: toleranceBefore));
     DateTime endValidTime = feed.add(Duration(minutes: toleranceAfter));
-
     return current.isAfter(startValidTime) && current.isBefore(endValidTime);
   }
 
@@ -182,7 +177,7 @@ class FeederController extends GetxController {
   Future<void> processFeeder(Position position, String alamat, double distance,
       String feederType) async {
     String uid = auth.currentUser!.uid;
-    String todayDocId = currentDay ??
+    String todayDocId =
         DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
     DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
     DatabaseEvent snapshotPreference = await feederRef.once();
@@ -194,7 +189,6 @@ class FeederController extends GetxController {
       if (todayDoc.snapshot.value != null) {
         Map<String, dynamic> dataFeederToday =
             Map<String, dynamic>.from(todayDoc.snapshot.value as Map);
-
         if (dataFeederToday["morningFeeder"] != null &&
             dataFeederToday["afternoonFeeder"] != null) {
           CustomNotification.errorNotification(
