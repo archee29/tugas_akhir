@@ -42,28 +42,25 @@ class CobaNotifikasiController extends GetxController {
     final User? user = auth.currentUser;
     if (user == null) {
       CustomNotification.errorNotification(
-        "Terjadi Kesalahan",
-        "User Tidak Terdaftar",
-      );
+          "Terjadi Kesalahan", "User Tidak Terdaftar");
       return;
-    } else if (_validateInputs()) {
+    }
+
+    if (_validateInputs()) {
       isLoading.value = true;
       try {
         final data = _prepareData();
-        final String formattedDate =
+        final formattedDate =
             DateFormat('MM-dd-yyyy').format(selectedDate.value);
-        final existingScheduleQuery =
-            _getExistingScheduleQuery(user.uid, formattedDate);
-        final snapshot = await existingScheduleQuery.get();
+        final existingScheduleQuery = databaseReference
+            .child("UsersData/${user.uid}/cobaNotifikasi/$formattedDate");
 
+        final snapshot = await existingScheduleQuery.get();
         if (snapshot.exists) {
-          CustomNotification.errorNotification(
-            "Terjadi Kesalahan",
-            "Anda sudah memiliki jadwal pada tanggal tersebut",
-          );
+          CustomNotification.errorNotification("Terjadi Kesalahan",
+              "Anda sudah memiliki jadwal pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, formattedDate, data);
-          await cobaNotificationService.fetchAndScheduleNotification(user.uid);
 
           DateTime scheduleTime = DateTime(
             selectedDate.value.year,
@@ -75,19 +72,15 @@ class CobaNotifikasiController extends GetxController {
 
           await cobaNotificationService.scheduleNotification(
               scheduleTime,
-              "Alarm Notifikasi | ${data['title']} ",
+              data['title'],
               "Sudah Saatnya Memberikan Makan di ${data['waktu']}");
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.until((route) => route.isFirst);
-            _clearEditingControllers();
-            cobaNotificationService.showSuccessNotification(
-              "Notifikasi Sukses",
-              "Jadwal untuk ${data['waktu']}, Berhasil Ditambahkan.",
-            );
-            CustomNotification.successNotification(
-                "Berhasil", "Berhasil Menambahkan Jadwal");
-          });
+          Get.until((route) => route.isFirst);
+          _clearEditingControllers();
+          cobaNotificationService.showSuccessNotification("Notifikasi Sukses",
+              "Jadwal untuk ${data['waktu']} berhasil ditambahkan.");
+          CustomNotification.successNotification(
+              "Berhasil", "Berhasil Menambahkan Jadwal");
         }
       } catch (e) {
         CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
@@ -106,29 +99,30 @@ class CobaNotifikasiController extends GetxController {
         makananController.text.isEmpty ||
         minumanController.text.isEmpty) {
       CustomNotification.errorNotification(
-        "Terjadi Kesalahan",
-        "Isi Form Terlebih Dahulu",
-      );
+          "Terjadi Kesalahan", "Isi Form Terlebih Dahulu");
       return false;
     }
-    final int? makananValue = int.tryParse(makananController.text);
-    final int? minumanValue = int.tryParse(minumanController.text);
+
+    int? makananValue = int.tryParse(makananController.text);
+    int? minumanValue = int.tryParse(minumanController.text);
+
     if (makananValue == null || makananValue < 0 || makananValue > 120) {
       CustomNotification.errorNotification("Terjadi Kesalahan",
           "Masukan Jumlah Makanan dengan nilai 0-120 Gram saja");
       return false;
     }
+
     if (minumanValue == null || minumanValue < 0 || minumanValue > 300) {
       CustomNotification.errorNotification("Terjadi Kesalahan",
           "Masukan Jumlah Minuman dengan nilai 0-300 Mililiter saja");
       return false;
     }
+
     return true;
   }
 
   Map<String, dynamic> _prepareData() {
     return {
-      "date": DateTime.now().toIso8601String(),
       "tanggal": dateController.text,
       "waktu": timeController.text,
       "title": titleController.text,
@@ -137,11 +131,6 @@ class CobaNotifikasiController extends GetxController {
       "minuman": minumanController.text,
       "created_at": DateTime.now().toIso8601String(),
     };
-  }
-
-  Query _getExistingScheduleQuery(String uid, String formattedDate) {
-    return databaseReference
-        .child("UsersData/$uid/cobaNotifikasi/$formattedDate");
   }
 
   Future<void> _saveDataToDatabase(

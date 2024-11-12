@@ -54,32 +54,29 @@ class TambahJadwalController extends GetxController {
           await _saveDataToDatabase(user.uid, nodePath, data);
 
           DateTime notificationTime = DateTime(
-              selectedDate.value.year,
-              selectedDate.value.month,
-              selectedDate.value.day,
-              selectedTime.value.hour,
-              selectedTime.value.minute);
-          await notificationService.scheduleNotification(
-              notificationTime,
-              "Alarm Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} |  ${selectedTime.value.format(Get.context!)}",
-              "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
+            selectedDate.value.year,
+            selectedDate.value.month,
+            selectedDate.value.day,
+            selectedTime.value.hour,
+            selectedTime.value.minute,
+          );
 
-          await notificationService.fetchAndScheduleNotification(user.uid);
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            Get.until((route) => route.isFirst);
-            _clearEditingControllers();
-            notificationService.showSuccessNotification(
-                "Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} |  ${selectedTime.value.format(Get.context!)}",
-                "Berhasil Melakukan Penjadwalan Pada ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari");
-            CustomNotification.successNotification("Berhasil",
-                "Berhasil Menambahkan Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'}");
-          });
+          print("Scheduling notification for: $notificationTime");
+          await notificationService.scheduleNotification(
+            notificationTime,
+            "Alarm Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} | ${selectedTime.value.format(Get.context!)}",
+            "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari",
+          );
+
+          CustomNotification.successNotification("Berhasil",
+              "Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} berhasil ditambahkan");
+          _clearEditingControllers();
         }
       } catch (e) {
+        print("Error in addManualDataBasedOnTime: $e");
         CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
       } finally {
         isLoading.value = false;
-        update();
       }
     }
   }
@@ -97,11 +94,13 @@ class TambahJadwalController extends GetxController {
     }
     final int? makananValue = int.tryParse(makananController.text);
     final int? minumanValue = int.tryParse(minumanController.text);
+
     if (makananValue == null || makananValue < 0 || makananValue > 120) {
       CustomNotification.errorNotification("Terjadi Kesalahan",
           "Masukan Jumlah Makanan dengan nilai 0-120 Gram saja");
       return false;
     }
+
     if (minumanValue == null || minumanValue < 0 || minumanValue > 300) {
       CustomNotification.errorNotification("Terjadi Kesalahan",
           "Masukan Jumlah Minuman dengan nilai 0-300 Mililiter saja");
