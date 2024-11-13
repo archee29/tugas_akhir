@@ -27,8 +27,8 @@ class StatusAlatView extends GetView<StatusAlatController> {
               userSnapshot.data!.snapshot.value == null) {
             return const Center(child: Text("Data Tidak Ada"));
           } else {
-            Map<String, dynamic> user = Map<String, dynamic>.from(
-                userSnapshot.data!.snapshot.value as Map);
+            Map<dynamic, dynamic> user = Map<dynamic, dynamic>.from(
+                userSnapshot.data!.snapshot.value as Map<dynamic, dynamic>);
 
             return StreamBuilder<DatabaseEvent>(
               stream: controller.streamStatusAlat(),
@@ -43,13 +43,13 @@ class StatusAlatView extends GetView<StatusAlatController> {
                   return const Center(
                       child: Text("Tidak ada data status alat"));
                 } else {
-                  Map<String, dynamic> statusAlat = Map<String, dynamic>.from(
-                      alatSnapshot.data!.snapshot.value as Map);
+                  Map<dynamic, dynamic> statusAlat = Map<dynamic, dynamic>.from(
+                      alatSnapshot.data!.snapshot.value
+                          as Map<dynamic, dynamic>);
+
                   String servoStatus = statusAlat['servo_status'] ?? 'UNKNOWN';
                   String pumpStatus = statusAlat['pump_status'] ?? 'UNKNOWN';
                   String catatan = statusAlat['catatan'] ?? 'Tidak ada catatan';
-
-                  // Date key untuk status alat (sesuai format yang digunakan di controller)
                   String formattedDate =
                       DateFormat('MM-dd-yyyy').format(DateTime.now());
 
@@ -214,6 +214,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                                     color: Colors.black,
                                                     fontSize: 12,
                                                   ),
+                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
                                             ),
@@ -272,6 +273,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                                     color: Colors.black,
                                                     fontSize: 12,
                                                   ),
+                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
                                             ),
@@ -332,7 +334,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                         Routes.EDIT_STATUS_ALAT,
                                         arguments: {
                                           'date': formattedDate,
-                                          'statusAlat': statusAlat,
+                                          'statusAlat': statusAlat
                                         },
                                       );
                                     },

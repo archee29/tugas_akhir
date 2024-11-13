@@ -7,12 +7,17 @@ import './../../../../app/widgets/CustomWidgets/custom_input.dart';
 import '../controllers/edit_status_alat_controller.dart';
 
 class EditStatusAlatView extends GetView<EditStatusAlatController> {
-  final Map<String, dynamic> statusAlat = Get.arguments;
+  final Map<String, dynamic> statusAlat = Get.arguments != null
+      ? Map<String, dynamic>.from(Get.arguments['statusAlat'])
+      : {};
   EditStatusAlatView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    controller.catatanController.text = statusAlat["catatan"];
+    String formattedDate = statusAlat['formattedDate'] ?? '';
+    // Load existing status when view is opened
+    controller.loadExistingStatus(formattedDate);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -199,7 +204,7 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (controller.isLoading.isFalse) {
-                    await controller.editStatusAlat();
+                    await controller.editStatusAlat(formattedDate);
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -212,7 +217,7 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
                 ),
                 child: Text(
                   (controller.isLoading.isFalse)
-                      ? 'Simpan Perubahan'
+                      ? 'Edit Status Alat'
                       : 'Loading ....',
                   style: const TextStyle(
                     fontSize: 16,

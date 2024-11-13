@@ -22,8 +22,8 @@ class StatusAlatController extends GetxController {
     Future.delayed(Duration.zero, () {
       if (auth.currentUser != null) {
         streamUser().listen((event) {
-          userData.value =
-              Map<String, dynamic>.from(event.snapshot.value as Map);
+          userData.value = Map<String, dynamic>.from(
+              event.snapshot.value as Map<dynamic, dynamic>);
         }, onError: (error) {
           CustomNotification.errorNotification(
               "Terjadi Kesalahan", "Error : $error");
@@ -64,8 +64,7 @@ class StatusAlatController extends GetxController {
       return Stream.error("User not authenticated");
     }
     String uid = user.uid;
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('MM-dd-yyyy').format(now);
+    String formattedDate = DateFormat('MM-dd-yyyy').format(DateTime.now());
     return databaseReference
         .child("UsersData/$uid/statusAlat/$formattedDate")
         .onValue;

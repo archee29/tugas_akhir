@@ -10,14 +10,13 @@ import './app/controllers/page_index_controller.dart';
 import './app/controllers/feeder_controller.dart';
 import './app/controllers/notification_service.dart';
 import './app/modules/home/controllers/home_controller.dart';
-import 'package:timezone/data/latest.dart' as tz;
+
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  tz.initializeTimeZones();
 
   Get.put(HomeController(), permanent: true);
   Get.put(NotificationService(), permanent: true);

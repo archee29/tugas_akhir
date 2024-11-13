@@ -116,8 +116,8 @@ void bukaServo(int jumlah) {
 
 void onPump() {
   unsigned long startMillis = millis();
+  digitalWrite(relayPin, HIGH);
   while (millis() - startMillis <= 5000) {
-    digitalWrite(relayPin, HIGH);
   }
   digitalWrite(relayPin, LOW);
   sendDataControlToReceiver("Pump_OFF");
@@ -186,22 +186,15 @@ void monitoring(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
 }
 
 void feeder(String &waktuFeeding, int &beratWadah, long &tinggiAirWadah, long &tinggiAirTabung) {
-  if (jam == 20 && menit == 15 && detik == 0) {
+  if ((jam == 18 && menit == 23 && detik == 0) || (jam == 18 && menit == 28 && detik == 0)) {
+    waktuFeeding = (jam == 18) ? "morningFeeder" : "afternoonFeeder";
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
-    showNotification("NOTIFIKASI !!!", "MORNING FEEDING!!!!!", 2000);
+    showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
     onPump();
     bukaServo(4);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
-    sendDataFeedingToReceiver("morningFeeder", beratWadah, tinggiAirWadah, tinggiAirTabung);
-  } else if (jam == 20 && menit == 30 && detik == 0) {
-    showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
-    showNotification("NOTIFIKASI !!!", "AFTERNOON FEEDING!!!", 2000);
-    showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
-    onPump();
-    bukaServo(4);
-    showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
-    sendDataFeedingToReceiver("afternoonFeeder", beratWadah, tinggiAirWadah, tinggiAirTabung);
+    sendDataFeedingToReceiver(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung);
   }
 }
 
@@ -237,13 +230,24 @@ void displayLCD(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
 }
 
 void sendDataMonitoringToReceiver(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
-  dataMonitoring = String(beratWadah) + "#" + String(tinggiAirWadah) + "#" + String(tinggiAirTabung) + "#" + ketHari + "#" + ketWaktu;
-  Serial.println(dataMonitoring);
+  static unsigned long lastSendTime = 0;
+  const unsigned long SEND_INTERVAL = 1000;
+
+  unsigned long currentTime = millis();
+  if (currentTime - lastSendTime >= SEND_INTERVAL) {
+    lastSendTime = currentTime;
+    dataMonitoring = String(beratWadah) + "#" + String(tinggiAirWadah) + "#" + String(tinggiAirTabung) + "#" + ketHari + "#" + ketWaktu;
+    Serial.println("monitoring#" + dataMonitoring);
+  }
 }
 
 void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
-  dataFeeding = waktuFeeding + "@" + String(beratWadah) + "@" + String(tinggiAirWadah) + "@" + String(tinggiAirTabung) + "@" + ketHari + "@" + ketWaktu;
-  Serial.println(dataFeeding);
+  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(tinggiAirWadah) + "#" + String(tinggiAirTabung) + "#" + ketHari + "#" + ketWaktu;
+  Serial.println(feedingData);
+}
+
+void sendDataControlToReceiver(String command) {
+  Serial.println(command);
 }
 
 void reqDataFromReceiver() {
@@ -252,38 +256,14 @@ void reqDataFromReceiver() {
     receivedCommand.trim();
     if (receivedCommand == "Pump_ON") {
       onPump();
-      activatePump(true);
     } else if (receivedCommand == "Pump_OFF") {
       digitalWrite(relayPin, LOW);
-      activatePump(false);
     }
     if (receivedCommand == "Servo_ON") {
       bukaServo(4);
-      activateServo(true);
     } else if (receivedCommand == "Servo_OFF") {
       myServo.write(0);
-      activateServo(false);
     }
-  }
-}
-
-void sendDataControlToReceiver(String command) {
-  Serial.println(command);
-}
-
-void activatePump(bool status) {
-  if (status) {
-    Serial.println("Pompa dihidupkan");
-  } else {
-    Serial.println("Pompa dimatikan");
-  }
-}
-
-void activateServo(bool status) {
-  if (status) {
-    Serial.println("Servo dihidupkan");
-  } else {
-    Serial.println("Servo dimatikan");
   }
 }
 
@@ -313,13 +293,13 @@ void setup() {
 }
 
 void loop() {
-  String waktuFeeding;
   int beratWadah;
   long tinggiAirWadah, tinggiAirTabung;
   readSensor(beratWadah, tinggiAirWadah, tinggiAirTabung);
   monitoring(beratWadah, tinggiAirWadah, tinggiAirTabung);
-  feeder(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung);
   displayLCD(beratWadah, tinggiAirWadah, tinggiAirTabung);
   sendDataMonitoringToReceiver(beratWadah, tinggiAirWadah, tinggiAirTabung);
+  String waktuFeeding;
+  feeder(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung);
   reqDataFromReceiver();
 }

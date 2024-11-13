@@ -420,8 +420,6 @@ class DataController extends GetxController
               CustomNotification.successNotification(
                   "Berhasil", "Berhasil Menghapus Data Jadwal Sore");
             });
-            CustomNotification.successNotification(
-                "Berhasil", "Menghapus Data Jadwal Sore");
           } catch (e) {
             CustomNotification.errorNotification(
                 "Terjadi Kesalahan", e.toString());

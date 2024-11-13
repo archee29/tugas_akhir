@@ -121,7 +121,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.COBA_NOTIFIKASI,
-      page: () => const CobaNotifikasiView(),
+      page: () => CobaNotifikasiView(),
       binding: CobaNotifikasiBinding(),
     ),
     GetPage(

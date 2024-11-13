@@ -52,7 +52,6 @@ class TambahJadwalController extends GetxController {
               "Anda sudah memiliki jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} pada tanggal tersebut");
         } else {
           await _saveDataToDatabase(user.uid, nodePath, data);
-
           DateTime notificationTime = DateTime(
             selectedDate.value.year,
             selectedDate.value.month,
@@ -60,14 +59,19 @@ class TambahJadwalController extends GetxController {
             selectedTime.value.hour,
             selectedTime.value.minute,
           );
-
           print("Scheduling notification for: $notificationTime");
-          await notificationService.scheduleNotification(
-            notificationTime,
-            "Alarm Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} | ${selectedTime.value.format(Get.context!)}",
-            "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari",
-          );
-
+          if (notificationTime.isAfter(DateTime.now())) {
+            await notificationService.scheduleNotification(
+              notificationTime,
+              "Alarm Notifikasi | Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} | ${selectedTime.value.format(Get.context!)}",
+              "Sudah Saatnya Memberikan Makan di ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} Hari",
+            );
+          } else {
+            CustomNotification.errorNotification("Terjadi Kesalahan",
+                "Waktu notifikasi tidak boleh di masa lalu.");
+          }
+          print("Notification scheduled for: $notificationTime");
+          Get.back();
           CustomNotification.successNotification("Berhasil",
               "Jadwal ${nodePath == 'jadwalPagi' ? 'Pagi' : 'Sore'} berhasil ditambahkan");
           _clearEditingControllers();
