@@ -18,9 +18,7 @@ float calibration_factor_wadah = -388.10;
 
 #define trigPinWadah 6
 #define echoPinWadah 7
-long durasiWadah;
-float maxTinggiWadah = 15.0;
-float radiusWadah = 4.5;
+float maxTinggiWadah = 14.0, radiusWadah = 4.55;  // radius wadah bisa 5.05 atau 4.55
 
 #define relayPin 8
 
@@ -29,9 +27,7 @@ Servo myServo;
 
 #define echoPinTabung 10
 #define trigPinTabung 11
-long durasiTabung;
-float maxTinggiTabung = 34.5;
-float radiusTabung = 4.25;
+float maxTinggiTabung = 34.5, radiusTabung = 4.0;
 
 String dataMonitoring;
 String dataFeeding;
@@ -42,16 +38,8 @@ const long lcdInterval = 1000;
 unsigned long previousNotificationMonitoringMillis = 0;
 const long notificationMonitoringInterval = 960000;
 
-long readUltrasonic(int trigPin, int echoPin) {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  long durasi = pulseIn(echoPin, HIGH);
-  long distance = durasi * 0.034 / 2;
-  return distance;
-}
+unsigned long previousReqReceiverMillis = 0;
+const long reqReceiverInterval = 2000;
 
 void initLCD() {
   lcd.init();
@@ -95,9 +83,37 @@ void wadahPakan(int &beratWadah) {
   }
 }
 
-void sensorUltrasonic(long &tinggiAirWadah, long &tinggiAirTabung) {
-  tinggiAirWadah = readUltrasonic(trigPinWadah, echoPinWadah);
-  tinggiAirTabung = readUltrasonic(trigPinTabung, echoPinTabung);
+void USWadah(int &volumeMLAirWadah) {
+  digitalWrite(trigPinWadah, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPinWadah, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinWadah, LOW);
+  long durasiWadah = pulseIn(echoPinWadah, HIGH);
+  float jarakAirWadah = durasiWadah * 0.034 / 2;
+  float tinggiAirWadah = abs(maxTinggiWadah - jarakAirWadah);
+  if (tinggiAirWadah <= 1) {
+    tinggiAirWadah == 0;
+  }
+  float volumeAirWadah = 3.14159 * radiusWadah * radiusWadah * tinggiAirWadah;
+  volumeMLAirWadah = abs(volumeAirWadah);
+}
+
+void USTabung(int &volumeMLAirTabung) {
+  digitalWrite(trigPinTabung, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPinTabung, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinTabung, LOW);
+  long durasiTabung = pulseIn(echoPinTabung, HIGH);
+  float jarakAirTabung = durasiTabung * 0.034 / 2;
+  // volumeMLAirTabung = durasiTabung * 0.034 / 2;
+  float tinggiAirTabung = abs(maxTinggiTabung - jarakAirTabung);
+  if (tinggiAirTabung <= 1) {
+    tinggiAirTabung == 0;
+  }
+  float volumeAirTabung = 3.14159 * radiusTabung * radiusTabung * tinggiAirTabung;
+  volumeMLAirTabung = abs(volumeAirTabung);
 }
 
 void bukaServo(int jumlah) {
@@ -123,10 +139,11 @@ void onPump() {
   sendDataControlToReceiver("Pump_OFF");
 }
 
-void readSensor(int &beratWadah, long &tinggiAirWadah, long &tinggiAirTabung) {
+void readSensor(int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
   initRTC();
   wadahPakan(beratWadah);
-  sensorUltrasonic(tinggiAirWadah, tinggiAirTabung);
+  USWadah(volumeMLAirWadah);
+  USTabung(volumeMLAirTabung);
 }
 
 void monitoringNotification(String tittle, String message, int delayTime) {
@@ -149,7 +166,7 @@ void showNotification(String tittle, String message, int delayTime) {
   delay(delayTime);
 }
 
-void monitoring(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
+void monitoring(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
   unsigned long currentMillis = millis();
   if (currentMillis - previousNotificationMonitoringMillis >= notificationMonitoringInterval) {
     previousNotificationMonitoringMillis = currentMillis;
@@ -164,19 +181,19 @@ void monitoring(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
     } else if (beratWadah > 120) {
       monitoringNotification("PAKAN WADAH > 120 GR", "WADAH PAKAN PENUH", 2000);
     }
-    if (tinggiAirWadah >= 0 && tinggiAirWadah < 150) {
+    if (volumeMLAirWadah >= 0 && volumeMLAirWadah < 150) {
       monitoringNotification("AIR WADAH < 150 ML", "WADAH PERLU DIISI", 2000);
       showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
       onPump();
       showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
-    } else if (tinggiAirWadah >= 151 && tinggiAirWadah < 280) {
+    } else if (volumeMLAirWadah >= 151 && volumeMLAirWadah < 280) {
       monitoringNotification("AIR WADAH < 300 ML", "SEGERA ISI WADAH", 2000);
-    } else if (tinggiAirWadah > 300) {
+    } else if (volumeMLAirWadah > 300) {
       monitoringNotification("AIR WADAH > 300 ML", "WADAH MINUM PENUH", 2000);
     }
-    if (tinggiAirTabung >= 0 && tinggiAirTabung < 300) {
+    if (volumeMLAirTabung >= 0 && volumeMLAirTabung < 300) {
       monitoringNotification("AIR TABUNG < 300 ML", "SEGERA ISI TABUNG", 2000);
-    } else if (tinggiAirTabung > 1000) {
+    } else if (volumeMLAirTabung > 1000) {
       monitoringNotification("AIR TABUNG > 1 L", "TABUNG MINUM PENUH", 2000);
     }
     if (jam != 7 && jam != 17) {
@@ -185,20 +202,20 @@ void monitoring(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
   }
 }
 
-void feeder(String &waktuFeeding, int &beratWadah, long &tinggiAirWadah, long &tinggiAirTabung) {
-  if ((jam == 18 && menit == 23 && detik == 0) || (jam == 18 && menit == 28 && detik == 0)) {
-    waktuFeeding = (jam == 18) ? "morningFeeder" : "afternoonFeeder";
+void feeder(String &waktuFeeding, int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
+  if ((jam == 21 && menit == 45 && detik == 0) || (jam == 22 && menit == 30 && detik == 0)) {
+    waktuFeeding = (jam == 21) ? "morningFeeder" : "afternoonFeeder";
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
     showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
     onPump();
     bukaServo(4);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
-    sendDataFeedingToReceiver(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung);
+    sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   }
 }
 
-void displayLCD(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
+void displayLCD(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
   unsigned long currentMillis = millis();
   if (currentMillis - previousLCDMillis >= lcdInterval) {
     previousLCDMillis = currentMillis;
@@ -214,14 +231,14 @@ void displayLCD(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
     lcd.print("Air Wadah");
     lcd.setCursor(11, 1);
     lcd.print(": ");
-    lcd.print(tinggiAirWadah);
+    lcd.print(volumeMLAirWadah);
     lcd.setCursor(18, 1);
     lcd.print("mL");
     lcd.setCursor(0, 2);
     lcd.print("Air Tabung");
     lcd.setCursor(11, 2);
     lcd.print(": ");
-    lcd.print(tinggiAirTabung);
+    lcd.print(volumeMLAirTabung);
     lcd.setCursor(18, 2);
     lcd.print("mL");
     lcd.setCursor(0, 3);
@@ -229,20 +246,20 @@ void displayLCD(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
   }
 }
 
-void sendDataMonitoringToReceiver(int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
+void sendDataMonitoringToReceiver(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
   static unsigned long lastSendTime = 0;
   const unsigned long SEND_INTERVAL = 1000;
 
   unsigned long currentTime = millis();
   if (currentTime - lastSendTime >= SEND_INTERVAL) {
     lastSendTime = currentTime;
-    dataMonitoring = String(beratWadah) + "#" + String(tinggiAirWadah) + "#" + String(tinggiAirTabung) + "#" + ketHari + "#" + ketWaktu;
+    dataMonitoring = String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu;
     Serial.println("monitoring#" + dataMonitoring);
   }
 }
 
-void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, long tinggiAirWadah, long tinggiAirTabung) {
-  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(tinggiAirWadah) + "#" + String(tinggiAirTabung) + "#" + ketHari + "#" + ketWaktu;
+void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
+  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu;
   Serial.println(feedingData);
 }
 
@@ -251,18 +268,22 @@ void sendDataControlToReceiver(String command) {
 }
 
 void reqDataFromReceiver() {
-  if (Serial.available()) {
-    String receivedCommand = Serial.readStringUntil('\n');
-    receivedCommand.trim();
-    if (receivedCommand == "Pump_ON") {
-      onPump();
-    } else if (receivedCommand == "Pump_OFF") {
-      digitalWrite(relayPin, LOW);
-    }
-    if (receivedCommand == "Servo_ON") {
-      bukaServo(4);
-    } else if (receivedCommand == "Servo_OFF") {
-      myServo.write(0);
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousReqReceiverMillis >= reqReceiverInterval) {
+    previousReqReceiverMillis = currentMillis;
+    if (Serial.available()) {
+      String receivedCommand = Serial.readStringUntil('\n');
+      receivedCommand.trim();
+      if (receivedCommand == "Pump_ON") {
+        onPump();
+      } else if (receivedCommand == "Pump_OFF") {
+        digitalWrite(relayPin, LOW);
+      }
+      if (receivedCommand == "Servo_ON") {
+        bukaServo(4);
+      } else if (receivedCommand == "Servo_OFF") {
+        myServo.write(0);
+      }
     }
   }
 }
@@ -274,10 +295,8 @@ void setup() {
     Serial.println("RTC Tidak Ditemukan");
     Serial.flush();
     abort();
-  }
-  if (rtc.lostPower()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
+  }  
+  // rtc.adjust(DateTime(2024, 11, 19, 21, 37, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();
@@ -290,16 +309,16 @@ void setup() {
   pinMode(relayPin, OUTPUT);
   digitalWrite(relayPin, LOW);
   initLCD();
+  delay(500);
 }
 
 void loop() {
-  int beratWadah;
-  long tinggiAirWadah, tinggiAirTabung;
-  readSensor(beratWadah, tinggiAirWadah, tinggiAirTabung);
-  monitoring(beratWadah, tinggiAirWadah, tinggiAirTabung);
-  displayLCD(beratWadah, tinggiAirWadah, tinggiAirTabung);
-  sendDataMonitoringToReceiver(beratWadah, tinggiAirWadah, tinggiAirTabung);
+  int beratWadah, volumeMLAirWadah, volumeMLAirTabung;
+  readSensor(beratWadah, volumeMLAirWadah, volumeMLAirTabung);
+  monitoring(beratWadah, volumeMLAirWadah, volumeMLAirTabung);
+  displayLCD(beratWadah, volumeMLAirWadah, volumeMLAirTabung);
+  sendDataMonitoringToReceiver(beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   String waktuFeeding;
-  feeder(waktuFeeding, beratWadah, tinggiAirWadah, tinggiAirTabung);
+  feeder(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   reqDataFromReceiver();
 }
