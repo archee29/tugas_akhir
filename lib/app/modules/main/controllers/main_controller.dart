@@ -74,7 +74,7 @@ class MainController extends GetxController {
   Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
     Stream<DatabaseEvent> feederStream =
-        databaseReference.child('UsersData/$uid/feeder').onValue;
+        databaseReference.child('UsersData/$uid/iot/feeder').onValue;
 
     return feederStream.asyncMap((snapshotFeeder) async {
       final feederEntries = Map<String, dynamic>.from(

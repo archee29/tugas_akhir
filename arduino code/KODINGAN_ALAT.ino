@@ -203,8 +203,8 @@ void monitoring(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
 }
 
 void feeder(String &waktuFeeding, int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
-  if ((jam == 21 && menit == 45 && detik == 0) || (jam == 22 && menit == 30 && detik == 0)) {
-    waktuFeeding = (jam == 21) ? "morningFeeder" : "afternoonFeeder";
+  if ((jam == 7 && menit == 0 && detik == 0) || (jam == 17 && menit == 0 && detik == 0)) {
+    waktuFeeding = (jam == 7) ? "morningFeeder" : "afternoonFeeder";
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
     showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
@@ -296,7 +296,7 @@ void setup() {
     Serial.flush();
     abort();
   }  
-  // rtc.adjust(DateTime(2024, 11, 19, 21, 37, 0));
+  rtc.adjust(DateTime(2024, 11, 24, 1, 50, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();

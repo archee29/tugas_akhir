@@ -3,10 +3,8 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-// #define WIFI_SSID "Tugasakhir"
-// #define WIFI_PASSWORD "wifisigit"
-#define WIFI_SSID "HOME 2G"
-#define WIFI_PASSWORD "wifirumah2"
+#define WIFI_SSID "Tugasakhir"
+#define WIFI_PASSWORD "wifisigit"
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
@@ -174,17 +172,8 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
   if (currentMillis - sendDataFeedingToFirebasePrevMillis > sendDataFeedingToFirebasePrevDelay) {
     sendDataFeedingToFirebasePrevMillis = currentMillis;
     String feederType = waktuFeeding == "morningFeeder" ? "morningFeeder" : "afternoonFeeder";
-    
-/*
-    if (waktuFeeding == "morningFeeder") {
-      feederType = "morningFeeder";
-    } else if (waktuFeeding == "afternoonFeeder") {
-      feederType = "afternoonFeeder";
-    } else {
-      return;
-    }
-*/
-    String feederFullPath = databasePath + "/iot/feeder/" + formattedDate + "/" + feederType;
+
+    String feederFullPath = databasePath + "/iot/feeder/" + feederType + "/" + formattedDate;
 
     feederJson.clear();
     feederJson.set("beratWadah", beratWadah);
