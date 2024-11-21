@@ -121,7 +121,7 @@ void receivedDataFromTransmitter(String message) {
       String ketWaktu = message.substring(separatorPos[4] + 1);
 
       String formattedDate = formatDate(ketHari);
-      if (waktuFeeding == "morningFeeder" || waktuFeeding == "afternoonFeeder") {
+      if (waktuFeeding == "jadwalPagi" || waktuFeeding == "jadwalSore") {
         sendDataFeedingToFirebase(waktuFeeding, beratWadah, volumeAirWadah, volumeAirTabung, ketHari, ketWaktu, formattedDate);
       } else {
         Serial.println("Error: Invalid waktuFeeding value: " + waktuFeeding);
@@ -171,7 +171,7 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
   unsigned long currentMillis = millis();
   if (currentMillis - sendDataFeedingToFirebasePrevMillis > sendDataFeedingToFirebasePrevDelay) {
     sendDataFeedingToFirebasePrevMillis = currentMillis;
-    String feederType = waktuFeeding == "morningFeeder" ? "morningFeeder" : "afternoonFeeder";
+    String feederType = waktuFeeding == "jadwalPagi" ? "jadwalPagi" : "jadwalSore";
 
     String feederFullPath = databasePath + "/iot/feeder/" + feederType + "/" + formattedDate;
 

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 import './../../../../app/routes/app_pages.dart';
 
@@ -73,53 +74,55 @@ class MainController extends GetxController {
 
   Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
-    Stream<DatabaseEvent> feederStream =
-        databaseReference.child('UsersData/$uid/iot/feeder').onValue;
-
-    return feederStream.asyncMap((snapshotFeeder) async {
-      final feederEntries = Map<String, dynamic>.from(
-          snapshotFeeder.snapshot.value as Map? ?? {});
-
+    return databaseReference
+        .child('UsersData/$uid/iot/feeder')
+        .onValue
+        .map((DatabaseEvent snapshot) {
       double totalFoodDay = 0;
       double totalWaterDay = 0;
       double totalFoodWeek = 0;
       double totalWaterWeek = 0;
-
-      feederEntries.forEach((dateId, feederData) {
-        if (feederData.containsKey('morningFeeder')) {
-          totalFoodDay += double.parse(
-              feederData['morningFeeder']['beratWadah']?.toString() ?? '0');
-          totalWaterDay += double.parse(
-              feederData['morningFeeder']['volumeMLWadah']?.toString() ?? '0');
+      if (snapshot.snapshot.value != null) {
+        final data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+        if (data.containsKey('jadwalPagi')) {
+          final morningData = Map<String, dynamic>.from(data['jadwalPagi']);
+          morningData.forEach((key, value) {
+            if (value is Map) {
+              totalFoodDay +=
+                  double.parse(value['beratWadah']?.toString() ?? '0');
+              totalWaterDay +=
+                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
+              DateTime entryDate =
+                  DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+              if (DateTime.now().difference(entryDate).inDays <= 7) {
+                totalFoodWeek +=
+                    double.parse(value['beratWadah']?.toString() ?? '0');
+                totalWaterWeek +=
+                    double.parse(value['volumeMLWadah']?.toString() ?? '0');
+              }
+            }
+          });
         }
-        if (feederData.containsKey('afternoonFeeder')) {
-          totalFoodDay += double.parse(
-              feederData['afternoonFeeder']['beratWadah']?.toString() ?? '0');
-          totalWaterDay += double.parse(
-              feederData['afternoonFeeder']['volumeMLWadah']?.toString() ??
-                  '0');
+        if (data.containsKey('jadwalSore')) {
+          final afternoonData = Map<String, dynamic>.from(data['jadwalSore']);
+          afternoonData.forEach((key, value) {
+            if (value is Map) {
+              totalFoodDay +=
+                  double.parse(value['beratWadah']?.toString() ?? '0');
+              totalWaterDay +=
+                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
+              DateTime entryDate =
+                  DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+              if (DateTime.now().difference(entryDate).inDays <= 7) {
+                totalFoodWeek +=
+                    double.parse(value['beratWadah']?.toString() ?? '0');
+                totalWaterWeek +=
+                    double.parse(value['volumeMLWadah']?.toString() ?? '0');
+              }
+            }
+          });
         }
-      });
-      int counter = 0;
-      feederEntries.forEach((dateId, feederData) {
-        if (counter < 7) {
-          if (feederData.containsKey('morningFeeder')) {
-            totalFoodWeek += double.parse(
-                feederData['morningFeeder']['beratWadah']?.toString() ?? '0');
-            totalWaterWeek += double.parse(
-                feederData['morningFeeder']['volumeMLWadah']?.toString() ??
-                    '0');
-          }
-          if (feederData.containsKey('afternoonFeeder')) {
-            totalFoodWeek += double.parse(
-                feederData['afternoonFeeder']['beratWadah']?.toString() ?? '0');
-            totalWaterWeek += double.parse(
-                feederData['afternoonFeeder']['volumeMLWadah']?.toString() ??
-                    '0');
-          }
-          counter++;
-        }
-      });
+      }
       return {
         'totalFoodDay': totalFoodDay,
         'totalWaterDay': totalWaterDay,

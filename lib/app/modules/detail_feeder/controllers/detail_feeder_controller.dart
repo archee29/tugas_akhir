@@ -67,30 +67,34 @@ class DetailFeederController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
-          (event) {
-        isLoading.value = true;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalPagi")
+          .onValue
+          .listen((event) {
         if (event.snapshot.value != null) {
-          final allData =
-              Map<String, dynamic>.from(event.snapshot.value as Map);
-          listDataMf
-              .clear(); // Clear list sebelumnya agar tidak terjadi duplikasi data
-          allData.forEach((dateKey, feederData) {
-            final morningFeeder = feederData["morningFeeder"];
-            if (morningFeeder != null) {
-              final parsedValues = Map<String, dynamic>.from(morningFeeder);
-              listDataMf.add(parsedValues); // Tambahkan data ke list
-            }
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataMf.assignAll(parsedValues);
+            isLoading.value = false;
           });
-          isLoading.value = false;
         } else {
-          listDataMf.clear();
-          isLoading.value = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataMf.clear();
+            isLoading.value = false;
+          });
         }
-      }, onError: (error) {
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "Error : $error");
-        isLoading.value = false;
       });
     } else {
       Get.offAllNamed(Routes.LOGIN);
@@ -101,30 +105,34 @@ class DetailFeederController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
-          (event) {
-        isLoading.value = true;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalSore")
+          .onValue
+          .listen((event) {
         if (event.snapshot.value != null) {
-          final allData =
-              Map<String, dynamic>.from(event.snapshot.value as Map);
-          listDataAf
-              .clear(); // Clear list sebelumnya agar tidak terjadi duplikasi data
-          allData.forEach((dateKey, feederData) {
-            final afternoonFeeder = feederData["afternoonFeeder"];
-            if (afternoonFeeder != null) {
-              final parsedValues = Map<String, dynamic>.from(afternoonFeeder);
-              listDataAf.add(parsedValues); // Tambahkan data ke list
-            }
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataAf.assignAll(parsedValues);
+            isLoading.value = false;
           });
-          isLoading.value = false;
         } else {
-          listDataAf.clear();
-          isLoading.value = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataAf.clear();
+            isLoading.value = false;
+          });
         }
-      }, onError: (error) {
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "Error : $error");
-        isLoading.value = false;
       });
     } else {
       Get.offAllNamed(Routes.LOGIN);

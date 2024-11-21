@@ -4,13 +4,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import '../../detail_feeder/controllers/detail_feeder_controller.dart';
 import './../../../styles/app_colors.dart';
 import './../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../../../routes/app_pages.dart';
 import '../../data/controllers/data_controller.dart';
 
 class DetailJadwalView extends GetView<DataController> {
-  const DetailJadwalView({super.key});
+  final detailFeederController = Get.find<DetailFeederController>();
+  DetailJadwalView({super.key});
   Color getProgressColor(String scale, double percent) {
     if (percent > 1.0) {
       return Colors.orange;
@@ -98,12 +100,12 @@ class DetailJadwalView extends GetView<DataController> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Chart Jadwal",
+                          "Chart Feeder",
                           style: TextStyle(
                             fontFamily: 'poppins',
                             fontWeight: FontWeight.w600,
@@ -111,65 +113,68 @@ class DetailJadwalView extends GetView<DataController> {
                           ),
                         ),
                         DetailTile(
-                          title: "Data Penjadwalan",
+                          title: "Data Feeder",
                           icon: SvgPicture.asset('assets/icons/database.svg'),
-                          onTap: () => Get.toNamed(Routes.DATA),
+                          onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     SizedBox(
-                      height: 300,
+                      height: 290,
                       child: SfCartesianChart(
-                        title: const ChartTitle(text: 'Chart Penjadwalan'),
                         legend: const Legend(isVisible: true),
                         tooltipBehavior: TooltipBehavior(enable: true),
                         primaryXAxis: const CategoryAxis(),
                         primaryYAxis: const NumericAxis(),
                         series: <CartesianSeries>[
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataMf
+                            dataSource: detailFeederController.listDataMf
                               ..sort((a, b) =>
-                                  a['tanggal'].compareTo(b['tanggal'])),
+                                  a['ketHari'].compareTo(b['ketHari'])),
                             xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['tanggal'] as String,
+                                data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(data['makanan'] ?? '0'),
+                                int.tryParse(
+                                    data['beratWadah']?.toString() ?? '0'),
                             name: 'Makanan Pagi',
                             color: Colors.blue,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataMf,
+                            dataSource: detailFeederController.listDataMf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['tanggal'] as String,
+                                data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(data['minuman'] ?? '0'),
+                                int.tryParse(
+                                    data['volumeMLWadah']?.toString() ?? '0'),
                             name: 'Minuman Pagi',
                             color: Colors.green,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataAf
+                            dataSource: detailFeederController.listDataAf
                               ..sort((a, b) =>
-                                  a['tanggal'].compareTo(b['tanggal'])),
+                                  a['ketHari'].compareTo(b['ketHari'])),
                             xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['tanggal'] as String,
+                                data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(data['makanan'] ?? '0'),
+                                int.tryParse(
+                                    data['beratWadah']?.toString() ?? '0'),
                             name: 'Makanan Sore',
                             color: Colors.yellow,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataAf,
+                            dataSource: detailFeederController.listDataAf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['tanggal'] as String,
+                                data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(data['minuman'] ?? '0'),
+                                int.tryParse(
+                                    data['volumeMLWadah']?.toString() ?? '0'),
                             name: 'Minuman Sore',
                             color: AppColors.primary,
                             dataLabelSettings:
@@ -332,105 +337,6 @@ class DetailJadwalView extends GetView<DataController> {
                           );
                         }
                       },
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Chart Feeder",
-                          style: TextStyle(
-                            fontFamily: 'poppins',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                        DetailTile(
-                          title: "Data Feeder",
-                          icon: SvgPicture.asset('assets/icons/database.svg'),
-                          onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 300,
-                      child: SfCartesianChart(
-                        title: const ChartTitle(text: 'Chart Feeder'),
-                        legend: const Legend(isVisible: true),
-                        tooltipBehavior: TooltipBehavior(enable: true),
-                        primaryXAxis: CategoryAxis(
-                          labelAlignment: LabelAlignment.center,
-                          labelIntersectAction: AxisLabelIntersectAction.none,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                          axisLabelFormatter: (AxisLabelRenderDetails details) {
-                            String originalDate = details.text;
-                            if (DateTime.tryParse(originalDate) != null) {
-                              final date = DateTime.parse(originalDate);
-                              final formattedDate =
-                                  '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
-                              return ChartAxisLabel(
-                                  formattedDate, details.textStyle);
-                            }
-                            return ChartAxisLabel(
-                                originalDate, details.textStyle);
-                          },
-                        ),
-                        primaryYAxis: const NumericAxis(),
-                        series: <CartesianSeries>[
-                          ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listMorningFeeder,
-                            xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['date'] ?? '',
-                            yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(
-                                    data['beratWadah']?.toString() ?? '0'),
-                            name: 'Makanan Pagi',
-                            color: const Color(0xFFE06666),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: false),
-                          ),
-                          ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listMorningFeeder,
-                            xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['date'] ?? '',
-                            yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(
-                                    data['volumeMLWadah']?.toString() ?? '0'),
-                            name: 'Minuman Pagi',
-                            color: const Color(0xFF0000FF),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: false),
-                          ),
-                          ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listAfternoonFeeder,
-                            xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['date'] ?? '',
-                            yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(
-                                    data['beratWadah']?.toString() ?? '0'),
-                            name: 'Makanan Sore',
-                            color: const Color(0xFF9900FF),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: false),
-                          ),
-                          ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listAfternoonFeeder,
-                            xValueMapper: (Map<String, dynamic> data, _) =>
-                                data['date'] ?? '',
-                            yValueMapper: (Map<String, dynamic> data, _) =>
-                                int.tryParse(
-                                    data['volumeMLWadah']?.toString() ?? '0'),
-                            name: 'Minuman Sore',
-                            color: const Color(0xFFFF9900),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: false),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 )

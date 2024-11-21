@@ -56,7 +56,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DETAIL_JADWAL,
-      page: () => const DetailJadwalView(),
+      page: () => DetailJadwalView(),
       binding: DetailJadwalBinding(),
     ),
     GetPage(

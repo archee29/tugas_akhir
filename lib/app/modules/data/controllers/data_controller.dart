@@ -25,7 +25,7 @@ class DataController extends GetxController
   var selectedDay = Rx<DateTime?>(null);
   var focusedDay = DateTime.now().obs;
 
-  final DateFormat dateFormat = DateFormat('M/d/yyyy');
+  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
 
   RxInt makananValue = 0.obs;
   RxInt minumanValue = 0.obs;
@@ -186,36 +186,35 @@ class DataController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-
-      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
-        (event) {
-          isLoading.value = true;
-
-          if (event.snapshot.value != null) {
-            final allData =
-                Map<String, dynamic>.from(event.snapshot.value as Map);
-            listMorningFeeder.clear();
-
-            allData.forEach((dateKey, feederData) {
-              final morningFeeder = feederData["morningFeeder"];
-              if (morningFeeder != null) {
-                final parsedValues = Map<String, dynamic>.from(morningFeeder);
-                listMorningFeeder.add(parsedValues);
-              }
-            });
-
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalPagi")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listMorningFeeder.assignAll(parsedValues);
             isLoading.value = false;
-          } else {
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             listMorningFeeder.clear();
             isLoading.value = false;
-          }
-        },
-        onError: (error) {
-          isLoading.value = false;
-          CustomNotification.errorNotification(
-              "Terjadi Kesalahan", "Error : $error");
-        },
-      );
+          });
+        }
+      });
     } else {
       Get.offAllNamed(Routes.LOGIN);
     }
@@ -225,36 +224,35 @@ class DataController extends GetxController
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
-
-      databaseReference.child("UsersData/$uid/iot/feeder").onValue.listen(
-        (event) {
-          isLoading.value = true;
-
-          if (event.snapshot.value != null) {
-            final allData =
-                Map<String, dynamic>.from(event.snapshot.value as Map);
-            listAfternoonFeeder.clear();
-
-            allData.forEach((dateKey, feederData) {
-              final afternoonFeeder = feederData["afternoonFeeder"];
-              if (afternoonFeeder != null) {
-                final parsedValues = Map<String, dynamic>.from(afternoonFeeder);
-                listAfternoonFeeder.add(parsedValues);
-              }
-            });
-
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalSore")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listAfternoonFeeder.assignAll(parsedValues);
             isLoading.value = false;
-          } else {
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             listAfternoonFeeder.clear();
             isLoading.value = false;
-          }
-        },
-        onError: (error) {
-          isLoading.value = false;
-          CustomNotification.errorNotification(
-              "Terjadi Kesalahan", "Error : $error");
-        },
-      );
+          });
+        }
+      });
     } else {
       Get.offAllNamed(Routes.LOGIN);
     }
@@ -262,14 +260,14 @@ class DataController extends GetxController
 
   List getEvents(DateTime day) {
     List events = [];
-    for (var event in listDataMf) {
-      DateTime eventDate = dateFormat.parse(event['tanggal']);
+    for (var event in listMorningFeeder) {
+      DateTime eventDate = dateFormat.parse(event['ketHari']);
       if (isSameDay(eventDate, day)) {
         events.add(event);
       }
     }
-    for (var event in listDataAf) {
-      DateTime eventDate = dateFormat.parse(event['tanggal']);
+    for (var event in listAfternoonFeeder) {
+      DateTime eventDate = dateFormat.parse(event['ketHari']);
       if (isSameDay(eventDate, day)) {
         events.add(event);
       }
@@ -279,16 +277,17 @@ class DataController extends GetxController
 
   void showEventDetails(List events) {
     Get.defaultDialog(
-      title: "Detail Jadwal",
+      title: "Detail Feeder",
       content: SingleChildScrollView(
         child: Column(
           children: events.map((event) {
-            String jadwal =
-                event['waktu'] == '07:00' ? "Jadwal Pagi" : "Jadwal Sore";
+            String feeder = event['ketWaktu'] == '7:0:0'
+                ? "Morning Feeder"
+                : "Afternoon Feeder";
             return Card(
               child: ListTile(
                 title: Text(
-                  jadwal,
+                  feeder,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontFamily: 'poppins',
@@ -300,7 +299,7 @@ class DataController extends GetxController
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Title\t\t\t\t\t\t\t\t\t\t\t: ${event['title']}",
+                      "Tanggal\t\t\t: ${event['ketHari']}",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -309,7 +308,7 @@ class DataController extends GetxController
                       ),
                     ),
                     Text(
-                      "Deskripsi\t\t: ${event['deskripsi']}",
+                      "Waktu\t\t\t\t\t\t\t: ${event['ketWaktu']}",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -318,7 +317,7 @@ class DataController extends GetxController
                       ),
                     ),
                     Text(
-                      "Tanggal\t\t\t: ${event['tanggal']}",
+                      "Makanan\t: ${event['beratWadah']}Gr",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -327,25 +326,7 @@ class DataController extends GetxController
                       ),
                     ),
                     Text(
-                      "Waktu\t\t\t\t\t\t\t: ${event['waktu']}",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontFamily: 'poppins',
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    Text(
-                      "Makanan\t: ${event['makanan']}Gr",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontFamily: 'poppins',
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    Text(
-                      "Minuman\t: ${event['minuman']}mL",
+                      "Minuman\t: ${event['volumeMLWadah']}mL",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,

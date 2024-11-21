@@ -84,7 +84,7 @@ class SettingView extends GetView<SettingController> {
                       ),
                       if (userData["role"] == "admin")
                         MenuTile(
-                            title: "Tambah Status Alat",
+                            title: "Status Alat",
                             icon: SvgPicture.asset(
                               'assets/icons/tools-setting.svg',
                             ),
@@ -104,13 +104,6 @@ class SettingView extends GetView<SettingController> {
                           'assets/icons/history.svg',
                         ),
                         onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
-                      ),
-                      MenuTile(
-                        title: "Coba Notifikasi",
-                        icon: SvgPicture.asset(
-                          'assets/icons/notifikasi.svg',
-                        ),
-                        onTap: () => Get.toNamed(Routes.COBA_NOTIFIKASI),
                       ),
                       MenuTile(
                         isDanger: true,

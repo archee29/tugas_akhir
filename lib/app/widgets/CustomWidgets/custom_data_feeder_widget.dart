@@ -72,10 +72,10 @@ class FeederMFDataCard extends StatelessWidget {
                         style: TextStyle(color: Colors.white)),
                     const SizedBox(height: 4),
                     Text(
-                      (mfData["date"] == null)
+                      (mfData["waktu"] == null)
                           ? "-"
                           : DateFormat('HH:mm:ss')
-                              .format(DateTime.parse(mfData["date"])),
+                              .format(DateTime.parse(mfData["waktu"])),
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

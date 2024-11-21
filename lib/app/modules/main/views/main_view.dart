@@ -273,7 +273,7 @@ class MainView extends GetView<MainController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Jadwal Feeder",
+                        "Feeder",
                         style: TextStyle(
                           fontFamily: 'poppins',
                           fontWeight: FontWeight.w600,
@@ -281,9 +281,9 @@ class MainView extends GetView<MainController> {
                         ),
                       ),
                       MainTile(
-                        title: "Tambah Jadwal",
-                        icon: SvgPicture.asset('assets/icons/tambah.svg'),
-                        onTap: () => Get.toNamed(Routes.TAMBAH_JADWAL),
+                        title: "Penjadwalan",
+                        icon: SvgPicture.asset('assets/icons/history.svg'),
+                        onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
                       ),
                     ],
                   ),
