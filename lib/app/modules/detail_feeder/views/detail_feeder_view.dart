@@ -67,13 +67,14 @@ class DetailFeederView extends GetView<DetailFeederController> {
                 );
               },
               style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
                 elevation: 0,
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: SvgPicture.asset('assets/icons/filter.svg'),
+              child: SvgPicture.asset('assets/icons/filter-feeder.svg'),
             ),
           )
         ],

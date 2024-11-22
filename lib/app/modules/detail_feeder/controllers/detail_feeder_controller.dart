@@ -29,6 +29,9 @@ class DetailFeederController extends GetxController
   late TabController dataTabController;
   var isLoading = true.obs;
 
+  DateTime? start;
+  DateTime end = DateTime.now();
+
   final List<Tab> dataTabs = <Tab>[
     const Tab(text: 'Data Feeder Pagi'),
     const Tab(text: 'Data Feeder Sore'),
@@ -95,6 +98,7 @@ class DetailFeederController extends GetxController
   }
 
   Future<void> retrieveDataFeederMF() async {
+    isLoading.value = true;
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
@@ -109,13 +113,30 @@ class DetailFeederController extends GetxController
                 var value = Map<String, dynamic>.from(e.value);
                 value['key'] = e.key;
                 if (value.containsKey('ketHari')) {
-                  return value;
+                  // Convert ketHari string to DateTime for comparison
+                  DateTime dataDate =
+                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+
+                  // Apply date filter
+                  if (start != null) {
+                    if (dataDate.isAfter(
+                            start!.subtract(const Duration(days: 1))) &&
+                        dataDate.isBefore(end.add(const Duration(days: 1)))) {
+                      return value;
+                    }
+                    return null;
+                  } else {
+                    if (dataDate.isBefore(end.add(const Duration(days: 1)))) {
+                      return value;
+                    }
+                  }
                 }
                 return null;
               })
               .where((element) => element != null)
               .cast<Map<String, dynamic>>()
               .toList();
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             listDataMf.assignAll(parsedValues);
             isLoading.value = false;
@@ -133,6 +154,7 @@ class DetailFeederController extends GetxController
   }
 
   Future<void> retrieveDataFeederAF() async {
+    isLoading.value = true;
     User? currentUser = auth.currentUser;
     if (currentUser != null) {
       String uid = currentUser.uid;
@@ -147,13 +169,30 @@ class DetailFeederController extends GetxController
                 var value = Map<String, dynamic>.from(e.value);
                 value['key'] = e.key;
                 if (value.containsKey('ketHari')) {
-                  return value;
+                  // Convert ketHari string to DateTime for comparison
+                  DateTime dataDate =
+                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+
+                  // Apply date filter
+                  if (start != null) {
+                    if (dataDate.isAfter(
+                            start!.subtract(const Duration(days: 1))) &&
+                        dataDate.isBefore(end.add(const Duration(days: 1)))) {
+                      return value;
+                    }
+                    return null;
+                  } else {
+                    if (dataDate.isBefore(end.add(const Duration(days: 1)))) {
+                      return value;
+                    }
+                  }
                 }
                 return null;
               })
               .where((element) => element != null)
               .cast<Map<String, dynamic>>()
               .toList();
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             listDataAf.assignAll(parsedValues);
             isLoading.value = false;
@@ -260,5 +299,12 @@ class DetailFeederController extends GetxController
     );
   }
 
-  void pickDate(DateTime pickStart, DateTime pickEnd) {}
+  void pickDate(DateTime pickStart, DateTime pickEnd) {
+    start = pickStart;
+    end = pickEnd;
+    retrieveDataFeederMF();
+    retrieveDataFeederAF();
+    update();
+    Get.back();
+  }
 }
