@@ -5,14 +5,12 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../detail_feeder/controllers/detail_feeder_controller.dart';
-import './../../../styles/app_colors.dart';
-import './../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
+import '../../../styles/app_colors.dart';
+import '../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../../../routes/app_pages.dart';
-import '../../data/controllers/data_controller.dart';
 
-class DetailJadwalView extends GetView<DataController> {
-  final detailFeederController = Get.find<DetailFeederController>();
-  DetailJadwalView({super.key});
+class ChartView extends GetView<DetailFeederController> {
+  const ChartView({super.key});
   Color getProgressColor(String scale, double percent) {
     if (percent > 1.0) {
       return Colors.orange;
@@ -129,7 +127,7 @@ class DetailJadwalView extends GetView<DataController> {
                         primaryYAxis: const NumericAxis(),
                         series: <CartesianSeries>[
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: detailFeederController.listDataMf
+                            dataSource: controller.listDataMf
                               ..sort((a, b) =>
                                   a['ketHari'].compareTo(b['ketHari'])),
                             xValueMapper: (Map<String, dynamic> data, _) =>
@@ -143,7 +141,7 @@ class DetailJadwalView extends GetView<DataController> {
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: detailFeederController.listDataMf,
+                            dataSource: controller.listDataMf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
                                 data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
@@ -155,7 +153,7 @@ class DetailJadwalView extends GetView<DataController> {
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: detailFeederController.listDataAf
+                            dataSource: controller.listDataAf
                               ..sort((a, b) =>
                                   a['ketHari'].compareTo(b['ketHari'])),
                             xValueMapper: (Map<String, dynamic> data, _) =>
@@ -169,7 +167,7 @@ class DetailJadwalView extends GetView<DataController> {
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: detailFeederController.listDataAf,
+                            dataSource: controller.listDataAf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
                                 data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
@@ -222,8 +220,6 @@ class DetailJadwalView extends GetView<DataController> {
                           final data = snapshot.data!;
                           double beratWadah = data['beratWadah'] ?? 0;
                           double volumeMLWadah = data['volumeMLWadah'] ?? 0;
-
-                          // Conversion logic
                           String beratWadahDisplay = beratWadah > 999
                               ? "${(beratWadah / 1000).toStringAsFixed(2)} Kg"
                               : "${beratWadah.toStringAsFixed(2)} Gr";
@@ -247,7 +243,6 @@ class DetailJadwalView extends GetView<DataController> {
                                   : volumeMLWadahPercent < 0.66
                                       ? "Medium"
                                       : "High";
-
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [

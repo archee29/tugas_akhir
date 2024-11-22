@@ -21,9 +21,11 @@ class NotificationService {
     bool? initResult = await flutterLocalNotificationsPlugin
         .initialize(initializationSettings);
     if (initResult != null && initResult) {
-      print("Notification Plugin Initialized Successfully");
+      CustomNotification.successNotification(
+          "Berhasil", "Berhasil Mendapatkan Izin Notifikasi");
     } else {
-      print("Failed to Initialize Notification Plugin");
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan!", "Gagal Mendapatkan Izin Notifikasi");
     }
 
     tz.initializeTimeZones();
@@ -37,10 +39,7 @@ class NotificationService {
 
     PermissionStatus status = await Permission.notification.request();
     if (status != PermissionStatus.granted) {
-      print("Notification Permission Denied");
       throw Exception("Notifikasi Tidak Diizinkan");
-    } else {
-      print("Notification Permission Granted");
     }
   }
 
@@ -64,13 +63,12 @@ class NotificationService {
         body,
         tz.TZDateTime.from(scheduleTime, tz.local),
         platformChannelSpecifics,
+        // ignore: deprecated_member_use
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
-      print("Notification scheduled successfully for $scheduleTime");
     } catch (e) {
-      print("Error scheduling notification: $e");
       CustomNotification.errorNotification("Terjadi Kesalahan", "Error: $e");
     }
   }
@@ -95,19 +93,16 @@ class NotificationService {
                   DateFormat('MM-dd-yyyy HH:mm').parse('$tanggal $waktu');
               scheduleNotification(scheduleTime, title, body);
             } catch (e) {
-              print("Error parsing schedule time: $e");
               CustomNotification.errorNotification(
                   "Terjadi Kesalahan", "Error: $e");
             }
           } else {
-            print("Incomplete schedule data: tanggal=$tanggal, waktu=$waktu");
+            CustomNotification.errorNotification("Terjadi Kesalahan",
+                "Incomplete schedule data: tanggal=$tanggal, waktu=$waktu");
           }
         });
-      } else {
-        print("No schedules found for userId: $userId");
       }
     } catch (e) {
-      print("Error fetching schedule from Firebase: $e");
       CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
     }
   }
@@ -126,6 +121,5 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.show(
         0, title, body, platformChannelSpecifics);
-    print("Success notification shown: $title - $body");
   }
 }

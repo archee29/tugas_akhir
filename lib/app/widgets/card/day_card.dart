@@ -128,7 +128,7 @@ class DayCard extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  Get.toNamed(Routes.DETAIL_JADWAL);
+                  Get.toNamed(Routes.CHART);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,

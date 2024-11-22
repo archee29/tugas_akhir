@@ -26,7 +26,7 @@ class PageIndexController extends GetxController {
       case 2:
         Get.offAllNamed(Routes.SETTING);
       case 3:
-        Get.offAllNamed(Routes.MAIN);
+        Get.offAllNamed(Routes.STATISTIK);
       case 4:
         logout();
       default:

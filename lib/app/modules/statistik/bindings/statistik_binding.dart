@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../controllers/main_controller.dart';
+import '../controllers/statistik_controller.dart';
 
 class MainBinding extends Bindings {
   @override

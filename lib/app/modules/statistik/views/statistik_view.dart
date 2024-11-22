@@ -5,16 +5,16 @@ import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tugas_akhir/app/widgets/card/weekly_card.dart';
-import './../../../../app/controllers/page_index_controller.dart';
-import './../../../../app/routes/app_pages.dart';
-import './../../../../app/styles/app_colors.dart';
-import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
-import '../../data/controllers/data_controller.dart';
-import '../controllers/main_controller.dart';
+import '../../../controllers/page_index_controller.dart';
+import '../../../routes/app_pages.dart';
+import '../../../styles/app_colors.dart';
+import '../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
+import '../../detail_feeder/controllers/detail_feeder_controller.dart';
+import '../controllers/statistik_controller.dart';
 
 class MainView extends GetView<MainController> {
   final pageIndexController = Get.find<PageIndexController>();
-  final dataController = Get.find<DataController>();
+  final dataFeederController = Get.find<DetailFeederController>();
 
   MainView({super.key});
 
@@ -208,7 +208,7 @@ class MainView extends GetView<MainController> {
                       MainTile(
                         title: "Log Data",
                         icon: SvgPicture.asset('assets/icons/database.svg'),
-                        onTap: () => Get.toNamed(Routes.DETAIL_JADWAL),
+                        onTap: () => Get.toNamed(Routes.CHART),
                       ),
                     ],
                   ),
@@ -282,7 +282,7 @@ class MainView extends GetView<MainController> {
                       ),
                       MainTile(
                         title: "Penjadwalan",
-                        icon: SvgPicture.asset('assets/icons/history.svg'),
+                        icon: SvgPicture.asset('assets/icons/penjadwalan.svg'),
                         onTap: () => Get.toNamed(Routes.DETAIL_FEEDER),
                       ),
                     ],
@@ -291,7 +291,7 @@ class MainView extends GetView<MainController> {
                   Obx(() {
                     return Card(
                       child: TableCalendar(
-                        focusedDay: dataController.focusedDay.value,
+                        focusedDay: dataFeederController.focusedDay.value,
                         firstDay: DateTime(1950),
                         lastDay: DateTime(2100),
                         headerStyle: HeaderStyle(
@@ -335,27 +335,30 @@ class MainView extends GetView<MainController> {
                           ),
                         ),
                         eventLoader: (day) {
-                          var eventsForDay = dataController.getEvents(day);
+                          var eventsForDay =
+                              dataFeederController.getEvents(day);
                           return eventsForDay;
                         },
                         selectedDayPredicate: (day) {
                           return isSameDay(
-                              dataController.selectedDay.value, day);
+                              dataFeederController.selectedDay.value, day);
                         },
                         onDaySelected: (selectedDay, focusedDay) {
-                          if (!isSameDay(
-                              dataController.selectedDay.value, selectedDay)) {
-                            dataController.selectedDay.value = selectedDay;
-                            dataController.focusedDay.value = focusedDay;
+                          if (!isSameDay(dataFeederController.selectedDay.value,
+                              selectedDay)) {
+                            dataFeederController.selectedDay.value =
+                                selectedDay;
+                            dataFeederController.focusedDay.value = focusedDay;
                             var eventsForDay =
-                                dataController.getEvents(selectedDay);
+                                dataFeederController.getEvents(selectedDay);
                             if (eventsForDay.isNotEmpty) {
-                              dataController.showEventDetails(eventsForDay);
+                              dataFeederController
+                                  .showEventDetails(eventsForDay);
                             }
                           }
                         },
                         onPageChanged: (focusedDay) {
-                          dataController.focusedDay.value = focusedDay;
+                          dataFeederController.focusedDay.value = focusedDay;
                         },
                       ),
                     );

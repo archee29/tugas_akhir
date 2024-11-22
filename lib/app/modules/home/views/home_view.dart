@@ -154,7 +154,7 @@ class HomeView extends GetView<HomeController> {
                           // Button Main Menu
                           TextButton.icon(
                             onPressed: () {
-                              Get.toNamed(Routes.MAIN);
+                              Get.toNamed(Routes.STATISTIK);
                             },
                             icon: SvgPicture.asset(
                                 "assets/icons/icon-menu-kucing.svg"),
@@ -179,7 +179,7 @@ class HomeView extends GetView<HomeController> {
                           // Button Detail Food Menu
                           TextButton.icon(
                             onPressed: () {
-                              Get.toNamed(Routes.DETAIL_JADWAL);
+                              Get.toNamed(Routes.CHART);
                             },
                             icon: SvgPicture.asset(
                                 "assets/icons/icon-menu-food.svg"),

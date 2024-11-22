@@ -143,7 +143,7 @@ class IotCard extends StatelessWidget {
               SizedBox(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Get.toNamed(Routes.DETAIL_JADWAL);
+                    Get.toNamed(Routes.CHART);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
