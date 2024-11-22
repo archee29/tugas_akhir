@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import 'package:get/get.dart';
 
@@ -27,6 +28,55 @@ class DetailFeederView extends GetView<DetailFeederController> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        actions: [
+          Container(
+            width: 44,
+            height: 44,
+            margin: const EdgeInsets.only(bottom: 8, top: 8, right: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                Get.dialog(
+                  Dialog(
+                    child: SizedBox(
+                      height: 372,
+                      child: SfDateRangePicker(
+                        headerHeight: 50,
+                        headerStyle: const DateRangePickerHeaderStyle(
+                            textAlign: TextAlign.center),
+                        monthViewSettings:
+                            const DateRangePickerMonthViewSettings(
+                                firstDayOfWeek: 1),
+                        selectionMode: DateRangePickerSelectionMode.range,
+                        selectionColor: AppColors.primary,
+                        rangeSelectionColor: AppColors.primary.withOpacity(0.2),
+                        viewSpacing: 10,
+                        showActionButtons: true,
+                        onCancel: () => Get.back(),
+                        onSubmit: (data) {
+                          if (data != null) {
+                            PickerDateRange range = data as PickerDateRange;
+                            if (range.endDate != null) {
+                              controller.pickDate(
+                                  range.startDate!, range.endDate!);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: SvgPicture.asset('assets/icons/filter.svg'),
+            ),
+          )
+        ],
         bottom: TabBar(
           controller: controller.dataTabController,
           tabs: controller.dataTabs,

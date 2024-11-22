@@ -259,4 +259,6 @@ class DetailFeederController extends GetxController
       ),
     );
   }
+
+  void pickDate(DateTime pickStart, DateTime pickEnd) {}
 }

@@ -72,10 +72,10 @@ class FeederMFDataCard extends StatelessWidget {
                         style: TextStyle(color: Colors.white)),
                     const SizedBox(height: 4),
                     Text(
-                      (mfData["waktu"] == null)
+                      (mfData["ketWaktu"] == null)
                           ? "-"
-                          : DateFormat('HH:mm:ss')
-                              .format(DateTime.parse(mfData["waktu"])),
+                          : DateFormat('HH:mm:ss').format(
+                              DateFormat('H:m:s').parse(mfData["ketWaktu"])),
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -86,71 +86,42 @@ class FeederMFDataCard extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  (mfData["date"] == null)
+                  (mfData["ketHari"] == null)
                       ? "-"
-                      : DateFormat('yMMMMEEEEd')
-                          .format(DateTime.parse(mfData["date"])),
-                  style: const TextStyle(color: Colors.white),
+                      : DateFormat('yMMMMEEEEd').format(
+                          DateFormat('dd/MM/yyyy').parse(mfData["ketHari"])),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          const Text('Status Lokasi', style: TextStyle(color: Colors.white)),
+          const Text('Berat Wadah', style: TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
           Text(
-            (mfData["in_area"] == true)
-                ? "Masih Dilokasi Feeder"
-                : "Diluar Lokasi Feeder",
+            (mfData["beratWadah"] == null) ? "-" : "${mfData["beratWadah"]} Gr",
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 14),
-          const Text('Alamat Feeder', style: TextStyle(color: Colors.white)),
+          const Text('Air Wadah', style: TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
           Text(
-            (mfData["alamat"] == null) ? "-" : "${mfData["alamat"]}",
+            (mfData["volumeMLWadah"] == null)
+                ? "-"
+                : "${mfData["volumeMLWadah"]} mL",
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 14),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Berat Wadah',
-                    style: TextStyle(color: Colors.white)),
-                const SizedBox(height: 4),
-                Text(
-                  (mfData["beratWadah"] == null)
-                      ? "-"
-                      : "${mfData["beratWadah"]} Gr",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Air Wadah', style: TextStyle(color: Colors.white)),
-                const SizedBox(height: 4),
-                Text(
-                  (mfData["volumeMLWadah"] == null)
-                      ? "-"
-                      : "${mfData["volumeMLWadah"]} mL",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ])
         ],
       ),
     );
@@ -224,10 +195,10 @@ class FeederAFDataCard extends StatelessWidget {
                         style: TextStyle(color: Colors.black)),
                     const SizedBox(height: 4),
                     Text(
-                      (afData["date"] == null)
+                      (afData["ketWaktu"] == null)
                           ? "-"
-                          : DateFormat('HH:mm:ss')
-                              .format(DateTime.parse(afData["date"])),
+                          : DateFormat('HH:mm:ss').format(
+                              DateFormat('H:m:s').parse(afData["ketWaktu"])),
                       style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -237,69 +208,43 @@ class FeederAFDataCard extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Text((afData["date"] == null)
-                    ? "-"
-                    : DateFormat('yMMMMEEEEd')
-                        .format(DateTime.parse(afData["date"]))),
+                child: Text(
+                  (afData["ketHari"] == null)
+                      ? "-"
+                      : DateFormat('yMMMMEEEEd').format(
+                          DateFormat('dd/MM/yyyy').parse(afData["ketHari"])),
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          const Text('Status Lokasi', style: TextStyle(color: Colors.black)),
+          const Text('Berat Wadah', style: TextStyle(color: Colors.black)),
           const SizedBox(height: 4),
           Text(
-            (afData["in_area"] == true)
-                ? "Masih Dilokasi Feeder"
-                : "Diluar Lokasi Feeder",
+            (afData["beratWadah"] == null) ? "-" : "${afData["beratWadah"]} Gr",
             style: const TextStyle(
-                color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 14),
-          const Text('Alamat Feeder', style: TextStyle(color: Colors.black)),
+          const Text('Air Wadah', style: TextStyle(color: Colors.black)),
           const SizedBox(height: 4),
           Text(
-            (afData["alamat"] == null) ? "-" : "${afData["alamat"]}",
+            (afData["volumeMLWadah"] == null)
+                ? "-"
+                : "${afData["volumeMLWadah"]} mL",
             style: const TextStyle(
-                color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 14),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Berat Wadah',
-                    style: TextStyle(color: Colors.black)),
-                const SizedBox(height: 4),
-                Text(
-                  (afData["beratWadah"] == null)
-                      ? "-"
-                      : "${afData["beratWadah"]} Gr",
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Air Wadah', style: TextStyle(color: Colors.black)),
-                const SizedBox(height: 4),
-                Text(
-                  (afData["volumeMLWadah"] == null)
-                      ? "-"
-                      : "${afData["volumeMLWadah"]} mL",
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ])
         ],
       ),
     );
