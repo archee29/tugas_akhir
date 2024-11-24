@@ -2,7 +2,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../../../widgets/card/day_card.dart';
 import './../../../../app/routes/app_pages.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
@@ -37,7 +36,6 @@ class HomeView extends GetView<HomeController> {
                   left: 20, right: 20, top: 36, bottom: 15),
               children: [
                 const SizedBox(height: 16),
-                // Menampilkan Foto dan Nama Admin
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   width: MediaQuery.of(context).size.width,
@@ -81,44 +79,203 @@ class HomeView extends GetView<HomeController> {
                     ],
                   ),
                 ),
-                // Menampilkan Card Welcome Feeder
-                StreamBuilder<DatabaseEvent>(
-                  stream: controller.streamTodayFeeder(),
-                  builder: (context, feederSnapshot) {
-                    if (feederSnapshot.connectionState ==
-                        ConnectionState.waiting) {
+                StreamBuilder<Map<String, DatabaseEvent>>(
+                  stream: controller.streamBothSchedules(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (feederSnapshot.hasError) {
-                      return const Center(
-                          child: Text("Error loading data Admin"));
-                    } else if (!feederSnapshot.hasData ||
-                        feederSnapshot.data!.snapshot.value == null) {
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text("Error loading data"));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return FeederCard(
                         userData: user,
-                        todayFeederData: null,
+                        morningSchedule: null,
+                        eveningSchedule: null,
                       );
                     } else {
-                      var todayFeederData = Map<String, dynamic>.from(
-                          feederSnapshot.data!.snapshot.value as Map);
+                      // Mengambil data jadwal pagi
+                      var morningData =
+                          snapshot.data!['morning']?.snapshot.value;
+                      var morningSchedule = morningData != null
+                          ? Map<String, dynamic>.from(morningData as Map)
+                          : null;
+
+                      // Mengambil data jadwal sore
+                      var eveningData =
+                          snapshot.data!['evening']?.snapshot.value;
+                      var eveningSchedule = eveningData != null
+                          ? Map<String, dynamic>.from(eveningData as Map)
+                          : null;
+
                       return FeederCard(
                         userData: user,
-                        todayFeederData: todayFeederData,
+                        morningSchedule: morningSchedule,
+                        eveningSchedule: eveningSchedule,
                       );
                     }
                   },
                 ),
-
-                Obx(() {
-                  return DayCard(
-                    latestMakanan: controller.latestMakanan.value,
-                    latestMinuman: controller.latestMinuman.value,
-                    totalMakanan: controller.totalMakananToday.value,
-                    totalMinuman: controller.totalMinumanToday.value,
-                  );
-                }),
-
+                StreamBuilder<Map<String, double>>(
+                  stream: controller.calculateTotals(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Error loading data: ${snapshot.error}"),
+                      );
+                    } else if (!snapshot.hasData) {
+                      return const Center(child: Text("No Data"));
+                    } else {
+                      final data = snapshot.data!;
+                      return Container(
+                        width: Get.width,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            width: 3,
+                            color: AppColors.primaryExtraSoft,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Daily Feed",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      "120 Gr",
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Daily Water",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      "300 mL",
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Total Feed (Gr)",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      controller
+                                          .formatOutput(data['totalFoodDay']!),
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Total Water (mL)",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      controller.formatWaterOutput(
+                                          data['totalWaterDay']!),
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.CHART);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 18),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side:
+                                          const BorderSide(color: Colors.white),
+                                    ),
+                                    shadowColor: const Color(0x3F000000),
+                                  ),
+                                  icon: Icon(
+                                    Icons.arrow_circle_right_outlined,
+                                    color: AppColors.primary,
+                                  ),
+                                  label: const Text(
+                                    "",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      fontFamily: 'poppins',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(height: 12),
-                // Card Main Menu
                 Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
@@ -207,7 +364,6 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Menampilkan Alamat Feeder
                 Container(
                   margin: const EdgeInsets.only(top: 12, bottom: 24, left: 4),
                   child: Text(
@@ -220,7 +376,6 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                 ),
-                // Menampilkan Card Info Feeder
                 Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(

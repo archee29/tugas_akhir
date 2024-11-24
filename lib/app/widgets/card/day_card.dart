@@ -4,17 +4,11 @@ import './../../../../app/styles/app_colors.dart';
 import 'package:get/get.dart';
 
 class DayCard extends StatelessWidget {
-  final int latestMakanan;
-  final int latestMinuman;
-  final int totalMakanan;
-  final int totalMinuman;
+  final String value;
 
   const DayCard({
     super.key,
-    required this.latestMakanan,
-    required this.latestMinuman,
-    required this.totalMakanan,
-    required this.totalMinuman,
+    required this.value,
   });
 
   @override
@@ -91,7 +85,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "$totalMakanan Gr",
+                    value,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
@@ -112,7 +106,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "$totalMinuman mL",
+                    value,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,

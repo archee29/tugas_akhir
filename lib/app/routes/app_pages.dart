@@ -44,7 +44,7 @@ class AppPages {
     GetPage(
       name: _Paths.CHART,
       page: () => const ChartView(),
-      binding: DetailJadwalBinding(),
+      binding: ChartBinding(),
     ),
     GetPage(
       name: _Paths.LOGIN,
@@ -53,8 +53,8 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.STATISTIK,
-      page: () => MainView(),
-      binding: MainBinding(),
+      page: () => StatistikView(),
+      binding: StatistikBinding(),
     ),
     GetPage(
       name: _Paths.NEW_PASSWORD,

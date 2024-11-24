@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './app/modules/detail_feeder/controllers/detail_feeder_controller.dart';
+import './app/modules/statistik/controllers/statistik_controller.dart';
 import './app/routes/app_pages.dart';
 import './app/controllers/page_index_controller.dart';
 import './app/controllers/feeder_controller.dart';
@@ -19,6 +20,7 @@ void main() async {
   Get.put(HomeController(), permanent: true);
   Get.put(NotificationService(), permanent: true);
   Get.put(FeederController(), permanent: true);
+  Get.put(StatistikController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DetailFeederController(), permanent: true);
 

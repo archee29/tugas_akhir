@@ -12,15 +12,15 @@ import '../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../../detail_feeder/controllers/detail_feeder_controller.dart';
 import '../controllers/statistik_controller.dart';
 
-class MainView extends GetView<MainController> {
+class StatistikView extends GetView<StatistikController> {
   final pageIndexController = Get.find<PageIndexController>();
   final dataFeederController = Get.find<DetailFeederController>();
 
-  MainView({super.key});
+  StatistikView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    MainController mc = Get.put(MainController());
+    StatistikController statistikController = Get.put(StatistikController());
     return Scaffold(
         bottomNavigationBar: const CustomBottomNavigationBar(),
         body: StreamBuilder<DatabaseEvent>(
@@ -164,8 +164,9 @@ class MainView extends GetView<MainController> {
                                 inactiveColor: AppColors.error,
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
-                                value: mc.servoSwitched.value,
-                                onToggle: (val) => mc.servoControl(),
+                                value: statistikController.servoSwitched.value,
+                                onToggle: (val) =>
+                                    statistikController.servoControl(),
                               ),
                             ),
                             Obx(
@@ -184,8 +185,9 @@ class MainView extends GetView<MainController> {
                                 inactiveColor: AppColors.error,
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
-                                value: mc.pumpSwitched.value,
-                                onToggle: (val) => mc.pumpControl(),
+                                value: statistikController.pumpSwitched.value,
+                                onToggle: (val) =>
+                                    statistikController.pumpControl(),
                               ),
                             ),
                           ],

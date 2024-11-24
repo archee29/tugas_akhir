@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 import '../../../routes/app_pages.dart';
 
-class MainController extends GetxController {
+class StatistikController extends GetxController {
+  RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   RxBool servoSwitched = false.obs;
@@ -14,11 +15,21 @@ class MainController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (auth.currentUser != null) {
-      _fetchInitialSwitchStates();
-    } else {
-      Get.offAllNamed(Routes.LOGIN);
-    }
+    Future.delayed(Duration.zero, () {
+      if (auth.currentUser != null) {
+        streamUser().listen((event) {
+          userData.value =
+              Map<String, dynamic>.from(event.snapshot.value as Map);
+        }, onError: (error) {
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
+        });
+        _fetchInitialSwitchStates();
+        calculateTotals();
+      } else {
+        Get.offAllNamed(Routes.LOGIN);
+      }
+    });
   }
 
   void _fetchInitialSwitchStates() {

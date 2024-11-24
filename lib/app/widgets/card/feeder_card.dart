@@ -4,12 +4,14 @@ import './../../../../app/styles/app_colors.dart';
 
 class FeederCard extends StatelessWidget {
   final Map<String, dynamic> userData;
-  final Map<String, dynamic>? todayFeederData;
+  final Map<String, dynamic>? morningSchedule;
+  final Map<String, dynamic>? eveningSchedule;
 
   const FeederCard({
     super.key,
     required this.userData,
-    required this.todayFeederData,
+    this.morningSchedule,
+    this.eveningSchedule,
   });
 
   @override
@@ -29,8 +31,7 @@ class FeederCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            // ignore: prefer_interpolation_to_compose_strings
-            "Halo, " + userData["name"],
+            "Halo, ${userData["name"]}",
             style: const TextStyle(
               color: Colors.white,
               fontFamily: 'poppins',
@@ -49,7 +50,6 @@ class FeederCard extends StatelessWidget {
               ),
             ),
           ),
-          // Container untuk feeder
           Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -73,10 +73,10 @@ class FeederCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        (todayFeederData?["morningFeeder"] == null)
-                            ? "-"
-                            : DateFormat('HH:mm:ss').format(DateTime.parse(
-                                todayFeederData!["morningFeeder"]["date"])),
+                        morningSchedule?["ketWaktu"] != null
+                            ? DateFormat('HH:mm:ss').format(DateFormat('H:m:s')
+                                .parse(morningSchedule!["ketWaktu"]))
+                            : "-",
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -105,10 +105,10 @@ class FeederCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        (todayFeederData?["afternoonFeeder"] == null)
-                            ? "-"
-                            : DateFormat('HH:mm:ss').format(DateTime.parse(
-                                todayFeederData!["afternoonFeeder"]["date"])),
+                        eveningSchedule?["ketWaktu"] != null
+                            ? DateFormat('HH:mm:ss').format(DateFormat('H:m:s')
+                                .parse(eveningSchedule!["ketWaktu"]))
+                            : "-",
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

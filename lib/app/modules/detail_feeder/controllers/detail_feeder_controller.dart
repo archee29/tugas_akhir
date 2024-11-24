@@ -113,11 +113,8 @@ class DetailFeederController extends GetxController
                 var value = Map<String, dynamic>.from(e.value);
                 value['key'] = e.key;
                 if (value.containsKey('ketHari')) {
-                  // Convert ketHari string to DateTime for comparison
                   DateTime dataDate =
                       DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-
-                  // Apply date filter
                   if (start != null) {
                     if (dataDate.isAfter(
                             start!.subtract(const Duration(days: 1))) &&
@@ -169,11 +166,8 @@ class DetailFeederController extends GetxController
                 var value = Map<String, dynamic>.from(e.value);
                 value['key'] = e.key;
                 if (value.containsKey('ketHari')) {
-                  // Convert ketHari string to DateTime for comparison
                   DateTime dataDate =
                       DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-
-                  // Apply date filter
                   if (start != null) {
                     if (dataDate.isAfter(
                             start!.subtract(const Duration(days: 1))) &&

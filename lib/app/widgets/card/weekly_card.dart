@@ -14,17 +14,13 @@ class WeeklyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width *
-          0.4, // Sesuaikan ukuran sesuai dengan gambar
-      padding: const EdgeInsets.all(
-          10), // Tambahkan padding untuk ruang di sekitar konten
+      width: MediaQuery.of(context).size.width * 0.4,
+      padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: Colors.black,
-            width: 2), // Tambahkan border hitam dengan ketebalan 2
+        border: Border.all(color: Colors.black, width: 2),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -36,7 +32,7 @@ class WeeklyCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12, // Sesuaikan ukuran teks agar pas di dalam card
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -49,13 +45,13 @@ class WeeklyCard extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 5), // Ruang antara nilai dan ikon
+          const SizedBox(height: 5),
           const Align(
             alignment: Alignment.centerRight,
             child: Icon(
               Icons.bar_chart_rounded,
               color: Colors.white,
-              size: 24, // Sesuaikan ukuran ikon
+              size: 24,
             ),
           ),
         ],
