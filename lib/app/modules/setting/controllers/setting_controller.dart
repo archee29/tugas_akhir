@@ -25,15 +25,18 @@ class SettingController extends GetxController {
         Get.offAllNamed(Routes.LOGIN);
         return;
       }
-
       String uid = currentUser.uid;
       DatabaseReference ref =
-          databaseReference.child('UsersData/$uid/manual/statusAlat');
-
+          databaseReference.child('UsersData/$uid/statusAlat');
       DataSnapshot snapshot = await ref.get();
-
-      if (snapshot.exists && snapshot.value != null) {
-        Get.toNamed(Routes.STATUS_ALAT);
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? statusAlatData =
+            snapshot.value as Map<dynamic, dynamic>?;
+        if (statusAlatData != null && statusAlatData.isNotEmpty) {
+          Get.toNamed(Routes.STATUS_ALAT);
+        } else {
+          Get.toNamed(Routes.TAMBAH_STATUS_ALAT);
+        }
       } else {
         Get.toNamed(Routes.TAMBAH_STATUS_ALAT);
       }

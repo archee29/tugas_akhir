@@ -143,7 +143,7 @@ class StatistikController extends GetxController {
     });
   }
 
-  String formatOutput(double value) {
+  String formatFoodOutput(double value) {
     if (value >= 1000) {
       return '${(value / 1000).toStringAsFixed(1)} Kg';
     } else {
@@ -158,4 +158,10 @@ class StatistikController extends GetxController {
       return '${value.toStringAsFixed(0)} mL';
     }
   }
+  // RER
+  // RER  =70×(3,5Kg)^3/4
+  //      = .... kcal/day
+
+  // PER  = RER x 0,70
+  //      = .... kcal/day
 }
