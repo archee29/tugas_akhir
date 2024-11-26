@@ -132,7 +132,7 @@ class HomeController extends GetxController {
     String? uid = auth.currentUser?.uid;
     if (uid != null) {
       return database
-          .ref('UsersData/$uid/UsersProfile/infoFeeder')
+          .ref('UsersData/$uid/UsersProfile')
           .onValue
           .map((DatabaseEvent snapshot) {
         if (snapshot.snapshot.value != null) {
@@ -140,16 +140,16 @@ class HomeController extends GetxController {
               Map<String, dynamic>.from(snapshot.snapshot.value as Map);
           return {
             'beratKucing':
-                formatLargeNumberOutput(data['beratKucing'], unit: 'gr'),
+                formatLargeNumberOutput(data['beratKucing'], unit: ' Gr'),
             'namaKandang': data['namaKandang'],
             'tabungMinum':
-                formatLargeNumberOutput(data['tabungMinum'], unit: 'mL'),
+                formatLargeNumberOutput(data['tabungMinum'], unit: ' mL'),
             'tabungPakan':
-                formatLargeNumberOutput(data['tabungPakan'], unit: 'gr'),
+                formatLargeNumberOutput(data['tabungPakan'], unit: ' Gr'),
             'wadahMinum':
-                formatLargeNumberOutput(data['wadahMinum'], unit: 'mL'),
+                formatLargeNumberOutput(data['wadahMinum'], unit: ' mL'),
             'wadahPakan':
-                formatLargeNumberOutput(data['wadahPakan'], unit: 'gr'),
+                formatLargeNumberOutput(data['wadahPakan'], unit: ' Gr'),
           };
         }
         return {};
@@ -160,12 +160,12 @@ class HomeController extends GetxController {
   }
 
   String formatLargeNumberOutput(dynamic value, {String unit = ''}) {
-    if (value == null) return '0$unit';
+    if (value == null) return '0 $unit';
     double numValue = double.parse(value.toString());
-    if (unit == 'gr' && numValue >= 1000) {
+    if (unit == ' Gr' && numValue >= 1000) {
       return '${(numValue / 1000).toStringAsFixed(1)} Kg';
     }
-    if (unit == 'mL' && numValue >= 1000) {
+    if (unit == ' mL' && numValue >= 1000) {
       return '${(numValue / 1000).toStringAsFixed(1)} L';
     }
     return '${numValue.toStringAsFixed(0)}$unit';

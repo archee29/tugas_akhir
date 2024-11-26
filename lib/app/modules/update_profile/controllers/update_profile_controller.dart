@@ -10,9 +10,14 @@ import './../../../../app/routes/app_pages.dart';
 
 class UpdateProfileController extends GetxController {
   RxBool isLoading = false.obs;
-  TextEditingController userIdController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController nkController = TextEditingController();
+  TextEditingController tpController = TextEditingController();
+  TextEditingController wpController = TextEditingController();
+  TextEditingController tmController = TextEditingController();
+  TextEditingController wmController = TextEditingController();
+  TextEditingController bkController = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
   s.FirebaseStorage storage = s.FirebaseStorage.instance;
@@ -25,64 +30,112 @@ class UpdateProfileController extends GetxController {
     super.onInit();
     if (auth.currentUser == null) {
       Get.offAllNamed(Routes.LOGIN);
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {});
     }
+    final user = Get.arguments;
+    nameController.text = user["name"] ?? "";
+    emailController.text = user["email"] ?? "";
+    nkController.text = user["namaKandang"] ?? "";
+    tpController.text = user["tabungPakan"]?.toString() ?? "";
+    wpController.text = user["wadahPakan"]?.toString() ?? "";
+    tmController.text = user["tabungMinum"]?.toString() ?? "";
+    wmController.text = user["wadahMinum"]?.toString() ?? "";
+    bkController.text = user["beratKucing"]?.toString() ?? "";
   }
 
   @override
   void onClose() {
-    userIdController.dispose();
     nameController.dispose();
     emailController.dispose();
+    nkController.dispose();
+    tpController.dispose();
+    wpController.dispose();
+    tmController.dispose();
+    wmController.dispose();
+    bkController.dispose();
     super.onClose();
   }
 
   Future<void> updateProfile() async {
     User? currentUser = auth.currentUser;
     if (currentUser == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "User Tidak Terdaftar");
-      });
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan", "User Tidak Terdaftar");
       Get.offAllNamed(Routes.LOGIN);
       return;
     }
-
     String uid = currentUser.uid;
-    if (userIdController.text.isNotEmpty &&
-        nameController.text.isNotEmpty &&
-        emailController.text.isNotEmpty) {
+    if (!_validateNumericInputs()) {
+      return;
+    }
+
+    if (_validateAllFields()) {
       isLoading.value = true;
       try {
         Map<String, dynamic> data = {
-          "name": nameController.text,
+          "name": nameController.text.trim(),
+          "namaKandang": nkController.text.trim(),
+          "tabungPakan": int.parse(tpController.text.trim()),
+          "wadahPakan": int.parse(wpController.text.trim()),
+          "tabungMinum": int.parse(tmController.text.trim()),
+          "wadahMinum": int.parse(wmController.text.trim()),
+          "beratKucing": int.parse(bkController.text.trim()),
         };
+
         if (image != null) {
           String avatarUrl = await _uploadAvatar(uid);
           data["avatar"] = avatarUrl;
         }
+
         await _updateUserProfileData(uid, data);
         image = null;
         Get.back();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          CustomNotification.successNotification(
-              "Sukses", "Berhasil Update Profile");
-        });
+        CustomNotification.successNotification(
+            "Sukses", "Berhasil Update Profile");
       } catch (e) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          CustomNotification.errorNotification("Terjadi Kesalahan",
-              "Tidak Bisa Update Profile. Error: ${e.toString()}");
-        });
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Tidak Bisa Update Profile. Error: $e");
       } finally {
         isLoading.value = false;
       }
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "Isi Form Terlebih Dahulu");
-      });
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan", "Isi Semua Form Terlebih Dahulu");
     }
+  }
+
+  bool _validateNumericInputs() {
+    final numericControllers = [
+      tpController,
+      wpController,
+      tmController,
+      wmController,
+      bkController
+    ];
+    for (var controller in numericControllers) {
+      if (controller.text.trim().isEmpty) {
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Semua field numerik harus diisi");
+        return false;
+      }
+
+      if (int.tryParse(controller.text.trim()) == null) {
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Input harus berupa angka");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _validateAllFields() {
+    return nameController.text.trim().isNotEmpty &&
+        emailController.text.trim().isNotEmpty &&
+        nkController.text.trim().isNotEmpty &&
+        tpController.text.trim().isNotEmpty &&
+        wpController.text.trim().isNotEmpty &&
+        tmController.text.trim().isNotEmpty &&
+        wmController.text.trim().isNotEmpty &&
+        bkController.text.trim().isNotEmpty;
   }
 
   Future<String> _uploadAvatar(String uid) async {
@@ -118,27 +171,20 @@ class UpdateProfileController extends GetxController {
   void deleteProfile() async {
     User? currentUser = auth.currentUser;
     if (currentUser == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "User Tidak Terdaftar");
-      });
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan", "User Tidak Terdaftar");
       Get.offAllNamed(Routes.LOGIN);
       return;
     }
-
     String uid = currentUser.uid;
     try {
       await databaseReference.child("UsersData/$uid/UsersProfile").update({
         "avatar": null,
       });
       Get.back();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.snackbar("Sukses", "Avatar Berhasil Dihapuas");
-      });
+      Get.snackbar("Sukses", "Avatar Berhasil Dihapus");
     } catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.snackbar("Terjadi Kesalahan", "Tidak Bisa Menghapuas Avatar");
-      });
+      Get.snackbar("Terjadi Kesalahan", "Tidak Bisa Menghapus Avatar");
     } finally {
       update();
     }

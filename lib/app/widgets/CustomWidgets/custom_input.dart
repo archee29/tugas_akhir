@@ -10,6 +10,7 @@ class CustomInput extends StatefulWidget {
   final bool obsecureText;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final double? width;
 
   const CustomInput({
     super.key,
@@ -21,6 +22,7 @@ class CustomInput extends StatefulWidget {
     this.obsecureText = false,
     this.suffixIcon,
     this.keyboardType,
+    this.width,
   });
 
   @override
@@ -30,46 +32,48 @@ class CustomInput extends StatefulWidget {
 class _CustomInputState extends State<CustomInput> {
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(left: 14, right: 14, top: 4),
-        margin: widget.margin,
-        decoration: BoxDecoration(
-          color: (widget.disabled == false)
-              ? Colors.transparent
-              : AppColors.primaryExtraSoft,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 1, color: AppColors.secondaryExtraSoft),
-        ),
-        child: TextField(
-          readOnly: widget.disabled,
-          obscureText: widget.obsecureText,
-          style: const TextStyle(
-            fontSize: 14,
-            fontFamily: 'poppins',
+    return Container(
+      width: widget.width,
+      margin: widget.margin,
+      child: Material(
+        color: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.only(left: 14, right: 14, top: 4),
+          decoration: BoxDecoration(
+            color: (widget.disabled == false)
+                ? Colors.transparent
+                : AppColors.primaryExtraSoft,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(width: 1, color: AppColors.secondaryExtraSoft),
           ),
-          maxLines: 1,
-          controller: widget.controller,
-          keyboardType: widget.keyboardType,
-          decoration: InputDecoration(
-            suffixIcon: widget.suffixIcon ?? const SizedBox(),
-            label: Text(
-              widget.label,
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 14,
-              ),
-            ),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            border: InputBorder.none,
-            hintText: widget.hint,
-            hintStyle: TextStyle(
+          child: TextField(
+            readOnly: widget.disabled,
+            obscureText: widget.obsecureText,
+            style: const TextStyle(
               fontSize: 14,
               fontFamily: 'poppins',
-              fontWeight: FontWeight.w500,
-              color: AppColors.secondarySoft,
+            ),
+            maxLines: 1,
+            controller: widget.controller,
+            keyboardType: widget.keyboardType,
+            decoration: InputDecoration(
+              suffixIcon: widget.suffixIcon ?? const SizedBox(),
+              label: Text(
+                widget.label,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 14,
+                ),
+              ),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: InputBorder.none,
+              hintText: widget.hint,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontFamily: 'poppins',
+                fontWeight: FontWeight.w500,
+                color: AppColors.secondarySoft,
+              ),
             ),
           ),
         ),

@@ -11,6 +11,7 @@ class CustomInfoFeeder extends StatelessWidget {
   final String jenisMakanan;
   final String tabungMinum;
   final String wadahMinum;
+  final void Function() onPressed;
 
   const CustomInfoFeeder({
     super.key,
@@ -20,6 +21,7 @@ class CustomInfoFeeder extends StatelessWidget {
     required this.jenisMakanan,
     required this.tabungMinum,
     required this.wadahMinum,
+    required this.onPressed,
   });
 
   @override
@@ -36,7 +38,6 @@ class CustomInfoFeeder extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Header Info Feeder
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -80,7 +81,6 @@ class CustomInfoFeeder extends StatelessWidget {
             thickness: 1,
           ),
           const SizedBox(height: 15),
-          // Deskripsi 1 Info Feeder
           Row(
             children: [
               // Nama Kandang
@@ -158,7 +158,6 @@ class CustomInfoFeeder extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 30),
-          // Deskripsi 2 Info Feeder
           Row(
             children: [
               // Jenis Makanan
@@ -235,6 +234,28 @@ class CustomInfoFeeder extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 20),
+          const Divider(
+            color: Colors.black,
+            thickness: 1,
+          ),
+          Align(
+              alignment: Alignment.center,
+              child: ElevatedButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(
+                  Icons.edit,
+                  color: Colors.blue,
+                ),
+                label: Text(
+                  "Edit",
+                  style: TextStyle(color: AppColors.primary),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  minimumSize: const Size(140, 50),
+                ),
+              )),
         ],
       ),
     );

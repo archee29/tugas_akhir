@@ -13,9 +13,14 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.userIdController.text = user["user_id"];
-    controller.nameController.text = user["name"];
-    controller.emailController.text = user["email"];
+    // controller.nameController.text = user["name"];
+    // controller.emailController.text = user["email"];
+    // controller.nkController.text = user["namaKandang"];
+    // controller.tpController.text = user["tabungPakan"].toString();
+    // controller.wpController.text = user["wadahPakan"].toString();
+    // controller.tmController.text = user["tabungMinum"].toString();
+    // controller.wmController.text = user["wadahMinum"].toString();
+    // controller.bkController.text = user["beratKucing"].toString();
 
     return Scaffold(
       appBar: AppBar(
@@ -131,6 +136,73 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
             label: "Email",
             hint: "youremail@email.com",
             disabled: true,
+          ),
+          CustomInput(
+            controller: controller.nkController,
+            label: "Nama Kandang",
+            hint: "Masukkan Nama Kandang",
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: CustomInput(
+                        controller: controller.tpController,
+                        label: "Tabung Pakan",
+                        hint: "Masukkan Berat Tabung Pakan",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: CustomInput(
+                        controller: controller.wpController,
+                        label: "Wadah Pakan",
+                        hint: "Masukkan Berat Wadah Pakan",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: CustomInput(
+                        controller: controller.tmController,
+                        label: "Tabung Minum",
+                        hint: "Masukkan Berat Tabung Minum",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: CustomInput(
+                        controller: controller.wmController,
+                        label: "Wadah Minum",
+                        hint: "Masukkan Berat Wadah Minum",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          CustomInput(
+            controller: controller.bkController,
+            label: "Berat Badan Kucing",
+            hint: "Masukkan Berat Badan Kucing",
+            keyboardType: TextInputType.number,
           ),
         ],
       ),

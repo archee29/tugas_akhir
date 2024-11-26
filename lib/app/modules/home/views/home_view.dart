@@ -399,6 +399,10 @@ class HomeView extends GetView<HomeController> {
                         jenisMakanan: 'Makanan Kering',
                         tabungMinum: '${data['tabungMinum']} ',
                         wadahMinum: '${data['wadahMinum']} ',
+                        onPressed: () => Get.toNamed(
+                          Routes.UPDATE_PROFILE,
+                          arguments: user,
+                        ),
                       );
                     }
                   },
