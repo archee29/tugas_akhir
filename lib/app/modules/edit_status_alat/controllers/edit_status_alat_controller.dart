@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +19,23 @@ class EditStatusAlatController extends GetxController {
   final s.FirebaseStorage storage = s.FirebaseStorage.instance;
   XFile? image;
 
+  // Data yang akan diedit
+  late Map<dynamic, dynamic> statusAlatData;
+  late String selectedDate;
+
+  @override
+  void onInit() {
+    super.onInit();
+    Map<String, dynamic>? arguments = Get.arguments;
+    if (arguments != null) {
+      selectedDate = arguments['date'];
+      statusAlatData = arguments['statusAlat'];
+      selectedServoStatus.value = statusAlatData['servo_status'] ?? '';
+      selectedPumpStatus.value = statusAlatData['pump_status'] ?? '';
+      catatanController.text = statusAlatData['catatan'] ?? '';
+    }
+  }
+
   @override
   void onClose() {
     catatanController.dispose();
@@ -36,29 +52,7 @@ class EditStatusAlatController extends GetxController {
     }
   }
 
-  Future<void> loadExistingStatus(String formattedDate) async {
-    final User? user = auth.currentUser;
-    if (user == null) return;
-
-    try {
-      final snapshot = await databaseReference
-          .child("UsersData/${user.uid}/statusAlat/$formattedDate")
-          .get();
-      if (snapshot.exists) {
-        final data = snapshot.value as Map<String, dynamic>;
-        selectedServoStatus.value = data["servo_status"] ?? '';
-        selectedPumpStatus.value = data["pump_status"] ?? '';
-        catatanController.text = data["catatan"] ?? '';
-      } else {
-        CustomNotification.errorNotification(
-            "Data Tidak Ditemukan", "Status alat tidak tersedia.");
-      }
-    } catch (e) {
-      CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
-    }
-  }
-
-  Future<void> editStatusAlat(String formattedDate) async {
+  Future<void> editStatusAlat() async {
     final User? user = auth.currentUser;
     if (user == null) {
       CustomNotification.errorNotification(
@@ -73,26 +67,37 @@ class EditStatusAlatController extends GetxController {
           "Terjadi Kesalahan", "Isi Semua Data");
       return;
     }
+
     isLoading.value = true;
     try {
       final String uid = user.uid;
       String? avatarUrl;
+
+      // Jika ada gambar baru, upload gambar baru
       if (image != null) {
         avatarUrl = await _uploadAvatar(uid);
       }
+
       final Map<String, dynamic> data = {
         "servo_status": selectedServoStatus.value,
         "pump_status": selectedPumpStatus.value,
         "catatan": catatanController.text,
-        "updated_at": DateTime.now().toIso8601String(),
+        "created_at": DateTime.now().toIso8601String(),
       };
+
+      // Tambahkan URL gambar jika ada
       if (avatarUrl != null) {
         data["gambarAlat"] = avatarUrl;
+      } else if (statusAlatData['gambarAlat'] != null) {
+        // Gunakan URL gambar lama jika tidak ada gambar baru
+        data["gambarAlat"] = statusAlatData['gambarAlat'];
       }
-      await _updateStatusToDatabase(uid, formattedDate, data);
+
+      await _updateStatusToDatabase(user.uid, data);
+      Get.back();
       Get.back();
       CustomNotification.successNotification(
-          "Berhasil", "Status Alat Berhasil Diperbarui");
+          "Berhasil", "Status Alat Berhasil Diubah");
     } catch (e) {
       CustomNotification.errorNotification("Terjadi Kesalahan", "$e");
     } finally {
@@ -102,9 +107,9 @@ class EditStatusAlatController extends GetxController {
   }
 
   Future<void> _updateStatusToDatabase(
-      String uid, String formattedDate, Map<String, dynamic> data) async {
+      String uid, Map<String, dynamic> data) async {
     await databaseReference
-        .child("UsersData/$uid/statusAlat/$formattedDate")
+        .child("UsersData/$uid/statusAlat/$selectedDate")
         .update(data);
   }
 

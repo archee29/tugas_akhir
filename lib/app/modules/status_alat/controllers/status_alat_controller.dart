@@ -39,6 +39,11 @@ class StatusAlatController extends GetxController {
               statusData['date'] = key;
               statusAlatList.add(statusData);
             });
+            statusAlatList.sort((a, b) {
+              DateTime dateA = DateFormat('MM-dd-yyyy').parse(a['date']);
+              DateTime dateB = DateFormat('MM-dd-yyyy').parse(b['date']);
+              return dateB.compareTo(dateA);
+            });
           } else {
             statusAlatList.clear();
           }
@@ -58,13 +63,16 @@ class StatusAlatController extends GetxController {
     }
   }
 
-  Stream<DatabaseEvent> streamStatusAlat() {
+  Stream<DatabaseEvent> streamStatusAlat({String? specificDate}) {
     final User? user = auth.currentUser;
     if (user == null) {
       return Stream.error("User not authenticated");
     }
+
     String uid = user.uid;
-    String formattedDate = DateFormat('MM-dd-yyyy').format(DateTime.now());
+    String formattedDate =
+        specificDate ?? DateFormat('MM-dd-yyyy').format(DateTime.now());
+
     return databaseReference
         .child("UsersData/$uid/statusAlat/$formattedDate")
         .onValue;
@@ -72,28 +80,30 @@ class StatusAlatController extends GetxController {
 
   Future<void> deleteStatusAlat(String date) async {
     String? uid = auth.currentUser?.uid;
-    if (uid != null) {
-      CustomAlertDialog.showFeederAlert(
-        title: "Hapus Data",
-        message: "Apakah Anda Yakin Untuk Menghapus Data?",
-        onCancel: () => Get.back(),
-        onConfirm: () async {
-          try {
-            await databaseReference
-                .child('UsersData/$uid/statusAlat/$date')
-                .remove();
-            Get.back();
-            Get.back();
-            CustomNotification.successNotification(
-                "Success", "Data status alat berhasil dihapus");
-          } catch (e) {
-            CustomNotification.errorNotification(
-                "Error", "Gagal menghapus data status alat: $e");
-          }
-        },
-      );
-    } else {
+    if (uid == null) {
       Get.offAllNamed(Routes.LOGIN);
+      return;
     }
+
+    CustomAlertDialog.showFeederAlert(
+      title: "Hapus Data Status Alat",
+      message: "Apakah Anda Yakin Untuk Menghapus Data Status Alat?",
+      onCancel: () => Get.back(),
+      onConfirm: () async {
+        try {
+          await databaseReference
+              .child('UsersData/$uid/statusAlat/$date')
+              .remove();
+          statusAlatList.removeWhere((item) => item['date'] == date);
+          Get.back();
+          Get.back();
+          CustomNotification.successNotification(
+              "Success", "Data status alat berhasil dihapus");
+        } catch (e) {
+          CustomNotification.errorNotification(
+              "Error", "Gagal menghapus data status alat: $e");
+        }
+      },
+    );
   }
 }

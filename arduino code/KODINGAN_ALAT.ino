@@ -27,7 +27,7 @@ Servo myServo;
 
 #define echoPinTabung 10
 #define trigPinTabung 11
-float maxTinggiTabung = 34.5, radiusTabung = 4.0;
+float maxTinggiTabung = 9.0, radiusTabung = 4.0;  // Tinggi Tabung = 34.5
 
 String dataMonitoring;
 String dataFeeding;
@@ -78,7 +78,7 @@ void initRTC() {
 
 void wadahPakan(int &beratWadah) {
   beratWadah = lcWadah.get_units(10);
-  if (beratWadah < 0) {
+  if (beratWadah < 1200) {
     beratWadah = 0;
   }
 }
@@ -118,11 +118,11 @@ void USTabung(int &volumeMLAirTabung) {
 
 void bukaServo(int jumlah) {
   for (int i = 0; i < jumlah; i++) {
-    for (int posisi = 0; posisi <= 90; posisi++) {
+    for (int posisi = 90; posisi >= 0; posisi--) {
       myServo.write(posisi);
       delay(20);
     }
-    for (int posisi = 90; posisi >= 90; posisi--) {
+    for (int posisi = 0; posisi <= 90; posisi++) {
       myServo.write(posisi);
       delay(20);
     }
@@ -296,7 +296,7 @@ void setup() {
     Serial.flush();
     abort();
   }
-  rtc.adjust(DateTime(2024, 11, 24, 1, 50, 0));
+  rtc.adjust(DateTime(2024, 11, 27, 6, 0, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();
@@ -305,7 +305,7 @@ void setup() {
   pinMode(echoPinTabung, INPUT);
   pinMode(trigPinTabung, OUTPUT);
   myServo.attach(servoPin);
-  myServo.write(0);
+  myServo.write(90);
   pinMode(relayPin, OUTPUT);
   digitalWrite(relayPin, LOW);
   initLCD();

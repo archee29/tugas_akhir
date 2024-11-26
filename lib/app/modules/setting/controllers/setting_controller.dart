@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../../../widgets/dialog/custom_notification.dart';
 import './../../../../app/routes/app_pages.dart';
 
 class SettingController extends GetxController {
@@ -18,19 +19,27 @@ class SettingController extends GetxController {
   }
 
   Future<void> checkAndNavigate() async {
-    User? currentUser = auth.currentUser;
-    if (currentUser == null) {
-      Get.offAllNamed(Routes.LOGIN);
-      return;
-    }
-    String uid = currentUser.uid;
-    DatabaseReference ref =
-        databaseReference.child('UsersData/$uid/manual/statusAlat');
-    DataSnapshot snapshot = await ref.get();
-    if (snapshot.exists) {
-      Get.toNamed(Routes.STATUS_ALAT);
-    } else {
-      Get.toNamed(Routes.TAMBAH_STATUS_ALAT);
+    try {
+      User? currentUser = auth.currentUser;
+      if (currentUser == null) {
+        Get.offAllNamed(Routes.LOGIN);
+        return;
+      }
+
+      String uid = currentUser.uid;
+      DatabaseReference ref =
+          databaseReference.child('UsersData/$uid/manual/statusAlat');
+
+      DataSnapshot snapshot = await ref.get();
+
+      if (snapshot.exists && snapshot.value != null) {
+        Get.toNamed(Routes.STATUS_ALAT);
+      } else {
+        Get.toNamed(Routes.TAMBAH_STATUS_ALAT);
+      }
+    } catch (e) {
+      CustomNotification.errorNotification(
+          "Terjadi Kesalahan!", "Gagal memeriksa status alat: $e");
     }
   }
 

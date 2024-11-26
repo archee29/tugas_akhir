@@ -80,30 +80,28 @@ class HomeController extends GetxController {
         .map((DatabaseEvent snapshot) {
       double totalFoodDay = 0;
       double totalWaterDay = 0;
-
+      String todayString = DateFormat('MM-dd-yyyy').format(DateTime.now());
       if (snapshot.snapshot.value != null) {
         final data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
         if (data.containsKey('jadwalPagi')) {
           final morningData = Map<String, dynamic>.from(data['jadwalPagi']);
-          morningData.forEach((key, value) {
-            if (value is Map) {
-              totalFoodDay +=
-                  double.parse(value['beratWadah']?.toString() ?? '0');
-              totalWaterDay +=
-                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
-            }
-          });
+          if (morningData.containsKey(todayString)) {
+            final todayMorningData = morningData[todayString];
+            totalFoodDay +=
+                double.parse(todayMorningData['beratWadah']?.toString() ?? '0');
+            totalWaterDay += double.parse(
+                todayMorningData['volumeMLWadah']?.toString() ?? '0');
+          }
         }
         if (data.containsKey('jadwalSore')) {
           final afternoonData = Map<String, dynamic>.from(data['jadwalSore']);
-          afternoonData.forEach((key, value) {
-            if (value is Map) {
-              totalFoodDay +=
-                  double.parse(value['beratWadah']?.toString() ?? '0');
-              totalWaterDay +=
-                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
-            }
-          });
+          if (afternoonData.containsKey(todayString)) {
+            final todayAfternoonData = afternoonData[todayString];
+            totalFoodDay += double.parse(
+                todayAfternoonData['beratWadah']?.toString() ?? '0');
+            totalWaterDay += double.parse(
+                todayAfternoonData['volumeMLWadah']?.toString() ?? '0');
+          }
         }
       }
       return {

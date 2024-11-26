@@ -13,6 +13,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = DateFormat('MM-dd-yyyy').format(DateTime.now());
     return Scaffold(
       bottomNavigationBar: const CustomBottomNavigationBar(),
       extendBody: true,
@@ -31,7 +32,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                 userSnapshot.data!.snapshot.value as Map<dynamic, dynamic>);
 
             return StreamBuilder<DatabaseEvent>(
-              stream: controller.streamStatusAlat(),
+              stream: controller.streamStatusAlat(specificDate: formattedDate),
               builder: (context, alatSnapshot) {
                 if (alatSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

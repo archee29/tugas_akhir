@@ -93,7 +93,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.EDIT_STATUS_ALAT,
-      page: () => EditStatusAlatView(),
+      page: () => const EditStatusAlatView(),
       binding: EditStatusAlatBinding(),
     ),
     GetPage(

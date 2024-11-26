@@ -7,17 +7,10 @@ import './../../../../app/widgets/CustomWidgets/custom_input.dart';
 import '../controllers/edit_status_alat_controller.dart';
 
 class EditStatusAlatView extends GetView<EditStatusAlatController> {
-  final Map<String, dynamic> statusAlat = Get.arguments != null
-      ? Map<String, dynamic>.from(Get.arguments['statusAlat'])
-      : {};
-  EditStatusAlatView({super.key});
+  const EditStatusAlatView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = statusAlat['formattedDate'] ?? '';
-    // Load existing status when view is opened
-    controller.loadExistingStatus(formattedDate);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -66,16 +59,16 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
                         ),
                       );
                     } else {
+                      String imageUrl =
+                          controller.statusAlatData['gambarAlat'] ??
+                              "https://ui-avatars.com/api/?name=Status+Alat";
                       return ClipOval(
                         child: Container(
                           width: 98,
                           height: 98,
                           color: AppColors.primary,
                           child: Image.network(
-                            (statusAlat["gambarAlat"] == null ||
-                                    statusAlat['gambarAlat'] == "")
-                                ? "https://ui-avatars.com/api/?name=${statusAlat['gambarAlat']}/"
-                                : statusAlat['gambarAlat'],
+                            imageUrl,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -149,6 +142,7 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
             ),
           ),
           const SizedBox(height: 16),
+          // Radio Button for Pump Status
           Obx(
             () => Container(
               width: MediaQuery.of(context).size.width,
@@ -194,7 +188,7 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
           CustomInput(
             controller: controller.catatanController,
             label: "Catatan",
-            hint: "Masukkan Catatan",
+            hint: "Edit Catatan",
             margin: const EdgeInsets.all(5),
           ),
           const SizedBox(height: 16),
@@ -204,7 +198,7 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (controller.isLoading.isFalse) {
-                    await controller.editStatusAlat(formattedDate);
+                    await controller.editStatusAlat();
                   }
                 },
                 style: ElevatedButton.styleFrom(
