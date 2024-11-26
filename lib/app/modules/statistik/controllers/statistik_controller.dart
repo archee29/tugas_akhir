@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -158,10 +160,18 @@ class StatistikController extends GetxController {
       return '${value.toStringAsFixed(0)} mL';
     }
   }
+
   // RER
-  // RER  =70×(3,5Kg)^3/4
+  // RER  = 70× (berat badan kucing (kg))^3/4
   //      = .... kcal/day
+  // buatkan kodingan untuk menghitung RER disini
 
   // PER  = RER x 0,70
   //      = .... kcal/day
+  // buatkan kodingan untuk menghitung PER disini
+
+  // pertumbuhan kucing
+  // pertumbuhan (%) = ((berat akhir - berat awal) / berat awal ) x 100
+  // pertumbuhan (%) = ...... Kg
+  // buatkan kodingan untuk menghitung pertumbuhan kucing disini
 }

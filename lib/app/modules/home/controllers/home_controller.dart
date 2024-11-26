@@ -31,6 +31,7 @@ class HomeController extends GetxController {
         });
         streamBothSchedules();
         calculateTotals();
+        streamInfoFeeder();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -125,5 +126,48 @@ class HomeController extends GetxController {
     } else {
       return '${value.toStringAsFixed(0)} mL';
     }
+  }
+
+  Stream<Map<String, dynamic>> streamInfoFeeder() {
+    String? uid = auth.currentUser?.uid;
+    if (uid != null) {
+      return database
+          .ref('UsersData/$uid/UsersProfile/infoFeeder')
+          .onValue
+          .map((DatabaseEvent snapshot) {
+        if (snapshot.snapshot.value != null) {
+          final data =
+              Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+          return {
+            'beratKucing':
+                formatLargeNumberOutput(data['beratKucing'], unit: 'gr'),
+            'namaKandang': data['namaKandang'],
+            'tabungMinum':
+                formatLargeNumberOutput(data['tabungMinum'], unit: 'mL'),
+            'tabungPakan':
+                formatLargeNumberOutput(data['tabungPakan'], unit: 'gr'),
+            'wadahMinum':
+                formatLargeNumberOutput(data['wadahMinum'], unit: 'mL'),
+            'wadahPakan':
+                formatLargeNumberOutput(data['wadahPakan'], unit: 'gr'),
+          };
+        }
+        return {};
+      });
+    } else {
+      return Stream.value({});
+    }
+  }
+
+  String formatLargeNumberOutput(dynamic value, {String unit = ''}) {
+    if (value == null) return '0$unit';
+    double numValue = double.parse(value.toString());
+    if (unit == 'gr' && numValue >= 1000) {
+      return '${(numValue / 1000).toStringAsFixed(1)} Kg';
+    }
+    if (unit == 'mL' && numValue >= 1000) {
+      return '${(numValue / 1000).toStringAsFixed(1)} L';
+    }
+    return '${numValue.toStringAsFixed(0)}$unit';
   }
 }

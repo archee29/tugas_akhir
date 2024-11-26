@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../../widgets/CustomWidgets/custom_info_feeder.dart';
 import './../../../../app/routes/app_pages.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
@@ -376,222 +377,32 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      width: 3,
-                      color: AppColors.primaryExtraSoft,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      // Header Info Feeder
-                      Row(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Info Feeder",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(width: 80),
-                              Row(
-                                children: [
-                                  // Button Setting
-                                  SizedBox(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        Get.toNamed(Routes.SETTING);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 18),
-                                        elevation: 0,
-                                        shadowColor: const Color(0x3F000000),
-                                      ),
-                                      icon: const Icon(
-                                        Icons.settings,
-                                        color: Colors.black,
-                                      ),
-                                      label: const Text(
-                                        "Settings",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 12,
-                                          fontFamily: 'poppins',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Divider(
-                        color: Colors.black,
-                        thickness: 1,
-                      ),
-                      const SizedBox(height: 15),
-                      // Deskripsi 1 Info  Feeder
-                      const Row(
-                        children: [
-                          // Nama Kandang
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Nama Kandang",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Kandang Kucing",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 20),
-                          // Tabung Pakan
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Tabung Pakan",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "1 Kg",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 20),
-                          // Output
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Output",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "120 Gr",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      // Deskripsi 2 Info Feeder
-                      const Row(
-                        children: [
-                          // Jenis Makanan
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Jenis Makanan",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Makanan Kering",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 20),
-                          // Tabung Minum
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Tabung Minum",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "1 Liter",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 20),
-                          // Output
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Output",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                "300 mL",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                StreamBuilder<Map<String, dynamic>>(
+                  stream: controller.streamInfoFeeder(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                            "Error loading feeder info: ${snapshot.error}"),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text("No Info Feeder Information"));
+                    } else {
+                      final data = snapshot.data!;
+                      return CustomInfoFeeder(
+                        namaKandang: data['namaKandang'] ?? 'N/A',
+                        tabungPakan: '${data['tabungPakan']} ',
+                        wadahPakan: '${data['wadahPakan']} ',
+                        jenisMakanan: 'Makanan Kering',
+                        tabungMinum: '${data['tabungMinum']} ',
+                        wadahMinum: '${data['wadahMinum']} ',
+                      );
+                    }
+                  },
+                )
               ],
             );
           }
