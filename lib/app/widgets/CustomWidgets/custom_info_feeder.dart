@@ -11,6 +11,9 @@ class CustomInfoFeeder extends StatelessWidget {
   final String jenisMakanan;
   final String tabungMinum;
   final String wadahMinum;
+  final String bbKucing;
+  final String pbbKucing;
+  final String pKucing;
   final void Function() onPressed;
 
   const CustomInfoFeeder({
@@ -22,6 +25,9 @@ class CustomInfoFeeder extends StatelessWidget {
     required this.tabungMinum,
     required this.wadahMinum,
     required this.onPressed,
+    required this.bbKucing,
+    required this.pbbKucing,
+    required this.pKucing,
   });
 
   @override
@@ -31,8 +37,8 @@ class CustomInfoFeeder extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          width: 3,
-          color: AppColors.primaryExtraSoft,
+          width: 4,
+          color: AppColors.primarySoft,
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -44,6 +50,8 @@ class CustomInfoFeeder extends StatelessWidget {
               Text(
                 "Info Feeder",
                 style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'poppins',
                   fontSize: 20,
                   color: AppColors.primary,
                 ),
@@ -157,7 +165,7 @@ class CustomInfoFeeder extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           Row(
             children: [
               // Jenis Makanan
@@ -234,28 +242,107 @@ class CustomInfoFeeder extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 20),
+          //  tambahkan teks untuk menampilkan berat kucing, pertumbuhan kucing,
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Berat Badan\nKucing",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      bbKucing,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Perubahan BB Kucing",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      pbbKucing,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Output
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Pertumbuhan Kucing",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      pKucing,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 15),
           const Divider(
             color: Colors.black,
             thickness: 1,
           ),
           Align(
-              alignment: Alignment.center,
-              child: ElevatedButton.icon(
-                onPressed: onPressed,
-                icon: const Icon(
-                  Icons.edit,
-                  color: Colors.blue,
-                ),
-                label: Text(
-                  "Edit",
-                  style: TextStyle(color: AppColors.primary),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  minimumSize: const Size(140, 50),
-                ),
-              )),
+            alignment: Alignment.center,
+            child: ElevatedButton.icon(
+              onPressed: onPressed,
+              icon: const Icon(
+                Icons.edit,
+                color: Colors.blue,
+              ),
+              label: Text(
+                "Edit",
+                style: TextStyle(color: AppColors.primary),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                minimumSize: const Size(140, 50),
+              ),
+            ),
+          ),
         ],
       ),
     );

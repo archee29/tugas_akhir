@@ -394,11 +394,14 @@ class HomeView extends GetView<HomeController> {
                       final data = snapshot.data!;
                       return CustomInfoFeeder(
                         namaKandang: data['namaKandang'] ?? 'N/A',
-                        tabungPakan: '${data['tabungPakan']} ',
+                        tabungPakan: '${data['tabungPakan']}',
                         wadahPakan: '${data['wadahPakan']} ',
-                        jenisMakanan: 'Makanan Kering',
+                        jenisMakanan: 'Dry Food',
                         tabungMinum: '${data['tabungMinum']} ',
                         wadahMinum: '${data['wadahMinum']} ',
+                        bbKucing: '${data['beratKucing']}',
+                        pbbKucing: '${data['beratKucingAf']}',
+                        pKucing: '${data['pertumbuhanKucing']}',
                         onPressed: () => Get.toNamed(
                           Routes.UPDATE_PROFILE,
                           arguments: user,

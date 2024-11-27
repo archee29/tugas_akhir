@@ -139,8 +139,6 @@ class HomeController extends GetxController {
           final data =
               Map<String, dynamic>.from(snapshot.snapshot.value as Map);
           return {
-            'beratKucing':
-                formatLargeNumberOutput(data['beratKucing'], unit: ' Gr'),
             'namaKandang': data['namaKandang'],
             'tabungMinum':
                 formatLargeNumberOutput(data['tabungMinum'], unit: ' mL'),
@@ -150,6 +148,12 @@ class HomeController extends GetxController {
                 formatLargeNumberOutput(data['wadahMinum'], unit: ' mL'),
             'wadahPakan':
                 formatLargeNumberOutput(data['wadahPakan'], unit: ' Gr'),
+            'beratKucing':
+                formatLargeNumberOutput(data['beratKucing'], unit: ' Gr'),
+            'beratKucingAf':
+                formatLargeNumberOutput(data['beratKucingAf'], unit: ' Gr'),
+            'pertumbuhanKucing':
+                formatLargeNumberOutput(data['pertumbuhanKucing'], unit: ' Gr'),
           };
         }
         return {};
