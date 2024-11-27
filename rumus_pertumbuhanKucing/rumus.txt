@@ -92,3 +92,64 @@ Faktor Koreksi:
 - Setiap kucing unik
 - Perhitungan bersifat estimasi
 - Selalu konsultasi profesional
+
+/*
+buatkan saya kodingan untuk menghitung perhitungan saya berikut ini :
+1.Makanan
+  a.RER
+    rumus :
+      RER  = 70× (berat badan kucing (kg))^0,75
+      RER  = .... kcal/day
+      {buatkan kodingan untuk menghitung RER disini}
+  b.PER
+    rumus :
+      PER  = RER x 0,70
+      PER  = .... kcal/day
+      {buatkan kodingan untuk menghitung PER disini}
+  c. Kebutuhan Kalori Terkoreksi
+     rumus :
+      kebutuhanKaloriTerkoreksi = RER × 1.2
+      kebutuhanKaloriTerkoreksi = .... kcal/day
+      {buatkan kodingan untuk menghitung (kebutuhanKaloriTerkoreksi)}
+  d. Asupan Makanan (makanan kering yang saya gunakan yaitu Whiskas rasa tuna dengan umur 1 tahun ke atas).
+     rumus :
+        Kebutuhan Makanan Kering:
+        KebutuhanHarian = (hasil perhitungan (kebutuhanKaloriTerkoreksi)) ÷ (rata-rata kalori makanan kering / 100g)
+        KebutuhanHarian = .... gram/hari
+        {buatkan kodingan untuk perhitungan (kebutuhanHarian)}
+  e. Rekomendasi Pembagian, dibagi dari perhitungan (kebutuhanHarian) untuk pagi dan sore:
+      - Pagi =  .... gram
+      - Sore =  .... gram
+
+2. Minuman
+    50-60 ml/beratBadan(kg).
+    rumus :
+      - minimal : beratBadan x 50 mL = ... mL
+      - maximal : beratBadan x 60 mL = ... mL
+      {buatkan kodingan untuk menghitung asupan harian minum kucing.}
+  note :
+  untuk berat badan kucing di ambil pada path data berikut ini :
+  UsersData :
+	  7SnD62GPC3SE1H33xDHgKD2gceL2 :
+		  UsersProfile :
+			  beratKucing	: 3500
+3. Pertumbuhan Kucing
+    rumus :
+      - beraKucingAf (Kg) = ((berat akhir - berat awal) / berat awal )
+        beraKucingAf (Kg) = ...... Kg
+        {buatkan kodingan untuk menghitung beratKucingAf disini}
+
+      - pertumbuhanKucing (%) = ((berat akhir - berat awal) / berat awal ) x 100
+        pertumbuhanKucing (%) = ...... Kg
+        {buatkan kodingan untuk menghitung pertumbuhanKucing disini}
+
+      note :
+      untuk berat awal, kucing di ambil pada path data berikut ini :
+      UsersData :
+      7SnD62GPC3SE1H33xDHgKD2gceL2 :
+          UsersProfile :
+            beratKucing	      : 3500
+            beratKucingAf     : ....(hasil dari perhitungan beratKucingAf)
+            pertumbuhanKucing : ....(pertumbuhanKucing)
+      yang mana nanti perhitungan pertumbuhanKucing(%) nya akan update data pertumbuhanKucing(%) pada path data diatas.
+*/

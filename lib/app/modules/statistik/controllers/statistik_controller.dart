@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -12,6 +13,15 @@ class StatistikController extends GetxController {
   RxBool servoSwitched = false.obs;
   RxBool pumpSwitched = false.obs;
 
+  RxDouble rER = 0.0.obs;
+  RxDouble pER = 0.0.obs;
+  RxDouble kebutuhanKaloriTerkoreksi = 0.0.obs;
+  RxDouble kebutuhanMakananHarian = 0.0.obs;
+  RxDouble minimalAirHarian = 0.0.obs;
+  RxDouble maksimalAirHarian = 0.0.obs;
+  RxDouble beratKucingAf = 0.0.obs;
+  RxDouble pertumbuhanKucing = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -20,6 +30,7 @@ class StatistikController extends GetxController {
         streamUser().listen((event) {
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
+          calculateNutritionDetails();
         }, onError: (error) {
           CustomNotification.errorNotification(
               "Terjadi Kesalahan", "Error : $error");
@@ -158,44 +169,45 @@ class StatistikController extends GetxController {
       return '${value.toStringAsFixed(0)} mL';
     }
   }
-/*
-1.RER
-  rumus :
-  RER  = 70× (berat badan kucing (kg))^3/4
-       = .... kcal/day
-  {buatkan kodingan untuk menghitung RER disini}
-2.PER
-rumus :
-  PER  = RER x 0,70
-       = .... kcal/day
-  {buatkan kodingan untuk menghitung PER disini}
 
-  note :
-  untuk berat badan kucing di ambil pada path data berikut ini :
-  UsersData :
-	  7SnD62GPC3SE1H33xDHgKD2gceL2 :
-		  UsersProfile :
-			  beratKucing	: 3500
-*/
+  void calculateNutritionDetails() {
+    double beratKucing = (userData['beratKucing'] ?? 3500) / 1000;
 
-/*
-  rumus :
-  - beraKucingAf (Kg) = ((berat akhir - berat awal) / berat awal )
-    beraKucingAf (Kg) = ...... Kg
-    {buatkan kodingan untuk menghitung beratKucingAf disini}
+    rER.value = 70 * pow(beratKucing, 0.75);
 
-  - pertumbuhanKucing (%) = ((berat akhir - berat awal) / berat awal ) x 100
-    pertumbuhanKucing (%) = ...... Kg
-    {buatkan kodingan untuk menghitung pertumbuhanKucing disini}
+    pER.value = rER.value * 0.70;
 
-  note :
-  untuk berat awal, kucing di ambil pada path data berikut ini :
-  UsersData :
-	7SnD62GPC3SE1H33xDHgKD2gceL2 :
-		  UsersProfile :
-			  beratKucing	      : 3500
-        beratKucingAf     : ....(hasil dari perhitungan beratKucingAf)
-        pertumbuhanKucing : ....(pertumbuhanKucing)
-  yang mana nanti perhitungan pertumbuhanKucing(%) nya akan update data pertumbuhanKucing(%) pada path data diatas.
-*/
+    kebutuhanKaloriTerkoreksi.value = rER.value * 1.2;
+
+    double rataRataKaloriMakananKering = 375;
+
+    kebutuhanMakananHarian.value =
+        kebutuhanKaloriTerkoreksi.value / (rataRataKaloriMakananKering / 100);
+
+    minimalAirHarian.value = beratKucing * 50;
+    maksimalAirHarian.value = beratKucing * 60;
+
+    double beratAwal = (userData['beratKucing'] ?? 3500) / 1000;
+
+    double beratAkhir = (userData['beratKucingAf'] ?? beratAwal);
+
+    beratKucingAf.value = (beratAkhir - beratAwal) / beratAwal;
+    pertumbuhanKucing.value = ((beratAkhir - beratAwal) / beratAwal) * 100;
+    _updateGrowthData();
+  }
+
+  void _updateGrowthData() {
+    String uid = auth.currentUser!.uid;
+    databaseReference.child("UsersData/$uid/UsersProfile").update({
+      'beratKucingAf': beratKucingAf.value.toStringAsFixed(2),
+      'pertumbuhanKucing': pertumbuhanKucing.value.toStringAsFixed(2),
+    }).catchError((error) {
+      CustomNotification.errorNotification(
+          "Gagal Update Data", "Error: $error");
+    });
+  }
+
+  double pow(double base, double exponent) {
+    return math.pow(base, exponent).toDouble();
+  }
 }
