@@ -13,15 +13,6 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    // controller.nameController.text = user["name"];
-    // controller.emailController.text = user["email"];
-    // controller.nkController.text = user["namaKandang"];
-    // controller.tpController.text = user["tabungPakan"].toString();
-    // controller.wpController.text = user["wadahPakan"].toString();
-    // controller.tmController.text = user["tabungMinum"].toString();
-    // controller.wmController.text = user["wadahMinum"].toString();
-    // controller.bkController.text = user["beratKucing"].toString();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(

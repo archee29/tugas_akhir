@@ -19,16 +19,13 @@ class EditStatusAlatController extends GetxController {
   final s.FirebaseStorage storage = s.FirebaseStorage.instance;
   XFile? image;
 
-  // Data yang akan diedit
   late Map<dynamic, dynamic> statusAlatData;
-  late String selectedDate;
 
   @override
   void onInit() {
     super.onInit();
     Map<String, dynamic>? arguments = Get.arguments;
     if (arguments != null) {
-      selectedDate = arguments['date'];
       statusAlatData = arguments['statusAlat'];
       selectedServoStatus.value = statusAlatData['servo_status'] ?? '';
       selectedPumpStatus.value = statusAlatData['pump_status'] ?? '';
@@ -72,24 +69,18 @@ class EditStatusAlatController extends GetxController {
     try {
       final String uid = user.uid;
       String? avatarUrl;
-
-      // Jika ada gambar baru, upload gambar baru
       if (image != null) {
         avatarUrl = await _uploadAvatar(uid);
       }
-
       final Map<String, dynamic> data = {
         "servo_status": selectedServoStatus.value,
         "pump_status": selectedPumpStatus.value,
         "catatan": catatanController.text,
         "created_at": DateTime.now().toIso8601String(),
       };
-
-      // Tambahkan URL gambar jika ada
       if (avatarUrl != null) {
         data["gambarAlat"] = avatarUrl;
       } else if (statusAlatData['gambarAlat'] != null) {
-        // Gunakan URL gambar lama jika tidak ada gambar baru
         data["gambarAlat"] = statusAlatData['gambarAlat'];
       }
 
@@ -108,9 +99,7 @@ class EditStatusAlatController extends GetxController {
 
   Future<void> _updateStatusToDatabase(
       String uid, Map<String, dynamic> data) async {
-    await databaseReference
-        .child("UsersData/$uid/statusAlat/$selectedDate")
-        .update(data);
+    await databaseReference.child("UsersData/$uid/statusAlat").update(data);
   }
 
   Future<String> _uploadAvatar(String uid) async {

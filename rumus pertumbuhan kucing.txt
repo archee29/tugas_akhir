@@ -1,0 +1,94 @@
+# Analisis Nutrisi Kucing Dewasa
+
+## Profil Kucing
+- Umur: 3,5 tahun
+- Berat Badan: 4 kg
+- Status: Kucing Dewasa
+
+## 1. Kebutuhan Kalori Harian
+```
+Rumus Dasar: 70 × (Berat Badan)^0.75
+Perhitungan: 70 × (4)^0.75 = 70 × 2.38 = 166.6 kkal/hari
+
+Penyesuaian Faktor:
+- Kucing Dewasa Normal: × 1.0
+- Aktivitas Sedang: × 1.2
+
+Kebutuhan Kalori Terkoreksi: 166.6 × 1.2 = 199.92 kkal/hari
+```
+
+## 2. Asupan Makanan Kering
+```
+Kebutuhan Makanan Kering:
+- Rata-rata kalori makanan kering: 350-400 kkal/100g
+- Kebutuhan harian: 199.92 kkal ÷ 375 kkal/100g = 53.3 gram/hari
+
+Rekomendasi Pembagian:
+- Pagi: 30 gram
+- Sore: 23.3 gram
+```
+
+## 3. Kebutuhan Air Harian
+```
+Rumus Dasar: 50-60 mL/kg berat badan
+Perhitungan: 
+- Minimal: 4 kg × 50 mL = 200 mL
+- Maksimal: 4 kg × 60 mL = 240 mL
+
+Penyesuaian:
+- Makanan Kering: Tambah 20 mL/kg
+- Tambahan: 4 kg × 20 mL = 80 mL
+
+Total Kebutuhan Air: 200-240 mL + 80 mL = 280-320 mL/hari
+```
+
+## 4. Body Condition Score (BCS)
+```
+Penilaian Kondisi Tubuh:
+Skala 1-9, dengan 4-5 sebagai kondisi ideal
+
+Kriteria Penilaian:
+1. Tulang rusuk sangat terlihat
+2. Tidak ada lemak penutup
+3. Otot punggung tipis
+4. Rusuk teraba mudah, sedikit lemak
+5. ✅ IDEAL: Rusuk teraba tanpa tekanan
+6. Lemak mulai menutupi rusuk
+7. Lemak berlebih di perut
+8. Obesitas ringan
+9. Obesitas berat
+
+Perhitungan Skor:
+- Visual: Cek distribusi lemak
+- Palpasi: Tekan area rusuk
+- Bentuk Pinggang: Harus proporsional
+
+Rekomendasi: Pertahankan Skor 5
+```
+
+## 5. Perhitungan Pertumbuhan
+```
+Kucing Dewasa (>12 bulan):
+Pertumbuhan < 5% per tahun
+
+Rumus Pertumbuhan:
+Δ Berat = (Berat Akhir - Berat Awal) / Berat Awal × 100
+Periode Pengamatan: 6 bulan
+
+Faktor Koreksi:
+- Nutrisi Seimbang
+- Aktivitas Teratur
+- Kesehatan Prima
+```
+
+## Rekomendasi Penelitian
+1. Catat berat badan setiap bulan
+2. Konsisten dengan pola makan
+3. Ukur lingkar perut
+4. Dokumentasi foto berkala
+5. Konsultasi dokter hewan setiap 6 bulan
+
+## Catatan Penting
+- Setiap kucing unik
+- Perhitungan bersifat estimasi
+- Selalu konsultasi profesional

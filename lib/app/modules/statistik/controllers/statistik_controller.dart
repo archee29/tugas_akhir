@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -160,18 +158,44 @@ class StatistikController extends GetxController {
       return '${value.toStringAsFixed(0)} mL';
     }
   }
+/*
+1.RER
+  rumus :
+  RER  = 70× (berat badan kucing (kg))^3/4
+       = .... kcal/day
+  {buatkan kodingan untuk menghitung RER disini}
+2.PER
+rumus :
+  PER  = RER x 0,70
+       = .... kcal/day
+  {buatkan kodingan untuk menghitung PER disini}
 
-  // RER
-  // RER  = 70× (berat badan kucing (kg))^3/4
-  //      = .... kcal/day
-  // buatkan kodingan untuk menghitung RER disini
+  note :
+  untuk berat badan kucing di ambil pada path data berikut ini :
+  UsersData :
+	  7SnD62GPC3SE1H33xDHgKD2gceL2 :
+		  UsersProfile :
+			  beratKucing	: 3500
+*/
 
-  // PER  = RER x 0,70
-  //      = .... kcal/day
-  // buatkan kodingan untuk menghitung PER disini
+/*
+  rumus :
+  - beraKucingAf (Kg) = ((berat akhir - berat awal) / berat awal )
+    beraKucingAf (Kg) = ...... Kg
+    {buatkan kodingan untuk menghitung beratKucingAf disini}
 
-  // pertumbuhan kucing
-  // pertumbuhan (%) = ((berat akhir - berat awal) / berat awal ) x 100
-  // pertumbuhan (%) = ...... Kg
-  // buatkan kodingan untuk menghitung pertumbuhan kucing disini
+  - pertumbuhanKucing (%) = ((berat akhir - berat awal) / berat awal ) x 100
+    pertumbuhanKucing (%) = ...... Kg
+    {buatkan kodingan untuk menghitung pertumbuhanKucing disini}
+
+  note :
+  untuk berat awal, kucing di ambil pada path data berikut ini :
+  UsersData :
+	7SnD62GPC3SE1H33xDHgKD2gceL2 :
+		  UsersProfile :
+			  beratKucing	      : 3500
+        beratKucingAf     : ....(hasil dari perhitungan beratKucingAf)
+        pertumbuhanKucing : ....(pertumbuhanKucing)
+  yang mana nanti perhitungan pertumbuhanKucing(%) nya akan update data pertumbuhanKucing(%) pada path data diatas.
+*/
 }

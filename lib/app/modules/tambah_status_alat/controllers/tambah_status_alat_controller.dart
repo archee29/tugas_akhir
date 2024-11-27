@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart' as s;
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 
 class TambahStatusAlatController extends GetxController {
@@ -84,11 +83,7 @@ class TambahStatusAlatController extends GetxController {
 
   Future<void> _saveStatusToDatabase(
       String uid, Map<String, dynamic> data) async {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('MM-dd-yyyy').format(now);
-    await databaseReference
-        .child("UsersData/$uid/statusAlat/$formattedDate")
-        .set(data);
+    await databaseReference.child("UsersData/$uid/statusAlat").set(data);
   }
 
   Future<String> _uploadAvatar(String uid) async {

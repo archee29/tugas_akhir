@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
-import 'package:intl/intl.dart';
 
 import '../../../routes/app_pages.dart';
 import '../../../widgets/dialog/custom_alert_dialog.dart';
@@ -30,26 +29,19 @@ class StatusAlatController extends GetxController {
         });
         streamStatusAlat().listen((event) {
           if (event.snapshot.value != null) {
+            statusAlatList.clear();
             Map<String, dynamic> data =
                 Map<String, dynamic>.from(event.snapshot.value as Map);
-            statusAlatList.clear();
+
             data.forEach((key, value) {
               Map<String, dynamic> statusData =
                   Map<String, dynamic>.from(value);
-              statusData['date'] = key;
               statusAlatList.add(statusData);
-            });
-            statusAlatList.sort((a, b) {
-              DateTime dateA = DateFormat('MM-dd-yyyy').parse(a['date']);
-              DateTime dateB = DateFormat('MM-dd-yyyy').parse(b['date']);
-              return dateB.compareTo(dateA);
             });
           } else {
             statusAlatList.clear();
           }
         });
-      } else {
-        Get.offAllNamed(Routes.LOGIN);
       }
     });
   }
@@ -63,22 +55,16 @@ class StatusAlatController extends GetxController {
     }
   }
 
-  Stream<DatabaseEvent> streamStatusAlat({String? specificDate}) {
+  Stream<DatabaseEvent> streamStatusAlat() {
     final User? user = auth.currentUser;
     if (user == null) {
       return Stream.error("User not authenticated");
     }
-
     String uid = user.uid;
-    String formattedDate =
-        specificDate ?? DateFormat('MM-dd-yyyy').format(DateTime.now());
-
-    return databaseReference
-        .child("UsersData/$uid/statusAlat/$formattedDate")
-        .onValue;
+    return databaseReference.child("UsersData/$uid/statusAlat").onValue;
   }
 
-  Future<void> deleteStatusAlat(String date) async {
+  Future<void> deleteStatusAlat() async {
     String? uid = auth.currentUser?.uid;
     if (uid == null) {
       Get.offAllNamed(Routes.LOGIN);
@@ -91,10 +77,8 @@ class StatusAlatController extends GetxController {
       onCancel: () => Get.back(),
       onConfirm: () async {
         try {
-          await databaseReference
-              .child('UsersData/$uid/statusAlat/$date')
-              .remove();
-          statusAlatList.removeWhere((item) => item['date'] == date);
+          await databaseReference.child('UsersData/$uid/statusAlat').remove();
+          statusAlatList.clear();
           Get.back();
           Get.back();
           CustomNotification.successNotification(

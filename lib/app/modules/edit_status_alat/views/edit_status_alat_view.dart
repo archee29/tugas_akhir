@@ -142,7 +142,6 @@ class EditStatusAlatView extends GetView<EditStatusAlatController> {
             ),
           ),
           const SizedBox(height: 16),
-          // Radio Button for Pump Status
           Obx(
             () => Container(
               width: MediaQuery.of(context).size.width,

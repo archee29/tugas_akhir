@@ -218,113 +218,117 @@ class StatistikView extends GetView<StatistikController> {
                   ),
                   const SizedBox(height: 20),
                   StreamBuilder<Map<String, double>>(
-                      stream: controller.calculateTotals(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child:
-                                Text("Error loading data: ${snapshot.error}"),
-                          );
-                        } else if (!snapshot.hasData) {
-                          return const Center(child: Text("No Data"));
-                        } else {
-                          final data = snapshot.data!;
-                          return SingleChildScrollView(
-                              child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
-                                  child: SizedBox(
-                                      child: Column(children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        WeeklyCard(
-                                          title: "Total Food / Day",
-                                          value: controller.formatFoodOutput(
-                                              data['totalFoodDay']!),
-                                        ),
-                                        WeeklyCard(
-                                          title: "Total Water / Day",
-                                          value: controller.formatWaterOutput(
-                                              data['totalFoodDay']!),
-                                        ),
-                                      ],
-                                    ),
-                                    Center(
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.95,
-                                        ),
-                                        child: CustomTextField(
-                                          title: "Nilai RER",
-                                          subTitle:
-                                              "Nilai Asupan Harian\nMakan dan Minum Kucing",
-                                          titleNilai: "Makanan",
-                                          valueNilai:
-                                              controller.formatFoodOutput(
-                                                  data['totalFoodDay']!),
-                                          titlePertumbuhan: "Minuman",
-                                          valuePertumbuhan:
-                                              controller.formatWaterOutput(
-                                                  data['totalWaterDay']!),
-                                        ),
+                    stream: controller.calculateTotals(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Error loading data: ${snapshot.error}"),
+                        );
+                      } else if (!snapshot.hasData) {
+                        return const Center(child: Text("No Data"));
+                      } else {
+                        final data = snapshot.data!;
+                        return SingleChildScrollView(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: SizedBox(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      WeeklyCard(
+                                        title: "Total Food / Day",
+                                        value: controller.formatFoodOutput(
+                                            data['totalFoodDay']!),
+                                      ),
+                                      WeeklyCard(
+                                        title: "Total Water / Day",
+                                        value: controller.formatWaterOutput(
+                                            data['totalFoodDay']!),
+                                      ),
+                                    ],
+                                  ),
+                                  Center(
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.95,
+                                      ),
+                                      child: CustomTextField(
+                                        title: "Nilai RER",
+                                        subTitle:
+                                            "Nilai Asupan Harian\nMakan dan Minum Kucing",
+                                        titleNilai: "Makanan",
+                                        valueNilai: controller.formatFoodOutput(
+                                            data['totalFoodDay']!),
+                                        titlePertumbuhan: "Minuman",
+                                        valuePertumbuhan:
+                                            controller.formatWaterOutput(
+                                                data['totalWaterDay']!),
                                       ),
                                     ),
-                                    const SizedBox(height: 35),
-                                    SizedBox(
-                                        child: Column(children: [
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            WeeklyCard(
-                                              title: "Total Food / Week",
-                                              value:
+                                  ),
+                                  const SizedBox(height: 35),
+                                  SizedBox(
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              WeeklyCard(
+                                                title: "Total Food / Week",
+                                                value:
+                                                    controller.formatFoodOutput(
+                                                        data['totalFoodWeek']!),
+                                              ),
+                                              WeeklyCard(
+                                                title: "Total Water / Week",
+                                                value: controller
+                                                    .formatWaterOutput(
+                                                        data['totalFoodWeek']!),
+                                              )
+                                            ]),
+                                        Center(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.95,
+                                            ),
+                                            child: CustomTextField(
+                                              title: "Pertumbuhan Kucing",
+                                              subTitle:
+                                                  "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
+                                              titleNilai: "Sebelum",
+                                              valueNilai:
+                                                  controller.formatFoodOutput(
+                                                      data['totalFoodDay']!),
+                                              titlePertumbuhan: "Sesudah",
+                                              valuePertumbuhan:
                                                   controller.formatFoodOutput(
                                                       data['totalFoodWeek']!),
                                             ),
-                                            WeeklyCard(
-                                              title: "Total Water / Week",
-                                              value:
-                                                  controller.formatWaterOutput(
-                                                      data['totalFoodWeek']!),
-                                            )
-                                          ]),
-                                      Center(
-                                        child: ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.95,
-                                          ),
-                                          child: CustomTextField(
-                                            title: "Pertumbuhan Kucing",
-                                            subTitle:
-                                                "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
-                                            titleNilai: "Sebelum",
-                                            valueNilai:
-                                                controller.formatFoodOutput(
-                                                    data['totalFoodDay']!),
-                                            titlePertumbuhan: "Sesudah",
-                                            valuePertumbuhan:
-                                                controller.formatFoodOutput(
-                                                    data['totalFoodWeek']!),
                                           ),
                                         ),
-                                      ),
-                                    ]))
-                                  ]))));
-                        }
-                      }),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(height: 25),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

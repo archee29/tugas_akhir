@@ -2,7 +2,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../../routes/app_pages.dart';
 import './../../../../app/styles/app_colors.dart';
 import './../../../../app/widgets/CustomWidgets/custom_bottom_navbar.dart';
@@ -13,7 +12,6 @@ class StatusAlatView extends GetView<StatusAlatController> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('MM-dd-yyyy').format(DateTime.now());
     return Scaffold(
       bottomNavigationBar: const CustomBottomNavigationBar(),
       extendBody: true,
@@ -32,7 +30,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                 userSnapshot.data!.snapshot.value as Map<dynamic, dynamic>);
 
             return StreamBuilder<DatabaseEvent>(
-              stream: controller.streamStatusAlat(specificDate: formattedDate),
+              stream: controller.streamStatusAlat(),
               builder: (context, alatSnapshot) {
                 if (alatSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -51,8 +49,6 @@ class StatusAlatView extends GetView<StatusAlatController> {
                   String servoStatus = statusAlat['servo_status'] ?? 'UNKNOWN';
                   String pumpStatus = statusAlat['pump_status'] ?? 'UNKNOWN';
                   String catatan = statusAlat['catatan'] ?? 'Tidak ada catatan';
-                  String formattedDate =
-                      DateFormat('MM-dd-yyyy').format(DateTime.now());
 
                   return ListView(
                     shrinkWrap: true,
@@ -333,10 +329,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                     onPressed: () {
                                       Get.toNamed(
                                         Routes.EDIT_STATUS_ALAT,
-                                        arguments: {
-                                          'date': formattedDate,
-                                          'statusAlat': statusAlat
-                                        },
+                                        arguments: {'statusAlat': statusAlat},
                                       );
                                     },
                                     icon: const Icon(Icons.edit),
@@ -351,8 +344,7 @@ class StatusAlatView extends GetView<StatusAlatController> {
                                   ),
                                   ElevatedButton.icon(
                                     onPressed: () {
-                                      controller
-                                          .deleteStatusAlat(formattedDate);
+                                      controller.deleteStatusAlat();
                                     },
                                     icon: const Icon(
                                       Icons.delete,
