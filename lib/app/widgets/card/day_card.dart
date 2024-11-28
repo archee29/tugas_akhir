@@ -21,7 +21,7 @@ class DayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: Get.width,
-      height: 100,
+      height: 130, // Sedikit dinaikkan untuk memberi ruang lebih
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
@@ -29,135 +29,102 @@ class DayCard extends StatelessWidget {
           color: AppColors.primaryExtraSoft,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Daily Feed",
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    value1,
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Daily Water",
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    value2,
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          _buildInfoColumn(
+            label1: "Daily Feed",
+            value1: value1,
+            label2: "Daily Water",
+            value2: value2,
           ),
-          Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Pagi & Sore",
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    value3,
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Pagi & Sore",
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    value4,
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          _buildInfoColumn(
+            label1: "Pagi & Sore",
+            value1: value3,
+            label2: "Pagi & Sore",
+            value2: value4,
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Get.toNamed(Routes.CHART);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: const BorderSide(color: Colors.white),
-                  ),
-                  shadowColor: const Color(0x3F000000),
-                ),
-                icon: Icon(
-                  Icons.arrow_circle_right_outlined,
-                  color: AppColors.primary,
-                ),
-                label: const Text(
-                  "",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    fontFamily: 'poppins',
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildActionColumn(),
         ],
       ),
+    );
+  }
+
+  Widget _buildInfoColumn({
+    required String label1,
+    required String value1,
+    required String label2,
+    required String value2,
+  }) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabelValuePair(label1, value1),
+        const SizedBox(height: 10),
+        _buildLabelValuePair(label2, value2),
+      ],
+    );
+  }
+
+  Widget _buildLabelValuePair(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionColumn() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () {
+            Get.toNamed(Routes.CHART);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: Colors.white),
+            ),
+            shadowColor: const Color(0x3F000000),
+          ),
+          icon: Icon(
+            Icons.arrow_circle_right_outlined,
+            color: AppColors.primary,
+          ),
+          label: const Text(
+            "",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontFamily: 'poppins',
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
