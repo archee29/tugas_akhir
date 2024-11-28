@@ -122,6 +122,7 @@ class StatistikController extends GetxController {
         if (snapshot.snapshot.value != null) {
           final data =
               Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+          DateTime today = DateTime.now();
           if (data.containsKey('jadwalPagi')) {
             final morningData = Map<String, dynamic>.from(
               data['jadwalPagi'],
@@ -129,12 +130,16 @@ class StatistikController extends GetxController {
             morningData.forEach(
               (key, value) {
                 if (value is Map) {
-                  totalFoodDay +=
-                      double.parse(value['beratWadah']?.toString() ?? '0');
-                  totalWaterDay +=
-                      double.parse(value['volumeMLWadah']?.toString() ?? '0');
                   DateTime entryDate =
                       DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+                  if (entryDate.year == today.year &&
+                      entryDate.month == today.month &&
+                      entryDate.day == today.day) {
+                    totalFoodDay +=
+                        double.parse(value['beratWadah']?.toString() ?? '0');
+                    totalWaterDay +=
+                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  }
                   if (DateTime.now().difference(entryDate).inDays <= 7) {
                     totalFoodWeek +=
                         double.parse(value['beratWadah']?.toString() ?? '0');
@@ -152,12 +157,16 @@ class StatistikController extends GetxController {
             afternoonData.forEach(
               (key, value) {
                 if (value is Map) {
-                  totalFoodDay +=
-                      double.parse(value['beratWadah']?.toString() ?? '0');
-                  totalWaterDay +=
-                      double.parse(value['volumeMLWadah']?.toString() ?? '0');
                   DateTime entryDate =
                       DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+                  if (entryDate.year == today.year &&
+                      entryDate.month == today.month &&
+                      entryDate.day == today.day) {
+                    totalFoodDay +=
+                        double.parse(value['beratWadah']?.toString() ?? '0');
+                    totalWaterDay +=
+                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  }
                   if (DateTime.now().difference(entryDate).inDays <= 7) {
                     totalFoodWeek +=
                         double.parse(value['beratWadah']?.toString() ?? '0');

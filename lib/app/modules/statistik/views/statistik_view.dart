@@ -249,7 +249,7 @@ class StatistikView extends GetView<StatistikController> {
                                       WeeklyCard(
                                         title: "Total Water / Day",
                                         value: controller.formatWaterOutput(
-                                            data['totalFoodDay']!),
+                                            data['totalWaterDay']!),
                                       ),
                                     ],
                                   ),
@@ -293,7 +293,7 @@ class StatistikView extends GetView<StatistikController> {
                                               title: "Total Water / Week",
                                               value:
                                                   controller.formatWaterOutput(
-                                                      data['totalFoodWeek']!),
+                                                      data['totalWaterWeek']!),
                                             )
                                           ],
                                         ),
