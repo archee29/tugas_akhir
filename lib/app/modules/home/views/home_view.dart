@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:tugas_akhir/app/widgets/card/day_card.dart';
 import '../../../widgets/CustomWidgets/custom_info_feeder.dart';
 import './../../../../app/routes/app_pages.dart';
 import './../../../../app/styles/app_colors.dart';
@@ -116,7 +117,7 @@ class HomeView extends GetView<HomeController> {
                     }
                   },
                 ),
-                StreamBuilder<Map<String, double>>(
+                StreamBuilder<Map<String, dynamic>>(
                   stream: controller.calculateTotals(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -129,148 +130,20 @@ class HomeView extends GetView<HomeController> {
                       return const Center(child: Text("No Data"));
                     } else {
                       final data = snapshot.data!;
-                      return Container(
-                        width: Get.width,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            width: 3,
-                            color: AppColors.primaryExtraSoft,
-                          ),
+                      return DayCard(
+                        value1: controller
+                            .formatFoodOutput(data['kebutuhanMakananHarian']!),
+                        value2: controller
+                            .formatFoodOutput(data['kebutuhanAirHarian']!),
+                        value3: controller.formatCombinedOutput(
+                          data['porsiMakanPagi']!,
+                          data['porsiMakanSore']!,
+                          'Gr',
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Daily Feed",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      "120 Gr",
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Daily Water",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      "300 mL",
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Total Feed (Gr)",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      controller
-                                          .formatOutput(data['totalFoodDay']!),
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Total Water (mL)",
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      controller.formatWaterOutput(
-                                          data['totalWaterDay']!),
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    Get.toNamed(Routes.CHART);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 18),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      side:
-                                          const BorderSide(color: Colors.white),
-                                    ),
-                                    shadowColor: const Color(0x3F000000),
-                                  ),
-                                  icon: Icon(
-                                    Icons.arrow_circle_right_outlined,
-                                    color: AppColors.primary,
-                                  ),
-                                  label: const Text(
-                                    "",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12,
-                                      fontFamily: 'poppins',
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        value4: controller.formatCombinedOutput(
+                          data['porsiAirPagi']!,
+                          data['porsiAirSore']!,
+                          'mL',
                         ),
                       );
                     }

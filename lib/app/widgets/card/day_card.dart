@@ -4,11 +4,17 @@ import './../../../../app/styles/app_colors.dart';
 import 'package:get/get.dart';
 
 class DayCard extends StatelessWidget {
-  final String value;
+  final String value1;
+  final String value2;
+  final String value3;
+  final String value4;
 
   const DayCard({
     super.key,
-    required this.value,
+    required this.value1,
+    required this.value2,
+    required this.value3,
+    required this.value4,
   });
 
   @override
@@ -40,7 +46,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "120 Gr",
+                    value1,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
@@ -61,7 +67,7 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "300 mL",
+                    value2,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
@@ -78,14 +84,14 @@ class DayCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Total Feed (Gr)",
+                    "Pagi & Sore",
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.black,
                     ),
                   ),
                   Text(
-                    value,
+                    value3,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
@@ -99,14 +105,14 @@ class DayCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Total Water (mL)",
+                    "Pagi & Sore",
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.black,
                     ),
                   ),
                   Text(
-                    value,
+                    value4,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 14,
