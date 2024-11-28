@@ -372,6 +372,8 @@ class HomeView extends GetView<HomeController> {
                         ? "${user['address']}"
                         : "Belum Ada Lokasi",
                     style: TextStyle(
+                      fontFamily: 'poppins',
+                      fontWeight: FontWeight.w600,
                       fontSize: 12,
                       color: AppColors.secondarySoft,
                     ),

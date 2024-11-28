@@ -20,7 +20,7 @@ class WeeklyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primaryExtraSoft, width: 1),
+        border: Border.all(color: AppColors.primaryExtraSoft, width: 4),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

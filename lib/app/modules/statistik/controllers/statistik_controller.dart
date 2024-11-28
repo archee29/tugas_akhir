@@ -13,15 +13,6 @@ class StatistikController extends GetxController {
   RxBool servoSwitched = false.obs;
   RxBool pumpSwitched = false.obs;
 
-  RxDouble rER = 0.0.obs;
-  RxDouble pER = 0.0.obs;
-  RxDouble kebutuhanKaloriTerkoreksi = 0.0.obs;
-  RxDouble kebutuhanMakananHarian = 0.0.obs;
-  RxDouble minimalAirHarian = 0.0.obs;
-  RxDouble maksimalAirHarian = 0.0.obs;
-  RxDouble beratKucingAf = 0.0.obs;
-  RxDouble pertumbuhanKucing = 0.0.obs;
-
   @override
   void onInit() {
     super.onInit();
@@ -30,7 +21,6 @@ class StatistikController extends GetxController {
         streamUser().listen((event) {
           userData.value =
               Map<String, dynamic>.from(event.snapshot.value as Map);
-          calculateNutritionDetails();
         }, onError: (error) {
           CustomNotification.errorNotification(
               "Terjadi Kesalahan", "Error : $error");
@@ -94,64 +84,113 @@ class StatistikController extends GetxController {
     return databaseReference.child("UsersData/$uid/UsersProfile").onValue;
   }
 
-  Stream<Map<String, double>> calculateTotals() {
+  Stream<Map<String, dynamic>> calculateTotals() {
     String uid = auth.currentUser!.uid;
-    return databaseReference
-        .child('UsersData/$uid/iot/feeder')
-        .onValue
-        .map((DatabaseEvent snapshot) {
-      double totalFoodDay = 0;
-      double totalWaterDay = 0;
-      double totalFoodWeek = 0;
-      double totalWaterWeek = 0;
-      if (snapshot.snapshot.value != null) {
-        final data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
-        if (data.containsKey('jadwalPagi')) {
-          final morningData = Map<String, dynamic>.from(data['jadwalPagi']);
-          morningData.forEach((key, value) {
-            if (value is Map) {
-              totalFoodDay +=
-                  double.parse(value['beratWadah']?.toString() ?? '0');
-              totalWaterDay +=
-                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
-              DateTime entryDate =
-                  DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-              if (DateTime.now().difference(entryDate).inDays <= 7) {
-                totalFoodWeek +=
-                    double.parse(value['beratWadah']?.toString() ?? '0');
-                totalWaterWeek +=
-                    double.parse(value['volumeMLWadah']?.toString() ?? '0');
-              }
-            }
-          });
+    return databaseReference.child('UsersData/$uid/iot/feeder').onValue.map(
+      (DatabaseEvent snapshot) {
+        // double beratKucingAsli = (userData['beratKucing']);
+        double beratKucing = (userData['beratKucing']) / 1000;
+        // double beratKucingAf = (userData['beratKucingAf']);
+
+        // double pertumbuhanKucing =
+        //     ((beratKucingAf - beratKucingAsli) / beratKucingAsli) * 100;
+
+        // databaseReference.child('UsersData/$uid/UsersProfile').update(
+        //   {
+        //     'pertumbuhanKucing': pertumbuhanKucing,
+        //   },
+        // );
+
+        double rER = 70 * pow(beratKucing, 0.75);
+        double kebutuhanKaloriTerkoreksi = rER * 1.0;
+
+        double rataRataKaloriMakananKering = 375;
+        double kebutuhanMakananHarian =
+            kebutuhanKaloriTerkoreksi / (rataRataKaloriMakananKering / 100);
+
+        double kebutuhanAirHarian = beratKucing * 60;
+
+        double totalFoodDay = 0;
+        double totalWaterDay = 0;
+        double totalFoodWeek = 0;
+        double totalWaterWeek = 0;
+
+        if (snapshot.snapshot.value != null) {
+          final data =
+              Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+          if (data.containsKey('jadwalPagi')) {
+            final morningData = Map<String, dynamic>.from(
+              data['jadwalPagi'],
+            );
+            morningData.forEach(
+              (key, value) {
+                if (value is Map) {
+                  totalFoodDay +=
+                      double.parse(value['beratWadah']?.toString() ?? '0');
+                  totalWaterDay +=
+                      double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  DateTime entryDate =
+                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+                  if (DateTime.now().difference(entryDate).inDays <= 7) {
+                    totalFoodWeek +=
+                        double.parse(value['beratWadah']?.toString() ?? '0');
+                    totalWaterWeek +=
+                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  }
+                }
+              },
+            );
+          }
+          if (data.containsKey('jadwalSore')) {
+            final afternoonData = Map<String, dynamic>.from(
+              data['jadwalSore'],
+            );
+            afternoonData.forEach(
+              (key, value) {
+                if (value is Map) {
+                  totalFoodDay +=
+                      double.parse(value['beratWadah']?.toString() ?? '0');
+                  totalWaterDay +=
+                      double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  DateTime entryDate =
+                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
+                  if (DateTime.now().difference(entryDate).inDays <= 7) {
+                    totalFoodWeek +=
+                        double.parse(value['beratWadah']?.toString() ?? '0');
+                    totalWaterWeek +=
+                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  }
+                }
+              },
+            );
+          }
         }
-        if (data.containsKey('jadwalSore')) {
-          final afternoonData = Map<String, dynamic>.from(data['jadwalSore']);
-          afternoonData.forEach((key, value) {
-            if (value is Map) {
-              totalFoodDay +=
-                  double.parse(value['beratWadah']?.toString() ?? '0');
-              totalWaterDay +=
-                  double.parse(value['volumeMLWadah']?.toString() ?? '0');
-              DateTime entryDate =
-                  DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-              if (DateTime.now().difference(entryDate).inDays <= 7) {
-                totalFoodWeek +=
-                    double.parse(value['beratWadah']?.toString() ?? '0');
-                totalWaterWeek +=
-                    double.parse(value['volumeMLWadah']?.toString() ?? '0');
-              }
-            }
-          });
-        }
-      }
-      return {
-        'totalFoodDay': totalFoodDay,
-        'totalWaterDay': totalWaterDay,
-        'totalFoodWeek': totalFoodWeek,
-        'totalWaterWeek': totalWaterWeek,
-      };
-    });
+        // bool cukupMakananHarian = totalFoodDay >= kebutuhanMakananHarian;
+        // bool cukupAirHarian = totalWaterDay >= kebutuhanAirHarian;
+
+        return {
+          'totalFoodDay': totalFoodDay,
+          'totalWaterDay': totalWaterDay,
+          'totalFoodWeek': totalFoodWeek,
+          'totalWaterWeek': totalWaterWeek,
+          'kebutuhanMakananHarian': kebutuhanMakananHarian,
+          'kebutuhanAirHarian': kebutuhanAirHarian,
+          // 'cukupMakananHarian': cukupMakananHarian,
+          // 'cukupAirHarian': cukupAirHarian,
+          'beratKucing': beratKucing,
+          // 'pertumbuhanKucing': pertumbuhanKucing,
+        };
+      },
+    );
+  }
+
+  String formatSufficiencyOutput(
+      double totalValue, double requiredValue, String unit) {
+    String formattedValue = unit == 'food'
+        ? formatFoodOutput(totalValue)
+        : formatWaterOutput(totalValue);
+
+    return "$formattedValue (${totalValue >= requiredValue ? 'Cukup' : 'Tidak Cukup'})";
   }
 
   String formatFoodOutput(double value) {
@@ -168,43 +207,6 @@ class StatistikController extends GetxController {
     } else {
       return '${value.toStringAsFixed(0)} mL';
     }
-  }
-
-  void calculateNutritionDetails() {
-    double beratKucing = (userData['beratKucing'] ?? 3500) / 1000;
-
-    rER.value = 70 * pow(beratKucing, 0.75);
-
-    pER.value = rER.value * 0.70;
-
-    kebutuhanKaloriTerkoreksi.value = rER.value * 1.2;
-
-    double rataRataKaloriMakananKering = 375;
-
-    kebutuhanMakananHarian.value =
-        kebutuhanKaloriTerkoreksi.value / (rataRataKaloriMakananKering / 100);
-
-    minimalAirHarian.value = beratKucing * 50;
-    maksimalAirHarian.value = beratKucing * 60;
-
-    double beratAwal = (userData['beratKucing'] ?? 3500) / 1000;
-
-    double beratAkhir = (userData['beratKucingAf'] ?? beratAwal);
-
-    beratKucingAf.value = (beratAkhir - beratAwal) / beratAwal;
-    pertumbuhanKucing.value = ((beratAkhir - beratAwal) / beratAwal) * 100;
-    _updateGrowthData();
-  }
-
-  void _updateGrowthData() {
-    String uid = auth.currentUser!.uid;
-    databaseReference.child("UsersData/$uid/UsersProfile").update({
-      'beratKucingAf': beratKucingAf.value.toStringAsFixed(2),
-      'pertumbuhanKucing': pertumbuhanKucing.value.toStringAsFixed(2),
-    }).catchError((error) {
-      CustomNotification.errorNotification(
-          "Gagal Update Data", "Error: $error");
-    });
   }
 
   double pow(double base, double exponent) {

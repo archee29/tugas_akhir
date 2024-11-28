@@ -333,9 +333,9 @@ class CustomInfoFeeder extends StatelessWidget {
                 Icons.edit,
                 color: Colors.blue,
               ),
-              label: Text(
+              label: const Text(
                 "Edit",
-                style: TextStyle(color: AppColors.primary),
+                style: TextStyle(color: Colors.blue),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,

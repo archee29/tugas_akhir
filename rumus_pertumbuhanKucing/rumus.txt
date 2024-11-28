@@ -153,3 +153,46 @@ buatkan saya kodingan untuk menghitung perhitungan saya berikut ini :
             pertumbuhanKucing : ....(pertumbuhanKucing)
       yang mana nanti perhitungan pertumbuhanKucing(%) nya akan update data pertumbuhanKucing(%) pada path data diatas.
 */
+// void calculateNutritionDetails() {
+  //   double beratKucing = (userData['beratKucing'] ?? 3500) / 1000;
+
+  //   // digunakan untuk widget CustomTextField pada nilai RER pada field makanan
+  //   rER.value = 70 * pow(beratKucing, 0.75);
+  //   kebutuhanKaloriTerkoreksi.value = rER.value * 1.2;
+  //   double rataRataKaloriMakananKering = 375;
+  //   // digunakan untuk widget CustomTextField pada nilai RER pada field makanan
+  //   kebutuhanMakananHarian.value =
+  //       kebutuhanKaloriTerkoreksi.value / (rataRataKaloriMakananKering / 100);
+  //   double asupanMakananPagi = kebutuhanMakananHarian.value / 2;
+  //   double asupanMakananSore = kebutuhanMakananHarian.value / 2;
+  //   porsiMakananPagi.value = asupanMakananPagi;
+  //   porsiMakananSore.value = asupanMakananSore;
+  //   /**Note :
+  //   Untuk widget CustomTextField pada nilai RER pada field makanan dan minuman ingin saya gunakan untuk membandingkan
+  //   */
+
+  //   // Digunakan untuk widget CustomTextField pada nilai RER pada field minuman
+  //   kebutuhanAirHarian.value = beratKucing * 60;
+  //   double asupanMinumanPagi = kebutuhanAirHarian.value / 2;
+  //   double asupanMinumanSore = kebutuhanAirHarian.value / 2;
+  //   porsiAirPagi.value = asupanMinumanPagi;
+  //   porsiAirSore.value = asupanMinumanSore;
+
+  //   //  digunakan untuk widget CustomTextField untuk nilai Pertumbuhan Kucing
+  //   double beratAwal = (userData['beratKucing'] ?? 3500) / 1000;
+  //   double beratAkhir = (userData['beratKucingAf'] ?? beratAwal);
+  //   beratKucingAf.value = (beratAkhir - beratAwal) / beratAwal;
+  //   pertumbuhanKucing.value = ((beratAkhir - beratAwal) / beratAwal) * 100;
+  //   _updateGrowthData();
+  // }
+
+  // void _updateGrowthData() {
+  //   String uid = auth.currentUser!.uid;
+  //   databaseReference.child("UsersData/$uid/UsersProfile").update({
+  //     'beratKucingAf': beratKucingAf.value.toStringAsFixed(2),
+  //     'pertumbuhanKucing': pertumbuhanKucing.value.toStringAsFixed(2),
+  //   }).catchError((error) {
+  //     CustomNotification.errorNotification(
+  //         "Gagal Update Data", "Error: $error");
+  //   });
+  // }

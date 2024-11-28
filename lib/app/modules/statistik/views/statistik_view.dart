@@ -217,7 +217,7 @@ class StatistikView extends GetView<StatistikController> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  StreamBuilder<Map<String, double>>(
+                  StreamBuilder<Map<String, dynamic>>(
                     stream: controller.calculateTotals(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -266,11 +266,19 @@ class StatistikView extends GetView<StatistikController> {
                                             "Nilai Asupan Harian\nMakan dan Minum Kucing",
                                         titleNilai: "Makanan",
                                         valueNilai: controller.formatFoodOutput(
-                                            data['totalFoodDay']!),
+                                            data['kebutuhanMakananHarian']!),
+                                        // controller.formatSufficiencyOutput(
+                                        //     data['totalFoodDay']!,
+                                        //     data['kebutuhanMakananHarian']!,
+                                        //     'food'),
                                         titlePertumbuhan: "Minuman",
                                         valuePertumbuhan:
                                             controller.formatWaterOutput(
-                                                data['totalWaterDay']!),
+                                                data['kebutuhanAirHarian']!),
+                                        // controller.formatSufficiencyOutput(
+                                        //     data['totalWaterDay']!,
+                                        //     data['kebutuhanAirHarian']!,
+                                        //     'water'),
                                       ),
                                     ),
                                   ),
@@ -279,22 +287,23 @@ class StatistikView extends GetView<StatistikController> {
                                     child: Column(
                                       children: [
                                         Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              WeeklyCard(
-                                                title: "Total Food / Week",
-                                                value:
-                                                    controller.formatFoodOutput(
-                                                        data['totalFoodWeek']!),
-                                              ),
-                                              WeeklyCard(
-                                                title: "Total Water / Week",
-                                                value: controller
-                                                    .formatWaterOutput(
-                                                        data['totalFoodWeek']!),
-                                              )
-                                            ]),
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            WeeklyCard(
+                                              title: "Total Food / Week",
+                                              value:
+                                                  controller.formatFoodOutput(
+                                                      data['totalFoodWeek']!),
+                                            ),
+                                            WeeklyCard(
+                                              title: "Total Water / Week",
+                                              value:
+                                                  controller.formatWaterOutput(
+                                                      data['totalFoodWeek']!),
+                                            )
+                                          ],
+                                        ),
                                         Center(
                                           child: ConstrainedBox(
                                             constraints: BoxConstraints(
@@ -310,11 +319,11 @@ class StatistikView extends GetView<StatistikController> {
                                               titleNilai: "Sebelum",
                                               valueNilai:
                                                   controller.formatFoodOutput(
-                                                      data['totalFoodDay']!),
+                                                      data['beratKucing']!),
                                               titlePertumbuhan: "Sesudah",
                                               valuePertumbuhan:
                                                   controller.formatFoodOutput(
-                                                      data['totalFoodWeek']!),
+                                                      data['beratKucing']!),
                                             ),
                                           ),
                                         ),
