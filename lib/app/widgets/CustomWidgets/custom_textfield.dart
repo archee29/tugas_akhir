@@ -107,7 +107,7 @@ class CustomTextField extends StatelessWidget {
               Text(
                 valueNilai,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontFamily: 'poppins',
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -138,7 +138,7 @@ class CustomTextField extends StatelessWidget {
               Text(
                 valuePertumbuhan,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontFamily: 'poppins',
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -173,7 +173,7 @@ class CustomTextField extends StatelessWidget {
                   Text(
                     valueNilai,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'poppins',
                       fontWeight: FontWeight.w700,
                       color: Colors.black,
@@ -198,7 +198,7 @@ class CustomTextField extends StatelessWidget {
                   Text(
                     valuePertumbuhan,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'poppins',
                       fontWeight: FontWeight.w700,
                       color: Colors.black,

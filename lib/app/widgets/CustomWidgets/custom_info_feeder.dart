@@ -276,7 +276,7 @@ class CustomInfoFeeder extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Perubahan BB Kucing",
+                      "Perubahan Berat Badan Kucing",
                       style: TextStyle(
                         fontSize: 10,
                         color: Colors.grey,
@@ -300,7 +300,7 @@ class CustomInfoFeeder extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Pertumbuhan Kucing",
+                      "Berat Badan Akhir Kucing",
                       style: TextStyle(
                         fontSize: 10,
                         color: Colors.grey,

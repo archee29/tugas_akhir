@@ -403,7 +403,7 @@ class HomeView extends GetView<HomeController> {
                         wadahMinum: '${data['wadahMinum']} ',
                         bbKucing: '${data['beratKucing']}',
                         pbbKucing: '${data['beratKucingAf']}',
-                        pKucing: '${data['pertumbuhanKucing']}',
+                        pKucing: '${data['beratAkhir']}',
                         onPressed: () => Get.toNamed(
                           Routes.UPDATE_PROFILE,
                           arguments: user,

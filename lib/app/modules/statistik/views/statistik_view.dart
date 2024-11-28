@@ -261,24 +261,17 @@ class StatistikView extends GetView<StatistikController> {
                                                 0.95,
                                       ),
                                       child: CustomTextField(
-                                        title: "Nilai RER",
+                                        title: "Status RER",
                                         subTitle:
-                                            "Nilai Asupan Harian\nMakan dan Minum Kucing",
+                                            "Status Asupan Harian\nMakan dan Minum Kucing",
                                         titleNilai: "Makanan",
-                                        valueNilai: controller.formatFoodOutput(
-                                            data['kebutuhanMakananHarian']!),
-                                        // controller.formatSufficiencyOutput(
-                                        //     data['totalFoodDay']!,
-                                        //     data['kebutuhanMakananHarian']!,
-                                        //     'food'),
+                                        valueNilai: data['cukupMakananHarian']
+                                            ? 'Cukup'
+                                            : 'Tidak Cukup',
                                         titlePertumbuhan: "Minuman",
-                                        valuePertumbuhan:
-                                            controller.formatWaterOutput(
-                                                data['kebutuhanAirHarian']!),
-                                        // controller.formatSufficiencyOutput(
-                                        //     data['totalWaterDay']!,
-                                        //     data['kebutuhanAirHarian']!,
-                                        //     'water'),
+                                        valuePertumbuhan: data['cukupAirHarian']
+                                            ? 'Cukup'
+                                            : 'Tidak Cukup',
                                       ),
                                     ),
                                   ),
@@ -316,14 +309,18 @@ class StatistikView extends GetView<StatistikController> {
                                               title: "Pertumbuhan Kucing",
                                               subTitle:
                                                   "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
-                                              titleNilai: "Sebelum",
+                                              titleNilai: "BB Akhir",
                                               valueNilai:
                                                   controller.formatFoodOutput(
-                                                      data['beratKucing']!),
-                                              titlePertumbuhan: "Sesudah",
-                                              valuePertumbuhan:
-                                                  controller.formatFoodOutput(
-                                                      data['beratKucing']!),
+                                                      double.parse(
+                                                          data['beratKucing']
+                                                              .toString())),
+                                              titlePertumbuhan: "Pertumbuhan",
+                                              valuePertumbuhan: controller
+                                                  .formatPertumbuhanOutput(
+                                                      double.parse(data[
+                                                              'pertumbuhanKucing']
+                                                          .toString())),
                                             ),
                                           ),
                                         ),

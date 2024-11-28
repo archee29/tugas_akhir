@@ -152,8 +152,8 @@ class HomeController extends GetxController {
                 formatLargeNumberOutput(data['beratKucing'], unit: ' Gr'),
             'beratKucingAf':
                 formatLargeNumberOutput(data['beratKucingAf'], unit: ' Gr'),
-            'pertumbuhanKucing':
-                formatLargeNumberOutput(data['pertumbuhanKucing'], unit: ' Gr'),
+            'beratAkhir':
+                formatLargeNumberOutput(data['beratAkhir'], unit: ' Gr'),
           };
         }
         return {};

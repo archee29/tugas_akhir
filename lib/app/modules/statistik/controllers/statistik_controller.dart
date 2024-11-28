@@ -88,18 +88,22 @@ class StatistikController extends GetxController {
     String uid = auth.currentUser!.uid;
     return databaseReference.child('UsersData/$uid/iot/feeder').onValue.map(
       (DatabaseEvent snapshot) {
-        // double beratKucingAsli = (userData['beratKucing']);
-        double beratKucing = (userData['beratKucing']) / 1000;
-        // double beratKucingAf = (userData['beratKucingAf']);
+        double beratKucingAsli =
+            double.parse(userData['beratKucing'].toString());
+        double beratKucingAf =
+            double.parse(userData['beratKucingAf'].toString());
 
-        // double pertumbuhanKucing =
-        //     ((beratKucingAf - beratKucingAsli) / beratKucingAsli) * 100;
+        double beratAkhir = beratKucingAsli + beratKucingAf;
 
-        // databaseReference.child('UsersData/$uid/UsersProfile').update(
-        //   {
-        //     'pertumbuhanKucing': pertumbuhanKucing,
-        //   },
-        // );
+        double pertumbuhanKucing =
+            ((beratAkhir - beratKucingAsli) / beratKucingAsli) * 100;
+
+        databaseReference.child('UsersData/$uid/UsersProfile').update({
+          'beratAkhir': beratAkhir,
+          'pertumbuhanKucing': pertumbuhanKucing,
+        });
+
+        double beratKucing = beratKucingAsli / 1000;
 
         double rER = 70 * pow(beratKucing, 0.75);
         double kebutuhanKaloriTerkoreksi = rER * 1.0;
@@ -165,8 +169,9 @@ class StatistikController extends GetxController {
             );
           }
         }
-        // bool cukupMakananHarian = totalFoodDay >= kebutuhanMakananHarian;
-        // bool cukupAirHarian = totalWaterDay >= kebutuhanAirHarian;
+
+        bool cukupMakananHarian = totalFoodDay >= kebutuhanMakananHarian;
+        bool cukupAirHarian = totalWaterDay >= kebutuhanAirHarian;
 
         return {
           'totalFoodDay': totalFoodDay,
@@ -175,22 +180,17 @@ class StatistikController extends GetxController {
           'totalWaterWeek': totalWaterWeek,
           'kebutuhanMakananHarian': kebutuhanMakananHarian,
           'kebutuhanAirHarian': kebutuhanAirHarian,
-          // 'cukupMakananHarian': cukupMakananHarian,
-          // 'cukupAirHarian': cukupAirHarian,
-          'beratKucing': beratKucing,
-          // 'pertumbuhanKucing': pertumbuhanKucing,
+          'cukupMakananHarian': cukupMakananHarian,
+          'cukupAirHarian': cukupAirHarian,
+          'beratKucing': beratAkhir,
+          'pertumbuhanKucing': pertumbuhanKucing,
         };
       },
     );
   }
 
-  String formatSufficiencyOutput(
-      double totalValue, double requiredValue, String unit) {
-    String formattedValue = unit == 'food'
-        ? formatFoodOutput(totalValue)
-        : formatWaterOutput(totalValue);
-
-    return "$formattedValue (${totalValue >= requiredValue ? 'Cukup' : 'Tidak Cukup'})";
+  String formatPertumbuhanOutput(double value) {
+    return '${value.toStringAsFixed(2)}%';
   }
 
   String formatFoodOutput(double value) {

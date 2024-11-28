@@ -18,6 +18,8 @@ class UpdateProfileController extends GetxController {
   TextEditingController tmController = TextEditingController();
   TextEditingController wmController = TextEditingController();
   TextEditingController bkController = TextEditingController();
+  TextEditingController pbbController = TextEditingController();
+  TextEditingController baController = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
   s.FirebaseStorage storage = s.FirebaseStorage.instance;
@@ -40,6 +42,8 @@ class UpdateProfileController extends GetxController {
     tmController.text = user["tabungMinum"]?.toString() ?? "";
     wmController.text = user["wadahMinum"]?.toString() ?? "";
     bkController.text = user["beratKucing"]?.toString() ?? "";
+    pbbController.text = user['beratKucingAf']?.toString() ?? "";
+    baController.text = user['beratAkhir']?.toString() ?? "";
   }
 
   @override
@@ -52,6 +56,8 @@ class UpdateProfileController extends GetxController {
     tmController.dispose();
     wmController.dispose();
     bkController.dispose();
+    pbbController.dispose();
+    baController.dispose();
     super.onClose();
   }
 
@@ -79,6 +85,8 @@ class UpdateProfileController extends GetxController {
           "tabungMinum": int.parse(tmController.text.trim()),
           "wadahMinum": int.parse(wmController.text.trim()),
           "beratKucing": int.parse(bkController.text.trim()),
+          "beratKucingAf": int.parse(pbbController.text.trim()),
+          "beratAkhir": int.parse(baController.text.trim()),
         };
 
         if (image != null) {
@@ -109,7 +117,9 @@ class UpdateProfileController extends GetxController {
       wpController,
       tmController,
       wmController,
-      bkController
+      bkController,
+      pbbController,
+      baController,
     ];
     for (var controller in numericControllers) {
       if (controller.text.trim().isEmpty) {
@@ -135,7 +145,9 @@ class UpdateProfileController extends GetxController {
         wpController.text.trim().isNotEmpty &&
         tmController.text.trim().isNotEmpty &&
         wmController.text.trim().isNotEmpty &&
-        bkController.text.trim().isNotEmpty;
+        bkController.text.trim().isNotEmpty &&
+        pbbController.text.trim().isNotEmpty &&
+        baController.text.trim().isNotEmpty;
   }
 
   Future<String> _uploadAvatar(String uid) async {
