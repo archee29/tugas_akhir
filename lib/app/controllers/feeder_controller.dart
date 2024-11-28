@@ -4,7 +4,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import './../../../../app/widgets/dialog/custom_alert_dialog.dart';
 import './../../../../app/widgets/dialog/custom_notification.dart';
 import './../../data_pengguna.dart';
 
@@ -13,6 +12,7 @@ class FeederController extends GetxController {
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference database = FirebaseDatabase.instance.ref();
   String? currentTime;
+
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -30,45 +30,129 @@ class FeederController extends GetxController {
 
   feeder() async {
     isLoading.value = true;
-    if (currentTime == null) {
-      isLoading.value = false;
-      CustomNotification.errorNotification(
-          "Terjadi Kesalahan", "Gagal mendapatkan waktu saat ini.");
-      return;
-    }
-    Map<String, dynamic> determinePosition = await _determinePosition();
-    if (!determinePosition["error"]) {
-      Position position = determinePosition["position"];
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      String alamat =
-          "${placemarks.first.street}, ${placemarks.first.subLocality}, ${placemarks.first.locality}";
-      double distance = Geolocator.distanceBetween(
-        DataPengguna.house['latitude'],
-        DataPengguna.house['longtitude'],
-        position.latitude,
-        position.longitude,
-      );
+
+    try {
+      String uid = auth.currentUser!.uid;
+      DatabaseReference monitoringRef =
+          database.child("UsersData/$uid/iot/monitoring");
+      DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
+
+      DatabaseEvent monitoringSnapshot = await monitoringRef.once();
+      Map<String, dynamic> monitoringData =
+          Map<String, dynamic>.from(monitoringSnapshot.snapshot.value as Map);
+
+      if (monitoringData['systemsStatus'] == true) {
+        isLoading.value = false;
+        CustomNotification.errorNotification("Perangkat Aktif",
+            "Button feeder hanya dapat digunakan saat perangkat tidak bekerja.");
+        return;
+      }
+
+      if (currentTime == null) {
+        isLoading.value = false;
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", "Gagal mendapatkan waktu saat ini.");
+        return;
+      }
+
+      String todayDocId =
+          DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
       bool isValidMorning = _isWithinFeedingTime(currentTime!, "07:00", 15, 60);
       bool isValidAfternoon =
           _isWithinFeedingTime(currentTime!, "17:00", 15, 60);
+
+      DatabaseEvent morningFeedEvent =
+          await feederRef.child("jadwalPagi/$todayDocId").once();
+      DatabaseEvent afternoonFeedEvent =
+          await feederRef.child("jadwalSore/$todayDocId").once();
+
+      if ((isValidMorning && morningFeedEvent.snapshot.value != null) ||
+          (isValidAfternoon && afternoonFeedEvent.snapshot.value != null)) {
+        isLoading.value = false;
+        CustomNotification.errorNotification("Terjadi Kesalahan",
+            "Sudah terdapat jadwal pemberian makan pada tanggal ini.");
+        return;
+      }
+
       if (!isValidMorning && !isValidAfternoon) {
         isLoading.value = false;
         CustomNotification.errorNotification("Terjadi Kesalahan",
             "Tidak berada dalam rentang waktu (07:00 & 17:00) untuk memberi makan dan minum kucing.");
         return;
       }
-      if (isValidAfternoon && !isValidMorning) {
-        await processFeeder(position, alamat, distance, "afternoon");
-      } else if (isValidMorning) {
-        await processFeeder(position, alamat, distance, "morning");
+
+      Map<String, dynamic> determinePosition = await _determinePosition();
+      if (!determinePosition["error"]) {
+        Position position = determinePosition["position"];
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, position.longitude);
+        String alamat =
+            "${placemarks.first.street}, ${placemarks.first.subLocality}, ${placemarks.first.locality}";
+
+        double distance = Geolocator.distanceBetween(
+          DataPengguna.house['latitude'],
+          DataPengguna.house['longtitude'],
+          position.latitude,
+          position.longitude,
+        );
+
+        if (isValidAfternoon && !isValidMorning) {
+          await processFeederBackup(feederRef, todayDocId, position, alamat,
+              distance, "afternoon", monitoringData);
+        } else if (isValidMorning) {
+          await processFeederBackup(feederRef, todayDocId, position, alamat,
+              distance, "morning", monitoringData);
+        }
+        await updatePumpAndServoStatus(true, true);
+
+        isLoading.value = false;
+      } else {
+        isLoading.value = false;
+        CustomNotification.errorNotification(
+            "Terjadi Kesalahan", determinePosition["message"]);
       }
-      await updatePumpAndServoStatus(true, true);
-      isLoading.value = false;
-    } else {
+    } catch (e) {
       isLoading.value = false;
       CustomNotification.errorNotification(
-          "Terjadi Kesalahan", determinePosition["message"]);
+          "Terjadi Kesalahan", "Error: ${e.toString()}");
+    }
+  }
+
+  Future<void> processFeederBackup(
+    DatabaseReference feederRef,
+    String todayDocId,
+    Position position,
+    String alamat,
+    double distance,
+    String feederType,
+    Map<String, dynamic> monitoringData,
+  ) async {
+    bool inArea = distance <= 200;
+
+    Map<String, dynamic> feederData = {
+      "date": DateTime.now().toIso8601String(),
+      "latitude": position.latitude,
+      "longtitude": position.longitude,
+      "alamat": alamat,
+      "in_area": inArea,
+      "distance": distance,
+      "beratWadah": monitoringData['beratWadah'],
+      "ketHari": DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      "ketWaktu": feederType == "morning" ? "7:0:0" : "17:0:0",
+      "volumeMLTabung": monitoringData['volumeMLTabung'],
+      "volumeMLWadah": monitoringData['volumeMLWadah'],
+    };
+
+    if (feederType == "morning") {
+      await feederRef.child("jadwalPagi").child(todayDocId).set(feederData);
+
+      CustomNotification.successNotification(
+          "Sukses", "Berhasil Melakukan Feeder Backup di Pagi Hari");
+    } else {
+      await feederRef.child("jadwalSore").child(todayDocId).set(feederData);
+
+      CustomNotification.successNotification(
+          "Sukses", "Berhasil Melakukan Feeder Backup di Sore Hari");
     }
   }
 
@@ -79,140 +163,6 @@ class FeederController extends GetxController {
     DateTime startValidTime = feed.subtract(Duration(minutes: toleranceBefore));
     DateTime endValidTime = feed.add(Duration(minutes: toleranceAfter));
     return current.isAfter(startValidTime) && current.isBefore(endValidTime);
-  }
-
-  firstFeeder(
-    DatabaseReference feederRef,
-    String todayDocId,
-    Position position,
-    String alamat,
-    double distance,
-    bool inArea,
-  ) async {
-    CustomAlertDialog.showFeederAlert(
-      title: "Tambah Feeder",
-      message:
-          "Konfirmasi Terlebih Dahulu \n Untuk Memberi Makan dan Minum Kucing",
-      onCancel: () => Get.back(),
-      onConfirm: () async {
-        await feederRef.child(todayDocId).set({
-          "morningFeeder": {
-            "date": DateTime.now().toIso8601String(),
-            "latitude": position.latitude,
-            "longtitude": position.longitude,
-            "alamat": alamat,
-            "in_area": inArea,
-            "distance": distance,
-          }
-        });
-        Get.back();
-        CustomNotification.successNotification(
-            "Sukses", "Berhasil Menambahkan Feeder");
-      },
-    );
-  }
-
-  morningFeeder(
-    DatabaseReference feederRef,
-    String todayDocId,
-    Position position,
-    String alamat,
-    double distance,
-    bool inArea,
-  ) async {
-    CustomAlertDialog.showFeederAlert(
-      title: "Tambah Feeder Pagi",
-      message:
-          "Konfirmasi Terlebih Dahulu \n Untuk Melakukan Pengisian Tempat Makan dan Minum Kucing di Pagi Hari",
-      onCancel: () => Get.back(),
-      onConfirm: () async {
-        await feederRef.child(todayDocId).set({
-          "morningFeeder": {
-            "date": DateTime.now().toIso8601String(),
-            "latitude": position.latitude,
-            "longtitude": position.longitude,
-            "alamat": alamat,
-            "in_area": inArea,
-            "distance": distance,
-          }
-        });
-        Get.back();
-        CustomNotification.successNotification(
-            "Sukses", "Berhasil Melakukan Feeder di Pagi Hari");
-      },
-    );
-  }
-
-  afternoonFeeder(
-    DatabaseReference feederRef,
-    String todayDocId,
-    Position position,
-    String alamat,
-    double distance,
-    bool inArea,
-  ) async {
-    CustomAlertDialog.showFeederAlert(
-      title: "Tambah Feeder Sore",
-      message:
-          "Konfirmasi Terlebih dahulu\nUntuk Melakukan Pengisian Tempan Makan dan Minum Kucing di Sore Hari",
-      onCancel: () => Get.back(),
-      onConfirm: () async {
-        await feederRef.child(todayDocId).update({
-          "afternoonFeeder": {
-            "date": DateTime.now().toIso8601String(),
-            "latitude": position.latitude,
-            "longtitude": position.longitude,
-            "alamat": alamat,
-            "in_area": inArea,
-            "distance": distance,
-          }
-        });
-        Get.back();
-        CustomNotification.successNotification(
-            "Sukses", "Berhasil Menambahkan Feeder di Sore Hari");
-      },
-    );
-  }
-
-  Future<void> processFeeder(Position position, String alamat, double distance,
-      String feederType) async {
-    String uid = auth.currentUser!.uid;
-    String todayDocId =
-        DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-    DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
-    DatabaseEvent snapshotPreference = await feederRef.once();
-    bool inArea = distance <= 200;
-    if (snapshotPreference.snapshot.value == null) {
-      firstFeeder(feederRef, todayDocId, position, alamat, distance, inArea);
-    } else {
-      DatabaseEvent todayDoc = await feederRef.child(todayDocId).once();
-      if (todayDoc.snapshot.value != null) {
-        Map<String, dynamic> dataFeederToday =
-            Map<String, dynamic>.from(todayDoc.snapshot.value as Map);
-        if (dataFeederToday["morningFeeder"] != null &&
-            dataFeederToday["afternoonFeeder"] != null) {
-          CustomNotification.errorNotification(
-            "Terjadi Kesalahan",
-            "Anda sudah melakukan pemberian makan dan minum kucing pada hari ini.",
-          );
-        } else if (dataFeederToday["morningFeeder"] != null &&
-            feederType == "afternoon") {
-          afternoonFeeder(
-              feederRef, todayDocId, position, alamat, distance, inArea);
-        } else if (feederType == "morning") {
-          morningFeeder(
-              feederRef, todayDocId, position, alamat, distance, inArea);
-        }
-      } else {
-        if (feederType == "morning") {
-          morningFeeder(
-              feederRef, todayDocId, position, alamat, distance, inArea);
-        } else {
-          afternoonFeeder(
-              feederRef, todayDocId, position, alamat, distance, inArea);
-        }
-      }
-    }
   }
 
   Future<void> updatePosisi(Position position, String alamat) async {
