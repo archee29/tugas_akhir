@@ -38,9 +38,6 @@ const long lcdInterval = 1000;
 unsigned long previousNotificationMonitoringMillis = 0;
 const long notificationMonitoringInterval = 960000;
 
-unsigned long previousReqReceiverMillis = 0;
-const long reqReceiverInterval = 2000;
-
 void initLCD() {
   lcd.init();
   lcd.backlight();
@@ -268,9 +265,6 @@ void sendDataControlToReceiver(String command) {
 }
 
 void reqDataFromReceiver() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousReqReceiverMillis >= reqReceiverInterval) {
-    previousReqReceiverMillis = currentMillis;
     if (Serial.available()) {
       String receivedCommand = Serial.readStringUntil('\n');
       receivedCommand.trim();
@@ -285,7 +279,6 @@ void reqDataFromReceiver() {
         myServo.write(0);
       }
     }
-  }
 }
 
 void setup() {

@@ -46,11 +46,13 @@ class StatistikController extends GetxController {
     databaseReference
         .child("UsersData/$uid/iot/control/pumpControl")
         .onValue
-        .listen((event) {
-      if (event.snapshot.value != null) {
-        pumpSwitched.value = event.snapshot.value as bool;
-      }
-    });
+        .listen(
+      (event) {
+        if (event.snapshot.value != null) {
+          pumpSwitched.value = event.snapshot.value as bool;
+        }
+      },
+    );
   }
 
   void servoControl() {

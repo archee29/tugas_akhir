@@ -17,6 +17,7 @@ class HomeController extends GetxController {
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
   Timer? timer;
+  RxBool systemSwitched = false.obs;
 
   @override
   void onInit() {
@@ -30,12 +31,38 @@ class HomeController extends GetxController {
           CustomNotification.errorNotification(
               "Terjadi Kesalahan", "Error : $error");
         });
+        _fetchInitialSwitchStates();
         streamBothSchedules();
         calculateTotals();
         streamInfoFeeder();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
+    });
+  }
+
+  void _fetchInitialSwitchStates() {
+    String uid = auth.currentUser!.uid;
+    databaseReference
+        .child("UsersData/$uid/iot/monitoring/systemsStatus")
+        .onValue
+        .listen((event) {
+      if (event.snapshot.value != null) {
+        systemSwitched.value = event.snapshot.value as bool;
+      }
+    });
+  }
+
+  void systemControl() {
+    String uid = auth.currentUser!.uid;
+    bool newValue = !systemSwitched.value;
+    systemSwitched.value = newValue;
+    databaseReference
+        .child("UsersData/$uid/iot/monitoring/systemsStatus")
+        .set(newValue)
+        .catchError((error) {
+      systemSwitched.value = !newValue;
+      CustomNotification.errorNotification("Terjadi Kesalahan", "$error");
     });
   }
 

@@ -8,7 +8,7 @@
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
-#define USER_PASSWORD "muhammadsigit292001"
+#define USER_PASSWORD "adminacf123"
 
 FirebaseData firebaseData;
 FirebaseAuth auth;

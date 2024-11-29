@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
 import 'package:tugas_akhir/app/widgets/card/day_card.dart';
 import '../../../widgets/CustomWidgets/custom_info_feeder.dart';
@@ -234,6 +235,45 @@ class HomeView extends GetView<HomeController> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 25),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          const Text(
+                            "System Status : ",
+                            style: TextStyle(
+                              fontFamily: 'poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Obx(
+                            () => FlutterSwitch(
+                              toggleSize: 30,
+                              width: 110,
+                              height: 55,
+                              valueFontSize: 15,
+                              padding: 7,
+                              activeText: "System",
+                              activeTextColor: Colors.white,
+                              activeIcon: const Text("ON"),
+                              activeColor: AppColors.success,
+                              activeTextFontWeight: FontWeight.normal,
+                              inactiveText: "System",
+                              inactiveTextColor: Colors.white,
+                              inactiveIcon: const Text("OFF"),
+                              inactiveColor: AppColors.error,
+                              inactiveTextFontWeight: FontWeight.normal,
+                              showOnOff: true,
+                              value: controller.systemSwitched.value,
+                              onToggle: (val) => controller.systemControl(),
+                              disabled: true,
+                            ),
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),

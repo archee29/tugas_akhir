@@ -21,7 +21,6 @@ class StatistikView extends GetView<StatistikController> {
 
   @override
   Widget build(BuildContext context) {
-    StatistikController statistikController = Get.put(StatistikController());
     return Scaffold(
         bottomNavigationBar: const CustomBottomNavigationBar(),
         body: StreamBuilder<DatabaseEvent>(
@@ -158,17 +157,18 @@ class StatistikView extends GetView<StatistikController> {
                                 valueFontSize: 15,
                                 padding: 7,
                                 activeText: "Servo",
+                                activeTextColor: Colors.white,
                                 activeIcon: const Text("ON"),
                                 activeColor: AppColors.success,
                                 activeTextFontWeight: FontWeight.normal,
                                 inactiveText: "Servo",
+                                inactiveTextColor: Colors.white,
                                 inactiveIcon: const Text("OFF"),
                                 inactiveColor: AppColors.error,
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
-                                value: statistikController.servoSwitched.value,
-                                onToggle: (val) =>
-                                    statistikController.servoControl(),
+                                value: controller.servoSwitched.value,
+                                onToggle: (val) => controller.servoControl(),
                               ),
                             ),
                             Obx(
@@ -181,15 +181,16 @@ class StatistikView extends GetView<StatistikController> {
                                 activeText: "Pump Water",
                                 activeIcon: const Text("ON"),
                                 activeColor: AppColors.success,
+                                activeTextColor: Colors.white,
                                 activeTextFontWeight: FontWeight.normal,
                                 inactiveText: "Pump Water",
                                 inactiveIcon: const Text("OFF"),
+                                inactiveTextColor: Colors.white,
                                 inactiveColor: AppColors.error,
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
-                                value: statistikController.pumpSwitched.value,
-                                onToggle: (val) =>
-                                    statistikController.pumpControl(),
+                                value: controller.pumpSwitched.value,
+                                onToggle: (val) => controller.pumpControl(),
                               ),
                             ),
                           ],
