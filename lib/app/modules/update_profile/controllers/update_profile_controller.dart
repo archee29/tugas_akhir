@@ -32,6 +32,7 @@ class UpdateProfileController extends GetxController {
     super.onInit();
     if (auth.currentUser == null) {
       Get.offAllNamed(Routes.LOGIN);
+      return;
     }
     final user = Get.arguments;
     nameController.text = user["name"] ?? "";

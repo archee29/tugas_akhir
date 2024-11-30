@@ -9,29 +9,53 @@ import './../../data_pengguna.dart';
 
 class FeederController extends GetxController {
   RxBool isLoading = false.obs;
+  RxString currentTime = RxString('');
+  RxBool isTimeInitialized = RxBool(false);
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference database = FirebaseDatabase.instance.ref();
-  String? currentTime;
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    _listenToRealtimeClock();
+    await _initializeTimeListener();
   }
 
-  void _listenToRealtimeClock() {
-    String uid = auth.currentUser!.uid;
-    database.child("UsersData/$uid/iot/monitoring").onValue.listen((event) {
-      Map<String, dynamic> data =
-          Map<String, dynamic>.from(event.snapshot.value as Map);
-      currentTime = data['ketWaktu']?.toString();
-    });
+  Future<void> _initializeTimeListener() async {
+    try {
+      String uid = auth.currentUser!.uid;
+      database.child("UsersData/$uid/iot/monitoring").onValue.listen(
+        (event) {
+          if (event.snapshot.value != null) {
+            Map<String, dynamic> data =
+                Map<String, dynamic>.from(event.snapshot.value as Map);
+            currentTime.value = data['ketWaktu']?.toString() ?? '';
+            isTimeInitialized.value = true;
+          }
+        },
+        onError: (error) {
+          CustomNotification.errorNotification("Kesalahan Koneksi",
+              "Gagal mendapatkan data waktu: ${error.toString()}");
+        },
+      );
+    } catch (e) {
+      CustomNotification.errorNotification("Terjadi Kesalahan",
+          "Error inisialisasi listener waktu: ${e.toString()}");
+    }
   }
 
-  feeder() async {
+  Future<void> feeder() async {
     isLoading.value = true;
 
     try {
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!isTimeInitialized.value || currentTime.value.isEmpty) {
+        isLoading.value = false;
+        CustomNotification.errorNotification("Terjadi Kesalahan",
+            "Gagal mendapatkan waktu saat ini. Periksa koneksi database.");
+        return;
+      }
+
       String uid = auth.currentUser!.uid;
       DatabaseReference monitoringRef =
           database.child("UsersData/$uid/iot/monitoring");
@@ -48,18 +72,12 @@ class FeederController extends GetxController {
         return;
       }
 
-      if (currentTime == null) {
-        isLoading.value = false;
-        CustomNotification.errorNotification(
-            "Terjadi Kesalahan", "Gagal mendapatkan waktu saat ini.");
-        return;
-      }
-
       String todayDocId =
           DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-      bool isValidMorning = _isWithinFeedingTime(currentTime!, "7:0:0", 15, 60);
+      bool isValidMorning =
+          _isWithinFeedingTime(currentTime.value, "07:00", 15, 60);
       bool isValidAfternoon =
-          _isWithinFeedingTime(currentTime!, "17:0:0", 15, 60);
+          _isWithinFeedingTime(currentTime.value, "17:00", 15, 60);
 
       DatabaseEvent morningFeedEvent =
           await feederRef.child("jadwalPagi/$todayDocId").once();
@@ -81,6 +99,7 @@ class FeederController extends GetxController {
         return;
       }
 
+      // Determine position
       Map<String, dynamic> determinePosition = await _determinePosition();
       if (!determinePosition["error"]) {
         Position position = determinePosition["position"];
@@ -88,23 +107,20 @@ class FeederController extends GetxController {
             position.latitude, position.longitude);
         String alamat =
             "${placemarks.first.street}, ${placemarks.first.subLocality}, ${placemarks.first.locality}";
-
         double distance = Geolocator.distanceBetween(
           DataPengguna.house['latitude'],
           DataPengguna.house['longtitude'],
           position.latitude,
           position.longitude,
         );
-
         if (isValidAfternoon && !isValidMorning) {
-          await processFeederBackup(feederRef, todayDocId, position, alamat,
+          await _processFeederBackup(feederRef, todayDocId, position, alamat,
               distance, "afternoon", monitoringData);
         } else if (isValidMorning) {
-          await processFeederBackup(feederRef, todayDocId, position, alamat,
+          await _processFeederBackup(feederRef, todayDocId, position, alamat,
               distance, "morning", monitoringData);
         }
         await updatePumpAndServoStatus(true, true);
-
         isLoading.value = false;
       } else {
         isLoading.value = false;
@@ -118,7 +134,7 @@ class FeederController extends GetxController {
     }
   }
 
-  Future<void> processFeederBackup(
+  Future<void> _processFeederBackup(
     DatabaseReference feederRef,
     String todayDocId,
     Position position,
@@ -145,12 +161,10 @@ class FeederController extends GetxController {
 
     if (feederType == "morning") {
       await feederRef.child("jadwalPagi").child(todayDocId).set(feederData);
-
       CustomNotification.successNotification(
           "Sukses", "Berhasil Melakukan Feeder Backup di Pagi Hari");
     } else {
       await feederRef.child("jadwalSore").child(todayDocId).set(feederData);
-
       CustomNotification.successNotification(
           "Sukses", "Berhasil Melakukan Feeder Backup di Sore Hari");
     }
@@ -158,10 +172,11 @@ class FeederController extends GetxController {
 
   bool _isWithinFeedingTime(String currentTime, String feedTime,
       int toleranceBefore, int toleranceAfter) {
-    DateTime current = DateFormat("H:m:s").parse(currentTime);
-    DateTime feed = DateFormat("H:m:s").parse(feedTime);
+    DateTime current = DateFormat("HH:mm").parse(currentTime);
+    DateTime feed = DateFormat("HH:mm").parse(feedTime);
     DateTime startValidTime = feed.subtract(Duration(minutes: toleranceBefore));
     DateTime endValidTime = feed.add(Duration(minutes: toleranceAfter));
+
     return current.isAfter(startValidTime) && current.isBefore(endValidTime);
   }
 
@@ -189,9 +204,10 @@ class FeederController extends GetxController {
     bool serviceEnabled;
     LocationPermission permission;
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
       return {
-        "message": "location service are disabled.",
+        "message": "Layanan lokasi dinonaktifkan.",
         "error": true,
       };
     }
@@ -201,23 +217,26 @@ class FeederController extends GetxController {
       if (permission == LocationPermission.denied) {
         return {
           "message":
-              "Tidak dapat mengakses lokasi, karena anda menolak permintaan akses lokasi",
+              "Akses lokasi ditolak. Izinkan akses lokasi untuk melanjutkan.",
           "error": true,
         };
       }
     }
+
     if (permission == LocationPermission.deniedForever) {
       return {
         "message":
-            "Akses Lokasi ditolak secara permanen oleh user, kami tidak dapat melakukan proses input lokasi",
+            "Akses lokasi ditolak secara permanen. Buka pengaturan untuk mengubah izin.",
         "error": true,
       };
     }
+
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation);
+
     return {
       "position": position,
-      "message": "Berhasil Mendapatkan Posisi Device",
+      "message": "Berhasil mendapatkan posisi perangkat",
       "error": false,
     };
   }

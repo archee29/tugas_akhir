@@ -18,7 +18,12 @@ class FeederCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.only(left: 24, top: 24, right: 24, bottom: 16),
+      padding: const EdgeInsets.only(
+        left: 24,
+        top: 24,
+        right: 24,
+        bottom: 16,
+      ),
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(16),

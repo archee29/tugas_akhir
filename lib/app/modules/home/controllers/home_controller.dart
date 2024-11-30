@@ -10,6 +10,7 @@ import '../../../routes/app_pages.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 
 class HomeController extends GetxController {
+  RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
   RxBool isLoading = false.obs;
   RxString houseDistance = "-".obs;
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -23,7 +24,17 @@ class HomeController extends GetxController {
     super.onInit();
     Future.delayed(Duration.zero, () {
       if (auth.currentUser != null) {
+        streamUser().listen((event) {
+          userData.value =
+              Map<String, dynamic>.from(event.snapshot.value as Map);
+        }, onError: (error) {
+          CustomNotification.errorNotification(
+              "Terjadi Kesalahan", "Error : $error");
+        });
         _fetchInitialSwitchStates();
+        streamBothSchedules();
+        calculateTotals();
+        streamInfoFeeder();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -58,7 +69,7 @@ class HomeController extends GetxController {
   Stream<DatabaseEvent> streamUser() {
     String? uid = auth.currentUser?.uid;
     if (uid != null) {
-      return database.ref('UsersData/$uid/UsersProfile').onValue.distinct();
+      return database.ref('UsersData/$uid/UsersProfile').onValue;
     } else {
       return const Stream.empty();
     }
@@ -67,17 +78,16 @@ class HomeController extends GetxController {
   Stream<Map<String, DatabaseEvent>> streamBothSchedules() {
     String? uid = auth.currentUser?.uid;
     if (uid != null) {
-      String todayDocId = DateFormat('MM-dd-yyyy').format(DateTime.now());
+      String todayDocId =
+          DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
 
       Stream<DatabaseEvent> morningStream = database
           .ref('UsersData/$uid/iot/feeder/jadwalPagi/$todayDocId')
-          .onValue
-          .distinct();
+          .onValue;
 
       Stream<DatabaseEvent> eveningStream = database
           .ref('UsersData/$uid/iot/feeder/jadwalSore/$todayDocId')
-          .onValue
-          .distinct();
+          .onValue;
 
       return rx.Rx.combineLatest2(
         morningStream,
