@@ -10,7 +10,6 @@ import '../../../routes/app_pages.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 
 class HomeController extends GetxController {
-  RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
   RxBool isLoading = false.obs;
   RxString houseDistance = "-".obs;
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -24,17 +23,7 @@ class HomeController extends GetxController {
     super.onInit();
     Future.delayed(Duration.zero, () {
       if (auth.currentUser != null) {
-        streamUser().listen((event) {
-          userData.value =
-              Map<String, dynamic>.from(event.snapshot.value as Map);
-        }, onError: (error) {
-          CustomNotification.errorNotification(
-              "Terjadi Kesalahan", "Error : $error");
-        });
         _fetchInitialSwitchStates();
-        streamBothSchedules();
-        calculateTotals();
-        streamInfoFeeder();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -69,7 +58,7 @@ class HomeController extends GetxController {
   Stream<DatabaseEvent> streamUser() {
     String? uid = auth.currentUser?.uid;
     if (uid != null) {
-      return database.ref('UsersData/$uid/UsersProfile').onValue;
+      return database.ref('UsersData/$uid/UsersProfile').onValue.distinct();
     } else {
       return const Stream.empty();
     }
@@ -82,11 +71,13 @@ class HomeController extends GetxController {
 
       Stream<DatabaseEvent> morningStream = database
           .ref('UsersData/$uid/iot/feeder/jadwalPagi/$todayDocId')
-          .onValue;
+          .onValue
+          .distinct();
 
       Stream<DatabaseEvent> eveningStream = database
           .ref('UsersData/$uid/iot/feeder/jadwalSore/$todayDocId')
-          .onValue;
+          .onValue
+          .distinct();
 
       return rx.Rx.combineLatest2(
         morningStream,
@@ -104,10 +95,11 @@ class HomeController extends GetxController {
   Stream<Map<String, double>> calculateTotals() {
     String uid = auth.currentUser!.uid;
     return databaseReference
-        .child('UsersData/$uid/iot/feeder')
+        .child('UsersData/$uid/UsersProfile/beratKucing')
         .onValue
         .map((DatabaseEvent snapshot) {
-      double beratKucingAsli = double.parse(userData['beratKucing'].toString());
+      double beratKucingAsli =
+          double.tryParse(snapshot.snapshot.value.toString()) ?? 0;
 
       double beratKucing = beratKucingAsli / 1000;
 
@@ -125,35 +117,7 @@ class HomeController extends GetxController {
       double porsiAirPagi = kebutuhanAirHarian / 2;
       double porsiAirSore = kebutuhanAirHarian / 2;
 
-      double totalFoodDay = 0;
-      double totalWaterDay = 0;
-      String todayString = DateFormat('MM-dd-yyyy').format(DateTime.now());
-      if (snapshot.snapshot.value != null) {
-        final data = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
-        if (data.containsKey('jadwalPagi')) {
-          final morningData = Map<String, dynamic>.from(data['jadwalPagi']);
-          if (morningData.containsKey(todayString)) {
-            final todayMorningData = morningData[todayString];
-            totalFoodDay +=
-                double.parse(todayMorningData['beratWadah']?.toString() ?? '0');
-            totalWaterDay += double.parse(
-                todayMorningData['volumeMLWadah']?.toString() ?? '0');
-          }
-        }
-        if (data.containsKey('jadwalSore')) {
-          final afternoonData = Map<String, dynamic>.from(data['jadwalSore']);
-          if (afternoonData.containsKey(todayString)) {
-            final todayAfternoonData = afternoonData[todayString];
-            totalFoodDay += double.parse(
-                todayAfternoonData['beratWadah']?.toString() ?? '0');
-            totalWaterDay += double.parse(
-                todayAfternoonData['volumeMLWadah']?.toString() ?? '0');
-          }
-        }
-      }
       return {
-        'totalFoodDay': totalFoodDay,
-        'totalWaterDay': totalWaterDay,
         'kebutuhanMakananHarian': kebutuhanMakananHarian,
         'kebutuhanAirHarian': kebutuhanAirHarian,
         'porsiMakanPagi': porsiMakanPagi,

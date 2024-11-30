@@ -57,9 +57,9 @@ class FeederController extends GetxController {
 
       String todayDocId =
           DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
-      bool isValidMorning = _isWithinFeedingTime(currentTime!, "07:00", 15, 60);
+      bool isValidMorning = _isWithinFeedingTime(currentTime!, "7:0:0", 15, 60);
       bool isValidAfternoon =
-          _isWithinFeedingTime(currentTime!, "17:00", 15, 60);
+          _isWithinFeedingTime(currentTime!, "17:0:0", 15, 60);
 
       DatabaseEvent morningFeedEvent =
           await feederRef.child("jadwalPagi/$todayDocId").once();
@@ -158,8 +158,8 @@ class FeederController extends GetxController {
 
   bool _isWithinFeedingTime(String currentTime, String feedTime,
       int toleranceBefore, int toleranceAfter) {
-    DateTime current = DateFormat("HH:mm").parse(currentTime);
-    DateTime feed = DateFormat("HH:mm").parse(feedTime);
+    DateTime current = DateFormat("H:m:s").parse(currentTime);
+    DateTime feed = DateFormat("H:m:s").parse(feedTime);
     DateTime startValidTime = feed.subtract(Duration(minutes: toleranceBefore));
     DateTime endValidTime = feed.add(Duration(minutes: toleranceAfter));
     return current.isAfter(startValidTime) && current.isBefore(endValidTime);

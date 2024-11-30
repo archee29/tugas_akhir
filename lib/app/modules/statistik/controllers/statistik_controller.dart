@@ -90,20 +90,31 @@ class StatistikController extends GetxController {
     String uid = auth.currentUser!.uid;
     return databaseReference.child('UsersData/$uid/iot/feeder').onValue.map(
       (DatabaseEvent snapshot) {
-        double beratKucingAsli =
-            double.parse(userData['beratKucing'].toString());
-        double beratKucingAf =
-            double.parse(userData['beratKucingAf'].toString());
+        double parseDouble(dynamic value, {double defaultValue = 0.0}) {
+          if (value == null) return defaultValue;
+          return double.tryParse(value.toString()) ?? defaultValue;
+        }
+
+        double beratKucingAsli = parseDouble(userData['beratKucing']);
+        double beratKucingAf = parseDouble(userData['beratKucingAf']);
 
         double beratAkhir = beratKucingAsli + beratKucingAf;
 
-        double pertumbuhanKucing =
-            ((beratAkhir - beratKucingAsli) / beratKucingAsli) * 100;
+        double pertumbuhanKucing = beratKucingAsli > 0
+            ? ((beratAkhir - beratKucingAsli) / beratKucingAsli) * 100
+            : 0.0;
 
-        databaseReference.child('UsersData/$uid/UsersProfile').update({
+        Map<String, dynamic> updateData = {
           'beratAkhir': beratAkhir,
-          'pertumbuhanKucing': pertumbuhanKucing,
-        });
+        };
+
+        if (pertumbuhanKucing.isFinite) {
+          updateData['pertumbuhanKucing'] = pertumbuhanKucing;
+        }
+
+        databaseReference
+            .child('UsersData/$uid/UsersProfile')
+            .update(updateData);
 
         double beratKucing = beratKucingAsli / 1000;
 

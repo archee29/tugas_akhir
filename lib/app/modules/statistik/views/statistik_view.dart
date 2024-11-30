@@ -266,13 +266,15 @@ class StatistikView extends GetView<StatistikController> {
                                         subTitle:
                                             "Status Asupan Harian\nMakan dan Minum Kucing",
                                         titleNilai: "Makanan",
-                                        valueNilai: data['cukupMakananHarian']
-                                            ? 'Cukup'
-                                            : 'Tidak Cukup',
+                                        valueNilai:
+                                            data['cukupMakananHarian'] ?? false
+                                                ? 'Cukup'
+                                                : 'Tidak Cukup',
                                         titlePertumbuhan: "Minuman",
-                                        valuePertumbuhan: data['cukupAirHarian']
-                                            ? 'Cukup'
-                                            : 'Tidak Cukup',
+                                        valuePertumbuhan:
+                                            data['cukupAirHarian'] ?? false
+                                                ? 'Cukup'
+                                                : 'Tidak Cukup',
                                       ),
                                     ),
                                   ),
@@ -311,17 +313,20 @@ class StatistikView extends GetView<StatistikController> {
                                               subTitle:
                                                   "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
                                               titleNilai: "BB Akhir",
-                                              valueNilai:
-                                                  controller.formatFoodOutput(
-                                                      double.parse(
+                                              valueNilai: controller
+                                                  .formatFoodOutput(double.tryParse(
                                                           data['beratKucing']
-                                                              .toString())),
+                                                                  ?.toString() ??
+                                                              '0') ??
+                                                      0.0),
                                               titlePertumbuhan: "Pertumbuhan",
                                               valuePertumbuhan: controller
                                                   .formatPertumbuhanOutput(
-                                                      double.parse(data[
-                                                              'pertumbuhanKucing']
-                                                          .toString())),
+                                                      double.tryParse(data[
+                                                                      'pertumbuhanKucing']
+                                                                  ?.toString() ??
+                                                              '0') ??
+                                                          0.0),
                                             ),
                                           ),
                                         ),
