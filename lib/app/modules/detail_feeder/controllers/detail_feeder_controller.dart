@@ -244,7 +244,7 @@ class DetailFeederController extends GetxController
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Tanggal\t\t\t: ${event['ketHari']}",
+                      "Tanggal\t\t\t\t: ${event['ketHari']}",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -253,7 +253,9 @@ class DetailFeederController extends GetxController
                       ),
                     ),
                     Text(
-                      "Waktu\t\t\t\t\t\t\t: ${event['ketWaktu']}",
+                      "Waktu\t\t\t\t\t\t\t: ${DateFormat('HH:mm:ss').format(
+                        DateFormat('H:m:s').parse(event['ketWaktu']),
+                      )}",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -262,7 +264,7 @@ class DetailFeederController extends GetxController
                       ),
                     ),
                     Text(
-                      "Makanan\t: ${event['beratWadah']}Gr",
+                      "Makanan\t\t: ${event['beratWadah']} Gr",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -271,7 +273,7 @@ class DetailFeederController extends GetxController
                       ),
                     ),
                     Text(
-                      "Minuman\t: ${event['volumeMLWadah']}mL",
+                      "Minuman\t\t: ${event['volumeMLWadah']} mL",
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,

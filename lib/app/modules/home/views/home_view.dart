@@ -265,7 +265,6 @@ class HomeView extends GetView<HomeController> {
                               showOnOff: true,
                               value: controller.systemSwitched.value,
                               onToggle: (val) => controller.systemControl(),
-                              disabled: true,
                             ),
                           )
                         ],

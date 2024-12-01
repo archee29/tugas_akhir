@@ -60,12 +60,18 @@ class FeederController extends GetxController {
       DatabaseReference monitoringRef =
           database.child("UsersData/$uid/iot/monitoring");
       DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
+      DatabaseReference systemsStatusRef =
+          database.child("UsersData/$uid/iot/systemsStatus");
 
       DatabaseEvent monitoringSnapshot = await monitoringRef.once();
       Map<String, dynamic> monitoringData =
           Map<String, dynamic>.from(monitoringSnapshot.snapshot.value as Map);
 
-      if (monitoringData['systemsStatus'] == true) {
+      DatabaseEvent systemsStatusSnapshot = await systemsStatusRef.once();
+      Map<String, dynamic> systemsStatusData = Map<String, dynamic>.from(
+          systemsStatusSnapshot.snapshot.value as Map);
+
+      if (systemsStatusData['isConnected'] == true) {
         isLoading.value = false;
         CustomNotification.errorNotification("Perangkat Aktif",
             "Button feeder hanya dapat digunakan saat perangkat tidak bekerja.");
@@ -99,7 +105,6 @@ class FeederController extends GetxController {
         return;
       }
 
-      // Determine position
       Map<String, dynamic> determinePosition = await _determinePosition();
       if (!determinePosition["error"]) {
         Position position = determinePosition["position"];

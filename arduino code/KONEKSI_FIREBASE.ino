@@ -3,8 +3,10 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-#define WIFI_SSID "Tugasakhir"
-#define WIFI_PASSWORD "wifisigit"
+// #define WIFI_SSID "Tugasakhir"
+// #define WIFI_PASSWORD "wifisigit"
+#define WIFI_SSID "HOME 2G"
+#define WIFI_PASSWORD "wifirumah2"
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
@@ -18,8 +20,6 @@ FirebaseJson feederJson;
 FirebaseJsonData jsonData;
 
 String uid, databasePath;
-
-bool previousWiFiStatus = false;
 
 unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
 unsigned long sendDataMonitoringToFirebaseDelay = 3000;
@@ -131,29 +131,6 @@ void receivedDataFromTransmitter(String message) {
     }
   } else if (message == "Pump_OFF" || message == "Servo_OFF") {
     updateFirebaseControlStatus(message);
-  }
-}
-
-void sendSystemStatusToFirebase(bool systemStatus) {
-  String systemStatusNode = databasePath + "/iot/monitoring/systemsStatus";
-
-  if (Firebase.setBool(firebaseData, systemStatusNode.c_str(), systemStatus)) {
-    Serial.println(systemStatus ? "Status sistem: Aktif" : "Status sistem: Tidak Aktif");
-  } else {
-    Serial.println("Gagal memperbarui status sistem: " + firebaseData.errorReason());
-  }
-}
-void checkWifi() {
-  bool currentWiFiStatus = (WiFi.status() == WL_CONNECTED);
-  if (currentWiFiStatus != previousWiFiStatus) {
-    if (currentWiFiStatus) {
-      sendSystemStatusToFirebase(true);
-      Serial.println("WiFi terhubung, mengubah status sistem menjadi aktif");
-    } else {
-      sendSystemStatusToFirebase(false);
-      Serial.println("WiFi terputus, mengubah status sistem menjadi tidak aktif");
-    }
-    previousWiFiStatus = currentWiFiStatus;
   }
 }
 
@@ -276,12 +253,10 @@ void setup() {
   Serial.begin(9600);
   initWiFi();
   initFirebase();
-  sendSystemStatusToFirebase(true);
   delay(500);
 }
 
 void loop() {
-  checkWifi();
   if (Firebase.isTokenExpired()) {
     Firebase.refreshToken(&config);
     Serial.println("Memperbarui Token");
@@ -289,6 +264,7 @@ void loop() {
     processDataTransmitter();
     receiveDataControlFromDatabase();
   } else {
-    Serial.println("Kodingan Loop berjalan");
+    Serial.println("Menunggu koneksi WiFi/Firebase");
+    delay(1000);
   }
 }

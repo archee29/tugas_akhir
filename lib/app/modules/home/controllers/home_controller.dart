@@ -44,7 +44,7 @@ class HomeController extends GetxController {
   void _fetchInitialSwitchStates() {
     String uid = auth.currentUser!.uid;
     databaseReference
-        .child("UsersData/$uid/iot/monitoring/systemsStatus")
+        .child("UsersData/$uid/iot/systemsStatus/isConnected")
         .onValue
         .listen((event) {
       if (event.snapshot.value != null) {
@@ -58,7 +58,7 @@ class HomeController extends GetxController {
     bool newValue = !systemSwitched.value;
     systemSwitched.value = newValue;
     databaseReference
-        .child("UsersData/$uid/iot/monitoring/systemsStatus")
+        .child("UsersData/$uid/iot/systemsStatus/isConnected")
         .set(newValue)
         .catchError((error) {
       systemSwitched.value = !newValue;
