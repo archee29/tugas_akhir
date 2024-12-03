@@ -78,8 +78,7 @@ class HomeController extends GetxController {
   Stream<Map<String, DatabaseEvent>> streamBothSchedules() {
     String? uid = auth.currentUser?.uid;
     if (uid != null) {
-      String todayDocId =
-          DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
+      String todayDocId = DateFormat('MM-dd-yyyy').format(DateTime.now());
 
       Stream<DatabaseEvent> morningStream = database
           .ref('UsersData/$uid/iot/feeder/jadwalPagi/$todayDocId')
@@ -92,9 +91,9 @@ class HomeController extends GetxController {
       return rx.Rx.combineLatest2(
         morningStream,
         eveningStream,
-        (DatabaseEvent morning, DatabaseEvent evening) => {
-          'morning': morning,
-          'evening': evening,
+        (DatabaseEvent jadwalPagi, DatabaseEvent jadwalSore) => {
+          'jadwalPagi': jadwalPagi,
+          'jadwalSore': jadwalSore,
         },
       );
     } else {

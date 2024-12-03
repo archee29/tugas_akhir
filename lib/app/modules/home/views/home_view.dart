@@ -97,12 +97,12 @@ class HomeView extends GetView<HomeController> {
                       );
                     } else {
                       var morningData =
-                          snapshot.data!['morning']?.snapshot.value;
+                          snapshot.data!['jadwalPagi']?.snapshot.value;
                       var morningSchedule = morningData != null
                           ? Map<String, dynamic>.from(morningData as Map)
                           : null;
                       var eveningData =
-                          snapshot.data!['evening']?.snapshot.value;
+                          snapshot.data!['jadwalSore']?.snapshot.value;
                       var eveningSchedule = eveningData != null
                           ? Map<String, dynamic>.from(eveningData as Map)
                           : null;
@@ -131,7 +131,7 @@ class HomeView extends GetView<HomeController> {
                         value1: controller.formatFoodOutput(
                             data['kebutuhanMakananHarian'] ?? 0),
                         value2: controller
-                            .formatFoodOutput(data['kebutuhanAirHarian'] ?? 0),
+                            .formatWaterOutput(data['kebutuhanAirHarian'] ?? 0),
                         value3: controller.formatCombinedOutput(
                           data['porsiMakanPagi'] ?? 0,
                           data['porsiMakanSore'] ?? 0,
