@@ -74,12 +74,12 @@ class FeederController extends GetxController {
       if (systemsStatusData['isConnected'] == true) {
         isLoading.value = false;
         CustomNotification.errorNotification("Perangkat Aktif",
-            "Button feeder hanya dapat digunakan saat perangkat tidak bekerja.");
+            "Button feeder hanya dapat digunakan saat perangkat tidak Aktif.");
         return;
       }
 
-      String todayDocId =
-          DateFormat.yMd().format(DateTime.now()).replaceAll("/", "-");
+      String todayDocId = DateFormat('MM-dd-yyyy').format(DateTime.now());
+
       bool isValidMorning =
           _isWithinFeedingTime(currentTime.value, "07:00", 15, 60);
       bool isValidAfternoon =
@@ -158,7 +158,7 @@ class FeederController extends GetxController {
       "in_area": inArea,
       "distance": distance,
       "beratWadah": monitoringData['beratWadah'],
-      "ketHari": DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      "ketHari": DateFormat('d/MM/yyyy').format(DateTime.now()),
       "ketWaktu": feederType == "morning" ? "7:0:0" : "17:0:0",
       "volumeMLTabung": monitoringData['volumeMLTabung'],
       "volumeMLWadah": monitoringData['volumeMLWadah'],

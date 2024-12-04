@@ -168,7 +168,12 @@ class StatistikView extends GetView<StatistikController> {
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
                                 value: controller.servoSwitched.value,
-                                onToggle: (val) => controller.servoControl(),
+                                onToggle: (val) {
+                                  if (controller.systemsStatus.value) {
+                                    controller.servoControl();
+                                  }
+                                },
+                                disabled: !controller.systemsStatus.value,
                               ),
                             ),
                             Obx(
@@ -190,7 +195,13 @@ class StatistikView extends GetView<StatistikController> {
                                 inactiveTextFontWeight: FontWeight.normal,
                                 showOnOff: true,
                                 value: controller.pumpSwitched.value,
-                                onToggle: (val) => controller.pumpControl(),
+                                onToggle: (val) {
+                                  if (controller.systemsStatus.value) {
+                                    controller.pumpControl();
+                                  }
+                                },
+                                // Tambahkan properti disabled
+                                disabled: !controller.systemsStatus.value,
                               ),
                             ),
                           ],

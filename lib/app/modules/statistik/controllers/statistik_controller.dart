@@ -10,6 +10,7 @@ class StatistikController extends GetxController {
   RxMap<String, dynamic> userData = <String, dynamic>{}.obs;
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  RxBool systemsStatus = false.obs;
   RxBool servoSwitched = false.obs;
   RxBool pumpSwitched = false.obs;
 
@@ -25,6 +26,7 @@ class StatistikController extends GetxController {
           CustomNotification.errorNotification(
               "Terjadi Kesalahan", "Error : $error");
         });
+        _listenToSystemsStatus();
         _fetchInitialSwitchStates();
         calculateTotals();
       } else {
@@ -55,30 +57,52 @@ class StatistikController extends GetxController {
     );
   }
 
-  void servoControl() {
+  void _listenToSystemsStatus() {
     String uid = auth.currentUser!.uid;
-    bool newValue = !servoSwitched.value;
-    servoSwitched.value = newValue;
     databaseReference
-        .child("UsersData/$uid/iot/control/servoControl")
-        .set(newValue)
-        .catchError((error) {
-      servoSwitched.value = !newValue;
-      CustomNotification.errorNotification("Terjadi Kesalahan", "$error");
+        .child("UsersData/$uid/iot/systemsStatus/isConnected")
+        .onValue
+        .listen((event) {
+      if (event.snapshot.value != null) {
+        systemsStatus.value = event.snapshot.value as bool;
+      }
     });
   }
 
+  void servoControl() {
+    if (systemsStatus.value) {
+      String uid = auth.currentUser!.uid;
+      bool newValue = !servoSwitched.value;
+      servoSwitched.value = newValue;
+      databaseReference
+          .child("UsersData/$uid/iot/control/servoControl")
+          .set(newValue)
+          .catchError((error) {
+        servoSwitched.value = !newValue;
+        CustomNotification.errorNotification("Terjadi Kesalahan", "$error");
+      });
+    } else {
+      CustomNotification.errorNotification("Perangkat Tidak Aktif",
+          "Button Servo hanya dapat digunakan saat perangkat hidup.");
+    }
+  }
+
   void pumpControl() {
-    String uid = auth.currentUser!.uid;
-    bool newValue = !pumpSwitched.value;
-    pumpSwitched.value = newValue;
-    databaseReference
-        .child("UsersData/$uid/iot/control/pumpControl")
-        .set(newValue)
-        .catchError((error) {
-      pumpSwitched.value = !newValue;
-      CustomNotification.errorNotification("Terjadi Kesalahan", "$error");
-    });
+    if (systemsStatus.value) {
+      String uid = auth.currentUser!.uid;
+      bool newValue = !pumpSwitched.value;
+      pumpSwitched.value = newValue;
+      databaseReference
+          .child("UsersData/$uid/iot/control/pumpControl")
+          .set(newValue)
+          .catchError((error) {
+        pumpSwitched.value = !newValue;
+        CustomNotification.errorNotification("Terjadi Kesalahan", "$error");
+      });
+    } else {
+      CustomNotification.errorNotification("Perangkat Tidak Aktif",
+          "Button Pump hanya dapat digunakan saat perangkat hidup.");
+    }
   }
 
   Stream<DatabaseEvent> streamUser() {
