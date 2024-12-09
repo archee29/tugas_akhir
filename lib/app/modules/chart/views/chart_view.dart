@@ -4,12 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import '../../detail_feeder/controllers/detail_feeder_controller.dart';
 import '../../../styles/app_colors.dart';
 import '../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../../../routes/app_pages.dart';
+import '../controllers/chart_controller.dart';
 
-class ChartView extends GetView<DetailFeederController> {
+class ChartView extends GetView<ChartController> {
   const ChartView({super.key});
   Color getProgressColor(String scale, double percent) {
     if (percent > 1.0) {
@@ -52,7 +52,11 @@ class ChartView extends GetView<DetailFeederController> {
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.only(
-                  left: 20, right: 20, top: 36, bottom: 15),
+                left: 20,
+                right: 20,
+                top: 36,
+                bottom: 15,
+              ),
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +127,10 @@ class ChartView extends GetView<DetailFeederController> {
                       child: SfCartesianChart(
                         legend: const Legend(isVisible: true),
                         tooltipBehavior: TooltipBehavior(enable: true),
-                        primaryXAxis: const CategoryAxis(),
+                        primaryXAxis: const CategoryAxis(
+                          labelRotation: 45,
+                          majorGridLines: MajorGridLines(width: 0),
+                        ),
                         primaryYAxis: const NumericAxis(),
                         series: <CartesianSeries>[
                           ColumnSeries<Map<String, dynamic>, String>(

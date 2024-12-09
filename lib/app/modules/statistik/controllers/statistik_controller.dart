@@ -1,8 +1,11 @@
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../../../styles/app_colors.dart';
 import '../../../widgets/dialog/custom_notification.dart';
 import '../../../routes/app_pages.dart';
 
@@ -13,6 +16,14 @@ class StatistikController extends GetxController {
   RxBool systemsStatus = false.obs;
   RxBool servoSwitched = false.obs;
   RxBool pumpSwitched = false.obs;
+  final listDataMf = <Map<String, dynamic>>[].obs;
+  final listDataAf = <Map<String, dynamic>>[].obs;
+  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+
+  var events = <DateTime, List<String>>{}.obs;
+  var selectedDay = Rx<DateTime?>(null);
+  var focusedDay = DateTime.now().obs;
+  var isLoading = true.obs;
 
   @override
   void onInit() {
@@ -29,6 +40,8 @@ class StatistikController extends GetxController {
         _listenToSystemsStatus();
         _fetchInitialSwitchStates();
         calculateTotals();
+        retrieveDataFeederMF();
+        retrieveDataFeederAF();
       } else {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -257,5 +270,173 @@ class StatistikController extends GetxController {
 
   double pow(double base, double exponent) {
     return math.pow(base, exponent).toDouble();
+  }
+
+  Future<void> retrieveDataFeederMF() async {
+    User? currentUser = auth.currentUser;
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalPagi")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataMf.assignAll(parsedValues);
+            isLoading.value = false;
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataMf.clear();
+            isLoading.value = false;
+          });
+        }
+      });
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
+  }
+
+  Future<void> retrieveDataFeederAF() async {
+    User? currentUser = auth.currentUser;
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      databaseReference
+          .child("UsersData/$uid/iot/feeder/jadwalSore")
+          .onValue
+          .listen((event) {
+        if (event.snapshot.value != null) {
+          final values = Map<String, dynamic>.from(event.snapshot.value as Map);
+          final parsedValues = values.entries
+              .map((e) {
+                var value = Map<String, dynamic>.from(e.value);
+                value['key'] = e.key;
+                if (value.containsKey('ketHari')) {
+                  return value;
+                }
+                return null;
+              })
+              .where((element) => element != null)
+              .cast<Map<String, dynamic>>()
+              .toList();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataAf.assignAll(parsedValues);
+            isLoading.value = false;
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            listDataAf.clear();
+            isLoading.value = false;
+          });
+        }
+      });
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
+  }
+
+  List getEvents(DateTime day) {
+    List events = [];
+    for (var event in listDataMf) {
+      DateTime eventDate = dateFormat.parse(event['ketHari']);
+      if (isSameDay(eventDate, day)) {
+        events.add(event);
+      }
+    }
+    for (var event in listDataAf) {
+      DateTime eventDate = dateFormat.parse(event['ketHari']);
+      if (isSameDay(eventDate, day)) {
+        events.add(event);
+      }
+    }
+    return events;
+  }
+
+  void showEventDetails(List events) {
+    Get.defaultDialog(
+      title: "Detail Feeder",
+      content: SingleChildScrollView(
+        child: Column(
+          children: events.map((event) {
+            String feeder = event['ketWaktu'] == '7:0:0'
+                ? "Morning Feeder"
+                : "Afternoon Feeder";
+            return Card(
+              child: ListTile(
+                title: Text(
+                  feeder,
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontFamily: 'poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tanggal\t\t\t\t: ${event['ketHari']}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Waktu\t\t\t\t\t\t\t: ${DateFormat('HH:mm:ss').format(
+                        DateFormat('H:m:s').parse(event['ketWaktu']),
+                      )}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Makanan\t\t: ${event['beratWadah']} Gr",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    Text(
+                      "Minuman\t\t: ${event['volumeMLWadah']} mL",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+      confirm: ElevatedButton(
+        onPressed: () => Get.back(),
+        child: const Text("Close"),
+      ),
+    );
   }
 }

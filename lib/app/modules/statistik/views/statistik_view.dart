@@ -10,12 +10,11 @@ import '../../../routes/app_pages.dart';
 import '../../../styles/app_colors.dart';
 import '../../../widgets/CustomWidgets/custom_bottom_navbar.dart';
 import '../../../widgets/CustomWidgets/custom_textfield.dart';
-import '../../detail_feeder/controllers/detail_feeder_controller.dart';
+
 import '../controllers/statistik_controller.dart';
 
 class StatistikView extends GetView<StatistikController> {
   final pageIndexController = Get.find<PageIndexController>();
-  final dataFeederController = Get.find<DetailFeederController>();
 
   StatistikView({super.key});
 
@@ -375,7 +374,7 @@ class StatistikView extends GetView<StatistikController> {
                   Obx(() {
                     return Card(
                       child: TableCalendar(
-                        focusedDay: dataFeederController.focusedDay.value,
+                        focusedDay: controller.focusedDay.value,
                         firstDay: DateTime(1950),
                         lastDay: DateTime(2100),
                         headerStyle: HeaderStyle(
@@ -419,30 +418,26 @@ class StatistikView extends GetView<StatistikController> {
                           ),
                         ),
                         eventLoader: (day) {
-                          var eventsForDay =
-                              dataFeederController.getEvents(day);
+                          var eventsForDay = controller.getEvents(day);
                           return eventsForDay;
                         },
                         selectedDayPredicate: (day) {
-                          return isSameDay(
-                              dataFeederController.selectedDay.value, day);
+                          return isSameDay(controller.selectedDay.value, day);
                         },
                         onDaySelected: (selectedDay, focusedDay) {
-                          if (!isSameDay(dataFeederController.selectedDay.value,
-                              selectedDay)) {
-                            dataFeederController.selectedDay.value =
-                                selectedDay;
-                            dataFeederController.focusedDay.value = focusedDay;
+                          if (!isSameDay(
+                              controller.selectedDay.value, selectedDay)) {
+                            controller.selectedDay.value = selectedDay;
+                            controller.focusedDay.value = focusedDay;
                             var eventsForDay =
-                                dataFeederController.getEvents(selectedDay);
+                                controller.getEvents(selectedDay);
                             if (eventsForDay.isNotEmpty) {
-                              dataFeederController
-                                  .showEventDetails(eventsForDay);
+                              controller.showEventDetails(eventsForDay);
                             }
                           }
                         },
                         onPageChanged: (focusedDay) {
-                          dataFeederController.focusedDay.value = focusedDay;
+                          controller.focusedDay.value = focusedDay;
                         },
                       ),
                     );

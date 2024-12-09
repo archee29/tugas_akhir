@@ -132,7 +132,10 @@ class DetailFeederController extends GetxController
               })
               .where((element) => element != null)
               .cast<Map<String, dynamic>>()
-              .toList();
+              .toList()
+            ..sort((a, b) => DateFormat('dd/MM/yyyy')
+                .parse(a['ketHari'])
+                .compareTo(DateFormat('dd/MM/yyyy').parse(b['ketHari'])));
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             listDataMf.assignAll(parsedValues);
@@ -185,7 +188,10 @@ class DetailFeederController extends GetxController
               })
               .where((element) => element != null)
               .cast<Map<String, dynamic>>()
-              .toList();
+              .toList()
+            ..sort((a, b) => DateFormat('dd/MM/yyyy')
+                .parse(a['ketHari'])
+                .compareTo(DateFormat('dd/MM/yyyy').parse(b['ketHari'])));
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             listDataAf.assignAll(parsedValues);
