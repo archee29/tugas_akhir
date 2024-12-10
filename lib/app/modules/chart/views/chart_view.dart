@@ -126,17 +126,19 @@ class ChartView extends GetView<ChartController> {
                       height: 290,
                       child: SfCartesianChart(
                         legend: const Legend(isVisible: true),
-                        tooltipBehavior: TooltipBehavior(enable: true),
+                        tooltipBehavior: TooltipBehavior(
+                          color: AppColors.primary,
+                          enable: true,
+                        ),
                         primaryXAxis: const CategoryAxis(
-                          labelRotation: 45,
-                          majorGridLines: MajorGridLines(width: 0),
+                          labelIntersectAction:
+                              AxisLabelIntersectAction.rotate45,
+                          interval: 1,
                         ),
                         primaryYAxis: const NumericAxis(),
                         series: <CartesianSeries>[
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataMf
-                              ..sort((a, b) =>
-                                  a['ketHari'].compareTo(b['ketHari'])),
+                            dataSource: controller.listDataMf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
                                 data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
@@ -160,9 +162,7 @@ class ChartView extends GetView<ChartController> {
                                 const DataLabelSettings(isVisible: false),
                           ),
                           ColumnSeries<Map<String, dynamic>, String>(
-                            dataSource: controller.listDataAf
-                              ..sort((a, b) =>
-                                  a['ketHari'].compareTo(b['ketHari'])),
+                            dataSource: controller.listDataAf,
                             xValueMapper: (Map<String, dynamic> data, _) =>
                                 data['ketHari'] as String,
                             yValueMapper: (Map<String, dynamic> data, _) =>
