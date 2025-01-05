@@ -21,6 +21,9 @@ FirebaseJsonData jsonData;
 
 String uid, databasePath;
 
+bool lastPumpControl = false;
+bool lastServoControl = false;
+
 unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
 unsigned long sendDataMonitoringToFirebaseDelay = 3000;
 
@@ -201,23 +204,25 @@ void receiveDataControlFromDatabase() {
   if (currentMillis - receiveDataControlFromFirebasePrevMillis > receiveDataControlFromFirebaseDelay || receiveDataControlFromFirebasePrevMillis == 0) {
     receiveDataControlFromFirebasePrevMillis = currentMillis;
     String controlNode = databasePath + "/iot/control";
+
     if (Firebase.getJSON(firebaseData, controlNode.c_str())) {
       FirebaseJson controlJson = firebaseData.jsonObject();
       bool pumpControl, servoControl;
+
       controlJson.get(jsonData, "pumpControl");
       pumpControl = jsonData.boolValue;
+
       controlJson.get(jsonData, "servoControl");
       servoControl = jsonData.boolValue;
-      if (pumpControl == true) {
-        sendDataControlToTransmitter("Pump_ON");
-      } else {
-        sendDataControlToTransmitter("Pump_OFF");
+
+      if (pumpControl != lastPumpControl) {
+        sendDataControlToTransmitter(pumpControl ? "Pump_ON" : "Pump_OFF");
+        lastPumpControl = pumpControl;
       }
 
-      if (servoControl == true) {
-        sendDataControlToTransmitter("Servo_ON");
-      } else {
-        sendDataControlToTransmitter("Servo_OFF");
+      if (servoControl != lastServoControl) {
+        sendDataControlToTransmitter(servoControl ? "Servo_ON" : "Servo_OFF");
+        lastServoControl = servoControl;
       }
     } else {
       Serial.println("Error mendapatkan data kontrol: " + firebaseData.errorReason());

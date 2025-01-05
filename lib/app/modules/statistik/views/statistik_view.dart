@@ -255,12 +255,12 @@ class StatistikView extends GetView<StatistikController> {
                                       WeeklyCard(
                                         title: "Total Food / Day",
                                         value: controller.formatFoodOutput(
-                                            data['totalFoodDay']!),
+                                            data['avgFoodPerDay']!),
                                       ),
                                       WeeklyCard(
                                         title: "Total Water / Day",
                                         value: controller.formatWaterOutput(
-                                            data['totalWaterDay']!),
+                                            data['avgWaterPerDay']!),
                                       ),
                                     ],
                                   ),
@@ -300,13 +300,13 @@ class StatistikView extends GetView<StatistikController> {
                                               title: "Total Food / Week",
                                               value:
                                                   controller.formatFoodOutput(
-                                                      data['totalFoodWeek']!),
+                                                      data['totalFoodPeriod']!),
                                             ),
                                             WeeklyCard(
                                               title: "Total Water / Week",
-                                              value:
-                                                  controller.formatWaterOutput(
-                                                      data['totalWaterWeek']!),
+                                              value: controller
+                                                  .formatWaterOutput(data[
+                                                      'totalWaterPeriod']!),
                                             )
                                           ],
                                         ),
@@ -371,77 +371,82 @@ class StatistikView extends GetView<StatistikController> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Obx(() {
-                    return Card(
-                      child: TableCalendar(
-                        focusedDay: controller.focusedDay.value,
-                        firstDay: DateTime(1950),
-                        lastDay: DateTime(2100),
-                        headerStyle: HeaderStyle(
-                          decoration: BoxDecoration(color: AppColors.primary),
-                          headerMargin: const EdgeInsets.only(bottom: 8.0),
-                          titleTextStyle: const TextStyle(color: Colors.white),
-                          formatButtonDecoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(8),
+                  Obx(
+                    () {
+                      return Card(
+                        child: TableCalendar(
+                          focusedDay: controller.focusedDay.value,
+                          firstDay: DateTime(1950),
+                          lastDay: DateTime(2100),
+                          headerStyle: HeaderStyle(
+                            decoration: BoxDecoration(color: AppColors.primary),
+                            headerMargin: const EdgeInsets.only(bottom: 8.0),
+                            titleTextStyle:
+                                const TextStyle(color: Colors.white),
+                            formatButtonDecoration: BoxDecoration(
+                              border: Border.all(color: Colors.white),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            formatButtonTextStyle:
+                                const TextStyle(color: Colors.white),
+                            leftChevronIcon: const Icon(
+                              Icons.chevron_left,
+                              color: Colors.white,
+                            ),
+                            rightChevronIcon: const Icon(
+                              Icons.chevron_right,
+                              color: Colors.white,
+                            ),
                           ),
-                          formatButtonTextStyle:
-                              const TextStyle(color: Colors.white),
-                          leftChevronIcon: const Icon(
-                            Icons.chevron_left,
-                            color: Colors.white,
+                          calendarStyle: CalendarStyle(
+                            todayDecoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle),
+                            todayTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'poppins',
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            weekendTextStyle:
+                                TextStyle(color: AppColors.primary),
+                            selectedDecoration: BoxDecoration(
+                              color: AppColors.success,
+                              shape: BoxShape.circle,
+                            ),
+                            selectedTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'poppins',
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                           ),
-                          rightChevronIcon: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.white,
-                          ),
-                        ),
-                        calendarStyle: CalendarStyle(
-                          todayDecoration: BoxDecoration(
-                              color: AppColors.primary, shape: BoxShape.circle),
-                          todayTextStyle: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'poppins',
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                          weekendTextStyle: TextStyle(color: AppColors.primary),
-                          selectedDecoration: BoxDecoration(
-                            color: AppColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                          selectedTextStyle: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'poppins',
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                        eventLoader: (day) {
-                          var eventsForDay = controller.getEvents(day);
-                          return eventsForDay;
-                        },
-                        selectedDayPredicate: (day) {
-                          return isSameDay(controller.selectedDay.value, day);
-                        },
-                        onDaySelected: (selectedDay, focusedDay) {
-                          if (!isSameDay(
-                              controller.selectedDay.value, selectedDay)) {
-                            controller.selectedDay.value = selectedDay;
-                            controller.focusedDay.value = focusedDay;
-                            var eventsForDay =
-                                controller.getEvents(selectedDay);
-                            if (eventsForDay.isNotEmpty) {
-                              controller.showEventDetails(eventsForDay);
+                          eventLoader: (day) {
+                            var eventsForDay = controller.getEvents(day);
+                            return eventsForDay;
+                          },
+                          selectedDayPredicate: (day) {
+                            return isSameDay(controller.selectedDay.value, day);
+                          },
+                          onDaySelected: (selectedDay, focusedDay) {
+                            if (!isSameDay(
+                                controller.selectedDay.value, selectedDay)) {
+                              controller.selectedDay.value = selectedDay;
+                              controller.focusedDay.value = focusedDay;
+                              var eventsForDay =
+                                  controller.getEvents(selectedDay);
+                              if (eventsForDay.isNotEmpty) {
+                                controller.showEventDetails(eventsForDay);
+                              }
                             }
-                          }
-                        },
-                        onPageChanged: (focusedDay) {
-                          controller.focusedDay.value = focusedDay;
-                        },
-                      ),
-                    );
-                  }),
+                          },
+                          onPageChanged: (focusedDay) {
+                            controller.focusedDay.value = focusedDay;
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ],
               );
             }

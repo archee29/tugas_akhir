@@ -19,6 +19,8 @@ class StatistikController extends GetxController {
   final listDataMf = <Map<String, dynamic>>[].obs;
   final listDataAf = <Map<String, dynamic>>[].obs;
   final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+  final DateTime startDate = DateTime(2024, 12, 3);
+  final DateTime endDate = DateTime(2024, 12, 17);
 
   var events = <DateTime, List<String>>{}.obs;
   var selectedDay = Rx<DateTime?>(null);
@@ -156,7 +158,7 @@ class StatistikController extends GetxController {
         double beratKucing = beratKucingAsli / 1000;
 
         double rER = 70 * pow(beratKucing, 0.75);
-        double kebutuhanKaloriTerkoreksi = rER * 1.0;
+        double kebutuhanKaloriTerkoreksi = rER * 1.8;
 
         double rataRataKaloriMakananKering = 375;
         double kebutuhanMakananHarian =
@@ -164,79 +166,61 @@ class StatistikController extends GetxController {
 
         double kebutuhanAirHarian = beratKucing * 60;
 
-        double totalFoodDay = 0;
-        double totalWaterDay = 0;
-        double totalFoodWeek = 0;
-        double totalWaterWeek = 0;
+        double totalFoodPeriod = 0;
+        double totalWaterPeriod = 0;
+        Map<String, Map<String, double>> dailyTotals = {};
 
         if (snapshot.snapshot.value != null) {
           final data =
               Map<String, dynamic>.from(snapshot.snapshot.value as Map);
-          DateTime today = DateTime.now();
-          if (data.containsKey('jadwalPagi')) {
-            final morningData = Map<String, dynamic>.from(
-              data['jadwalPagi'],
-            );
-            morningData.forEach(
-              (key, value) {
-                if (value is Map) {
-                  DateTime entryDate =
-                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-                  if (entryDate.year == today.year &&
-                      entryDate.month == today.month &&
-                      entryDate.day == today.day) {
-                    totalFoodDay +=
-                        double.parse(value['beratWadah']?.toString() ?? '0');
-                    totalWaterDay +=
-                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
-                  }
-                  if (DateTime.now().difference(entryDate).inDays <= 7) {
-                    totalFoodWeek +=
-                        double.parse(value['beratWadah']?.toString() ?? '0');
-                    totalWaterWeek +=
-                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
-                  }
+          void processScheduleData(Map<String, dynamic> scheduleData) {
+            scheduleData.forEach((key, value) {
+              if (value is Map) {
+                DateTime entryDate = dateFormat.parse(value['ketHari']);
+                if (entryDate
+                        .isAfter(startDate.subtract(const Duration(days: 1))) &&
+                    entryDate.isBefore(endDate.add(const Duration(days: 1)))) {
+                  double foodAmount =
+                      double.parse(value['beratWadah']?.toString() ?? '0');
+                  double waterAmount =
+                      double.parse(value['volumeMLWadah']?.toString() ?? '0');
+                  totalFoodPeriod += foodAmount;
+                  totalWaterPeriod += waterAmount;
+                  String dateKey = dateFormat.format(entryDate);
+                  dailyTotals[dateKey] ??= {'food': 0, 'water': 0};
+                  dailyTotals[dateKey]!['food'] =
+                      (dailyTotals[dateKey]!['food'] ?? 0) + foodAmount;
+                  dailyTotals[dateKey]!['water'] =
+                      (dailyTotals[dateKey]!['water'] ?? 0) + waterAmount;
                 }
-              },
-            );
+              }
+            });
           }
+
+          if (data.containsKey('jadwalPagi')) {
+            processScheduleData(Map<String, dynamic>.from(data['jadwalPagi']));
+          }
+
           if (data.containsKey('jadwalSore')) {
-            final afternoonData = Map<String, dynamic>.from(
-              data['jadwalSore'],
-            );
-            afternoonData.forEach(
-              (key, value) {
-                if (value is Map) {
-                  DateTime entryDate =
-                      DateFormat('dd/MM/yyyy').parse(value['ketHari']);
-                  if (entryDate.year == today.year &&
-                      entryDate.month == today.month &&
-                      entryDate.day == today.day) {
-                    totalFoodDay +=
-                        double.parse(value['beratWadah']?.toString() ?? '0');
-                    totalWaterDay +=
-                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
-                  }
-                  if (DateTime.now().difference(entryDate).inDays <= 7) {
-                    totalFoodWeek +=
-                        double.parse(value['beratWadah']?.toString() ?? '0');
-                    totalWaterWeek +=
-                        double.parse(value['volumeMLWadah']?.toString() ?? '0');
-                  }
-                }
-              },
-            );
+            processScheduleData(Map<String, dynamic>.from(data['jadwalSore']));
           }
         }
 
-        bool cukupMakananHarian = totalFoodDay >= kebutuhanMakananHarian;
-        bool cukupAirHarian = totalWaterDay >= kebutuhanAirHarian;
+        double avgFoodPerDay =
+            dailyTotals.isEmpty ? 0 : totalFoodPeriod / dailyTotals.length;
+        double avgWaterPerDay =
+            dailyTotals.isEmpty ? 0 : totalWaterPeriod / dailyTotals.length;
+
+        bool cukupMakananHarian = avgFoodPerDay >= kebutuhanMakananHarian;
+        bool cukupAirHarian = avgWaterPerDay >= kebutuhanAirHarian;
 
         return {
-          'totalFoodDay': totalFoodDay,
-          'totalWaterDay': totalWaterDay,
-          'totalFoodWeek': totalFoodWeek,
-          'totalWaterWeek': totalWaterWeek,
+          'totalFoodPeriod': totalFoodPeriod,
+          'totalWaterPeriod': totalWaterPeriod,
+          'avgFoodPerDay': avgFoodPerDay,
+          'avgWaterPerDay': avgWaterPerDay,
+          'dailyTotals': dailyTotals,
+          'daysCount': dailyTotals.length,
           'kebutuhanMakananHarian': kebutuhanMakananHarian,
           'kebutuhanAirHarian': kebutuhanAirHarian,
           'cukupMakananHarian': cukupMakananHarian,
@@ -254,7 +238,7 @@ class StatistikController extends GetxController {
 
   String formatFoodOutput(double value) {
     if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} Kg';
+      return '${(value / 1000).toStringAsFixed(3)} Kg';
     } else {
       return '${value.toStringAsFixed(0)} Gram';
     }
@@ -262,7 +246,7 @@ class StatistikController extends GetxController {
 
   String formatWaterOutput(double value) {
     if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} Liter';
+      return '${(value / 1000).toStringAsFixed(3)} Liter';
     } else {
       return '${value.toStringAsFixed(0)} mL';
     }

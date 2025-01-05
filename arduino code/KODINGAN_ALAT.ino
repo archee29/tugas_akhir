@@ -18,12 +18,14 @@ float calibration_factor_wadah = -388.10;
 
 #define trigPinWadah 6
 #define echoPinWadah 7
-float maxTinggiWadah = 14.0, radiusWadah = 4.55;  // radius wadah bisa 5.05 atau 4.55
+float maxTinggiWadah = 14.0, radiusWadah = 5.1;  // radius wadah bisa 5.05 atau 4.55
 
 #define relayPin 8
+bool isPumpActive = false;
 
 Servo myServo;
 #define servoPin 9
+bool isServoActive = false;
 
 #define echoPinTabung 10
 #define trigPinTabung 11
@@ -80,7 +82,7 @@ void wadahPakan(int &beratWadah) {
   }
 }
 
-void USWadah(int &volumeMLAirWadah) {
+void USWadah(int &volumeMLAirWadah) {  
   digitalWrite(trigPinWadah, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinWadah, HIGH);
@@ -88,6 +90,7 @@ void USWadah(int &volumeMLAirWadah) {
   digitalWrite(trigPinWadah, LOW);
   long durasiWadah = pulseIn(echoPinWadah, HIGH);
   float jarakAirWadah = durasiWadah * 0.034 / 2;
+  // volumeMLAirWadah = durasiWadah * 0.034 / 2;
   float tinggiAirWadah = abs(maxTinggiWadah - jarakAirWadah);
   if (tinggiAirWadah <= 1) {
     tinggiAirWadah == 0;
@@ -96,7 +99,7 @@ void USWadah(int &volumeMLAirWadah) {
   volumeMLAirWadah = abs(volumeAirWadah);
 }
 
-void USTabung(int &volumeMLAirTabung) {
+void USTabung(int &volumeMLAirTabung) {  
   digitalWrite(trigPinTabung, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinTabung, HIGH);
@@ -114,26 +117,34 @@ void USTabung(int &volumeMLAirTabung) {
 }
 
 void bukaServo(int jumlah) {
-  for (int i = 0; i < jumlah; i++) {
-    for (int posisi = 90; posisi >= 0; posisi--) {
-      myServo.write(posisi);
-      delay(20);
+  if (!isServoActive) {
+    isServoActive = true;
+    for (int i = 0; i < jumlah; i++) {
+      for (int posisi = 90; posisi >= 0; posisi--) {
+        myServo.write(posisi);
+        delay(20);
+      }
+      for (int posisi = 0; posisi <= 90; posisi++) {
+        myServo.write(posisi);
+        delay(20);
+      }
     }
-    for (int posisi = 0; posisi <= 90; posisi++) {
-      myServo.write(posisi);
-      delay(20);
-    }
+    myServo.write(90);
+    isServoActive = false;
+    sendDataControlToReceiver("Servo_OFF");
   }
-  sendDataControlToReceiver("Servo_OFF");
 }
 
 void onPump() {
-  unsigned long startMillis = millis();
-  digitalWrite(relayPin, HIGH);
-  while (millis() - startMillis <= 5000) {
+  if (!isPumpActive) {
+    unsigned long startMillis = millis();
+    digitalWrite(relayPin, HIGH);
+    isPumpActive = true;
+    while (millis() - startMillis <= 5000) {}
+    digitalWrite(relayPin, LOW);
+    isPumpActive = false;
+    sendDataControlToReceiver("Pump_OFF");
   }
-  digitalWrite(relayPin, LOW);
-  sendDataControlToReceiver("Pump_OFF");
 }
 
 void readSensor(int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
@@ -265,20 +276,24 @@ void sendDataControlToReceiver(String command) {
 }
 
 void reqDataFromReceiver() {
-    if (Serial.available()) {
-      String receivedCommand = Serial.readStringUntil('\n');
-      receivedCommand.trim();
-      if (receivedCommand == "Pump_ON") {
-        onPump();
-      } else if (receivedCommand == "Pump_OFF") {
-        digitalWrite(relayPin, LOW);
-      }
-      if (receivedCommand == "Servo_ON") {
-        bukaServo(4);
-      } else if (receivedCommand == "Servo_OFF") {
-        myServo.write(0);
-      }
+  if (Serial.available()) {
+    String receivedCommand = Serial.readStringUntil('\n');
+    receivedCommand.trim();
+
+    if (receivedCommand == "Pump_ON" && !isPumpActive) {
+      onPump();
+    } else if (receivedCommand == "Pump_OFF") {
+      digitalWrite(relayPin, LOW);
+      isPumpActive = false;
     }
+
+    if (receivedCommand == "Servo_ON" && !isServoActive) {
+      bukaServo(4);
+    } else if (receivedCommand == "Servo_OFF") {
+      myServo.write(90);
+      isServoActive = false;
+    }
+  }
 }
 
 void setup() {
@@ -289,7 +304,7 @@ void setup() {
     Serial.flush();
     abort();
   }
-  rtc.adjust(DateTime(2024, 11, 27, 6, 0, 0));
+  rtc.adjust(DateTime(2024, 12, 23, 19, 35, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();
