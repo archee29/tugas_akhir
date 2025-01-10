@@ -82,7 +82,7 @@ void wadahPakan(int &beratWadah) {
   }
 }
 
-void USWadah(int &volumeMLAirWadah) {  
+void USWadah(int &volumeMLAirWadah) {
   digitalWrite(trigPinWadah, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinWadah, HIGH);
@@ -99,7 +99,7 @@ void USWadah(int &volumeMLAirWadah) {
   volumeMLAirWadah = abs(volumeAirWadah);
 }
 
-void USTabung(int &volumeMLAirTabung) {  
+void USTabung(int &volumeMLAirTabung) {
   digitalWrite(trigPinTabung, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPinTabung, HIGH);
@@ -267,7 +267,7 @@ void sendDataMonitoringToReceiver(int beratWadah, int volumeMLAirWadah, int volu
 }
 
 void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
-  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu;
+  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu + "#" + String(isPumpActive) + "#" + String(isServoActive);
   Serial.println(feedingData);
 }
 
@@ -304,7 +304,7 @@ void setup() {
     Serial.flush();
     abort();
   }
-  rtc.adjust(DateTime(2024, 12, 23, 19, 35, 0));
+  rtc.adjust(DateTime(2025, 1, 10, 6, 55, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();

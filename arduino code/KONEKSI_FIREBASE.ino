@@ -2,6 +2,9 @@
 #include <FirebaseESP8266.h>
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <TimeLib.h>
 
 // #define WIFI_SSID "Tugasakhir"
 // #define WIFI_PASSWORD "wifisigit"
@@ -11,6 +14,9 @@
 #define DATABASE_URL "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
 #define USER_PASSWORD "adminacf123"
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
 FirebaseData firebaseData;
 FirebaseAuth auth;
@@ -28,13 +34,19 @@ unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
 unsigned long sendDataMonitoringToFirebaseDelay = 3000;
 
 unsigned long sendDataFeedingToFirebasePrevMillis = 0;
-unsigned long sendDataFeedingToFirebasePrevDelay = 5000;
+unsigned long sendDataFeedingToFirebasePrevDelay = 1000;
 
 unsigned long receiveDataControlFromFirebasePrevMillis = 0;
 unsigned long receiveDataControlFromFirebaseDelay = 1000;
 
 unsigned long receiveDataControlFromTransmitterPrevMillis = 0;
 unsigned long receiveDataControlFromTransmitterDelay = 1000;
+
+struct TimeComponents {
+  int hour;
+  int minute;
+  int second;
+};
 
 void initWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -73,6 +85,48 @@ void initFirebase() {
   databasePath = "/UsersData/" + uid;
 }
 
+void initNTP() {
+  timeClient.begin();
+  timeClient.setTimeOffset(25200);
+  timeClient.update();
+}
+
+TimeComponents parseTime(String timeStr) {
+  TimeComponents tc;
+  int firstColon = timeStr.indexOf(':');
+  int secondColon = timeStr.lastIndexOf(':');
+
+  tc.hour = timeStr.substring(0, firstColon).toInt();
+  tc.minute = timeStr.substring(firstColon + 1, secondColon).toInt();
+  tc.second = timeStr.substring(secondColon + 1).toInt();
+
+  return tc;
+}
+
+int calculateTimeDifference(String rtcTime) {
+  TimeComponents rtc = parseTime(rtcTime);
+
+  timeClient.update();
+  int ntpHour = timeClient.getHours();
+  int ntpMinute = timeClient.getMinutes();
+  int ntpSecond = timeClient.getSeconds();
+
+  int rtcTotalSeconds = rtc.hour * 3600 + rtc.minute * 60 + rtc.second;
+  int ntpTotalSeconds = ntpHour * 3600 + ntpMinute * 60 + ntpSecond;
+
+  return abs(ntpTotalSeconds - rtcTotalSeconds);
+}
+
+String getNTPTime() {
+  timeClient.update();
+  char timeString[9];
+  sprintf(timeString, "%02d:%02d:%02d",
+          timeClient.getHours(),
+          timeClient.getMinutes(),
+          timeClient.getSeconds());
+  return String(timeString);
+}
+
 void processDataTransmitter() {
   static String inputBuffer = "";
   while (Serial.available() > 0) {
@@ -109,25 +163,27 @@ void receivedDataFromTransmitter(String message) {
     }
   } else if (message.startsWith("feeding#")) {
     message.remove(0, 8);
-    int separatorPos[5];
+    int separatorPos[8];
     int count = 0;
-    for (int i = 0; i < message.length() && count < 5; i++) {
+    for (int i = 0; i < message.length() && count < 8; i++) {
       if (message.charAt(i) == '#') {
         separatorPos[count] = i;
         count++;
       }
     }
-    if (count == 5) {
+    if (count == 7) {
       String waktuFeeding = message.substring(0, separatorPos[0]);
       int beratWadah = message.substring(separatorPos[0] + 1, separatorPos[1]).toInt();
       int volumeAirWadah = message.substring(separatorPos[1] + 1, separatorPos[2]).toInt();
       int volumeAirTabung = message.substring(separatorPos[2] + 1, separatorPos[3]).toInt();
       String ketHari = message.substring(separatorPos[3] + 1, separatorPos[4]);
-      String ketWaktu = message.substring(separatorPos[4] + 1);
+      String ketWaktu = message.substring(separatorPos[4] + 1, separatorPos[5]);
+      bool pumpStatus = message.substring(separatorPos[5] + 1, separatorPos[6]) == "1";
+      bool servoStatus = message.substring(separatorPos[6] + 1) == "1";
 
       String formattedDate = formatDate(ketHari);
       if (waktuFeeding == "jadwalPagi" || waktuFeeding == "jadwalSore") {
-        sendDataFeedingToFirebase(waktuFeeding, beratWadah, volumeAirWadah, volumeAirTabung, ketHari, ketWaktu, formattedDate);
+        sendDataFeedingToFirebase(waktuFeeding, beratWadah, volumeAirWadah, volumeAirTabung, ketHari, ketWaktu, formattedDate, pumpStatus, servoStatus);
       } else {
         Serial.println("Error: Invalid waktuFeeding value: " + waktuFeeding);
       }
@@ -172,11 +228,18 @@ String formatDate(String ketHari) {
   return month + "-" + day + "-" + year;
 }
 
-void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAirWadah, int volumeAirTabung, String ketHari, String ketWaktu, String formattedDate) {
+void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAirWadah, int volumeAirTabung, String ketHari, String ketWaktu, String formattedDate, bool pumpStatus, bool servoStatus) {
+
   unsigned long currentMillis = millis();
+
   if (currentMillis - sendDataFeedingToFirebasePrevMillis > sendDataFeedingToFirebasePrevDelay) {
+
     sendDataFeedingToFirebasePrevMillis = currentMillis;
+
     String feederType = waktuFeeding == "jadwalPagi" ? "jadwalPagi" : "jadwalSore";
+
+    int timeDifference = calculateTimeDifference(ketWaktu);
+    String ntpTime = getNTPTime();
 
     String feederFullPath = databasePath + "/iot/feeder/" + feederType + "/" + formattedDate;
 
@@ -186,6 +249,10 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
     feederJson.set("volumeMLTabung", volumeAirTabung);
     feederJson.set("ketHari", ketHari);
     feederJson.set("ketWaktu", ketWaktu);
+    feederJson.set("waktuNTP", ntpTime);
+    feederJson.set("selisihWaktu", timeDifference);
+    feederJson.set("pumpStatus", pumpStatus);
+    feederJson.set("servoStatus", servoStatus);
 
     if (Firebase.setJSON(firebaseData, feederFullPath.c_str(), feederJson)) {
       Serial.println("Data feeding berhasil dikirim");
@@ -258,6 +325,7 @@ void setup() {
   Serial.begin(9600);
   initWiFi();
   initFirebase();
+  initNTP();
   delay(500);
 }
 
@@ -266,6 +334,7 @@ void loop() {
     Firebase.refreshToken(&config);
     Serial.println("Memperbarui Token");
   } else if (Firebase.ready()) {
+    timeClient.update();
     processDataTransmitter();
     receiveDataControlFromDatabase();
   } else {
