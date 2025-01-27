@@ -122,6 +122,19 @@ class FeederMFDataCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          const SizedBox(height: 14),
+          const Text('Air Tabung', style: TextStyle(color: Colors.white)),
+          const SizedBox(height: 4),
+          Text(
+            (mfData["volumeMLTabung"] == null)
+                ? "-"
+                : "${mfData["volumeMLTabung"]} mL",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -239,6 +252,19 @@ class FeederAFDataCard extends StatelessWidget {
             (afData["volumeMLWadah"] == null)
                 ? "-"
                 : "${afData["volumeMLWadah"]} mL",
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('Air Tabung', style: TextStyle(color: Colors.black)),
+          const SizedBox(height: 4),
+          Text(
+            (afData["volumeMLTabung"] == null)
+                ? "-"
+                : "${afData["volumeMLTabung"]} mL",
             style: const TextStyle(
               color: Colors.black,
               fontSize: 16,

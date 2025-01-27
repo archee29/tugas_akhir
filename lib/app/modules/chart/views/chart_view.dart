@@ -227,15 +227,22 @@ class ChartView extends GetView<ChartController> {
                           final data = snapshot.data!;
                           double beratWadah = data['beratWadah'] ?? 0;
                           double volumeMLWadah = data['volumeMLWadah'] ?? 0;
+                          double volumeMLTabung = data['volumeMLTabung'] ?? 0;
+
                           String beratWadahDisplay = beratWadah > 999
                               ? "${(beratWadah / 1000).toStringAsFixed(2)} Kg"
                               : "${beratWadah.toStringAsFixed(2)} Gr";
                           String volumeMLWadahDisplay = volumeMLWadah > 999
                               ? "${(volumeMLWadah / 1000).toStringAsFixed(2)} L"
                               : "${volumeMLWadah.toStringAsFixed(2)} mL";
+                          String volumeMLTabungDisplay = volumeMLTabung > 999
+                              ? "${(volumeMLTabung / 1000).toStringAsFixed(2)} L"
+                              : "${volumeMLTabung.toStringAsFixed(2)} mL";
 
                           double beratWadahPercent = beratWadah / 120;
                           double volumeMLWadahPercent = volumeMLWadah / 300;
+                          double volumeMLTabungPercent = volumeMLTabung / 1000;
+
                           String beratWadahScale = beratWadahPercent > 1.0
                               ? "Over"
                               : beratWadahPercent < 0.33
@@ -250,8 +257,17 @@ class ChartView extends GetView<ChartController> {
                                   : volumeMLWadahPercent < 0.66
                                       ? "Medium"
                                       : "High";
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          String volumeMLTabungScale =
+                              volumeMLTabungPercent > 1.0
+                                  ? "Over"
+                                  : volumeMLTabungPercent < 0.33
+                                      ? "Low"
+                                      : volumeMLTabungPercent < 0.66
+                                          ? "Medium"
+                                          : "High";
+
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               CircularPercentIndicator(
                                 radius: 60.0,
@@ -294,52 +310,103 @@ class ChartView extends GetView<ChartController> {
                                   ),
                                 ),
                               ),
-                              CircularPercentIndicator(
-                                radius: 60.0,
-                                lineWidth: 10.0,
-                                percent: volumeMLWadahPercent > 1.0
-                                    ? 1.0
-                                    : volumeMLWadahPercent.clamp(0.0, 1.0),
-                                center: Text(
-                                  "${(volumeMLWadahPercent * 100).round()}%\n$volumeMLWadahScale",
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                progressColor: getProgressColor(
-                                    volumeMLWadahScale, volumeMLWadahPercent),
-                                backgroundColor: Colors.grey.shade300,
-                                footer: Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        "Minuman",
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  // Volume ML Wadah indicator
+                                  CircularPercentIndicator(
+                                    radius: 60.0,
+                                    lineWidth: 10.0,
+                                    percent: volumeMLWadahPercent > 1.0
+                                        ? 1.0
+                                        : volumeMLWadahPercent.clamp(0.0, 1.0),
+                                    center: Text(
+                                      "${(volumeMLWadahPercent * 100).round()}%\n$volumeMLWadahScale",
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0,
                                       ),
-                                      Text(
-                                        "Total: $volumeMLWadahDisplay",
-                                        style: const TextStyle(
-                                          fontSize: 14.0,
-                                          color: Colors.black54,
-                                        ),
+                                    ),
+                                    progressColor: getProgressColor(
+                                        volumeMLWadahScale,
+                                        volumeMLWadahPercent),
+                                    backgroundColor: Colors.grey.shade300,
+                                    footer: Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Minuman Wadah",
+                                            style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Total: $volumeMLWadahDisplay",
+                                            style: const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  CircularPercentIndicator(
+                                    radius: 60.0,
+                                    lineWidth: 10.0,
+                                    percent: volumeMLTabungPercent > 1.0
+                                        ? 1.0
+                                        : volumeMLTabungPercent.clamp(0.0, 1.0),
+                                    center: Text(
+                                      "${(volumeMLTabungPercent * 100).round()}%\n$volumeMLTabungScale",
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                    progressColor: getProgressColor(
+                                        volumeMLTabungScale,
+                                        volumeMLTabungPercent),
+                                    backgroundColor: Colors.grey.shade300,
+                                    footer: Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Minuman Tabung",
+                                            style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Total: $volumeMLTabungDisplay",
+                                            style: const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           );
                         }
                       },
-                    ),
+                    )
                   ],
                 )
               ],

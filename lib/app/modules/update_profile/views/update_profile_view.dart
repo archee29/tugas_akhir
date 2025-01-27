@@ -189,43 +189,49 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
               ),
             ],
           ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: CustomInput(
-                        controller: controller.bkController,
-                        label: "BB Kucing",
-                        hint: "Masukkan Berat Awal Kucing",
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: CustomInput(
-                        controller: controller.pbbController,
-                        label: "Perubahan BB",
-                        hint: "Masukkan Perubahan BB Kucing",
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
           CustomInput(
-            controller: controller.baController,
-            label: "BB Akhir",
-            hint: "Masukkan BB Akhir Kucing",
+            controller: controller.bkController,
+            label: "BB Kucing",
+            hint: "Masukkan Berat Awal Kucing",
             keyboardType: TextInputType.number,
-            disabled: true,
           ),
+          // Column(
+          //   children: [
+          //     Row(
+          //       children: [
+          //         Expanded(
+          //           child: Padding(
+          //             padding: const EdgeInsets.only(right: 8.0),
+          //             child: CustomInput(
+          //               controller: controller.bkController,
+          //               label: "BB Kucing",
+          //               hint: "Masukkan Berat Awal Kucing",
+          //               keyboardType: TextInputType.number,
+          //             ),
+          //           ),
+          //         ),
+          //         Expanded(
+          //           child: Padding(
+          //             padding: const EdgeInsets.only(left: 8.0),
+          //             child: CustomInput(
+          //               controller: controller.pbbController,
+          //               label: "Perubahan BB",
+          //               hint: "Masukkan Perubahan BB Kucing",
+          //               keyboardType: TextInputType.number,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ],
+          // ),
+          // CustomInput(
+          //   controller: controller.baController,
+          //   label: "BB Akhir",
+          //   hint: "Masukkan BB Akhir Kucing",
+          //   keyboardType: TextInputType.number,
+          //   disabled: true,
+          // ),
         ],
       ),
     );

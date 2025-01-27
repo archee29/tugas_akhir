@@ -67,9 +67,13 @@ class ChartController extends GetxController {
       double volumeMLWadah =
           double.parse(monitoringData['volumeMLWadah']?.toString() ?? '0');
 
+      double volumeMLTabung =
+          double.parse(monitoringData['volumeMLTabung']?.toString() ?? '0');
+
       return {
         'beratWadah': beratWadah,
         'volumeMLWadah': volumeMLWadah,
+        'volumeMLTabung': volumeMLTabung,
       };
     });
   }

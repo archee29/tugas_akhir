@@ -242,9 +242,7 @@ class CustomInfoFeeder extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-          //  tambahkan teks untuk menampilkan berat kucing, pertumbuhan kucing,
           Row(
             children: [
               Expanded(
@@ -270,56 +268,55 @@ class CustomInfoFeeder extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Perubahan Berat Badan Kucing",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      pbbKucing,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Output
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Berat Badan Akhir Kucing",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      pKucing,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Expanded(
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const Text(
+              //         "Perubahan Berat Badan Kucing",
+              //         style: TextStyle(
+              //           fontSize: 10,
+              //           color: Colors.grey,
+              //         ),
+              //       ),
+              //       const SizedBox(height: 6),
+              //       Text(
+              //         pbbKucing,
+              //         style: const TextStyle(
+              //           fontSize: 14,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // // Output
+              // Expanded(
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.end,
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const Text(
+              //         "Berat Badan Akhir Kucing",
+              //         style: TextStyle(
+              //           fontSize: 10,
+              //           color: Colors.grey,
+              //         ),
+              //       ),
+              //       const SizedBox(height: 6),
+              //       Text(
+              //         pKucing,
+              //         style: const TextStyle(
+              //           fontSize: 14,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
-
           const SizedBox(height: 15),
           const Divider(
             color: Colors.black,

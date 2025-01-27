@@ -264,6 +264,23 @@ class StatistikView extends GetView<StatistikController> {
                                       ),
                                     ],
                                   ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      WeeklyCard(
+                                        title: "Total Food / Week",
+                                        value: controller.formatFoodOutput(
+                                            data['totalFoodPeriod']!),
+                                      ),
+                                      WeeklyCard(
+                                        title: "Total Water / Week",
+                                        value: controller.formatWaterOutput(
+                                            data['totalWaterPeriod']!),
+                                      )
+                                    ],
+                                  ),
+
                                   Center(
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(
@@ -288,61 +305,61 @@ class StatistikView extends GetView<StatistikController> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 35),
-                                  SizedBox(
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            WeeklyCard(
-                                              title: "Total Food / Week",
-                                              value:
-                                                  controller.formatFoodOutput(
-                                                      data['totalFoodPeriod']!),
-                                            ),
-                                            WeeklyCard(
-                                              title: "Total Water / Week",
-                                              value: controller
-                                                  .formatWaterOutput(data[
-                                                      'totalWaterPeriod']!),
-                                            )
-                                          ],
-                                        ),
-                                        Center(
-                                          child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                              maxWidth: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.95,
-                                            ),
-                                            child: CustomTextField(
-                                              title: "Pertumbuhan Kucing",
-                                              subTitle:
-                                                  "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
-                                              titleNilai: "BB Akhir",
-                                              valueNilai: controller
-                                                  .formatFoodOutput(double.tryParse(
-                                                          data['beratKucing']
-                                                                  ?.toString() ??
-                                                              '0') ??
-                                                      0.0),
-                                              titlePertumbuhan: "Pertumbuhan",
-                                              valuePertumbuhan: controller
-                                                  .formatPertumbuhanOutput(
-                                                      double.tryParse(data[
-                                                                      'pertumbuhanKucing']
-                                                                  ?.toString() ??
-                                                              '0') ??
-                                                          0.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
+                                  // const SizedBox(height: 35),
+                                  // SizedBox(
+                                  //   child: Column(
+                                  //     children: [
+                                  //       Row(
+                                  //         mainAxisAlignment:
+                                  //             MainAxisAlignment.spaceAround,
+                                  //         children: [
+                                  //           WeeklyCard(
+                                  //             title: "Total Food / Week",
+                                  //             value:
+                                  //                 controller.formatFoodOutput(
+                                  //                     data['totalFoodPeriod']!),
+                                  //           ),
+                                  //           WeeklyCard(
+                                  //             title: "Total Water / Week",
+                                  //             value: controller
+                                  //                 .formatWaterOutput(data[
+                                  //                     'totalWaterPeriod']!),
+                                  //           )
+                                  //         ],
+                                  //       ),
+                                  // Center(
+                                  //   child: ConstrainedBox(
+                                  //     constraints: BoxConstraints(
+                                  //       maxWidth: MediaQuery.of(context)
+                                  //               .size
+                                  //               .width *
+                                  //           0.95,
+                                  //     ),
+                                  //     child: CustomTextField(
+                                  //       title: "Pertumbuhan Kucing",
+                                  //       subTitle:
+                                  //           "Berat Ideal Kucing\nPertumbuhan Mingguan, Berat Badan Kucing",
+                                  //       titleNilai: "BB Akhir",
+                                  //       valueNilai: controller
+                                  //           .formatFoodOutput(double.tryParse(
+                                  //                   data['beratKucing']
+                                  //                           ?.toString() ??
+                                  //                       '0') ??
+                                  //               0.0),
+                                  //       titlePertumbuhan: "Pertumbuhan",
+                                  //       valuePertumbuhan: controller
+                                  //           .formatPertumbuhanOutput(
+                                  //               double.tryParse(data[
+                                  //                               'pertumbuhanKucing']
+                                  //                           ?.toString() ??
+                                  //                       '0') ??
+                                  //                   0.0),
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  //     ],
+                                  //   ),
+                                  // )
                                 ],
                               ),
                             ),

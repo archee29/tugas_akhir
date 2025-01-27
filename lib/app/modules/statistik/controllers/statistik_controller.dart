@@ -355,9 +355,9 @@ class StatistikController extends GetxController {
       content: SingleChildScrollView(
         child: Column(
           children: events.map((event) {
-            String feeder = event['ketWaktu'] == '7:0:0'
-                ? "Morning Feeder"
-                : "Afternoon Feeder";
+            DateTime eventTime = DateFormat('H:m:s').parse(event['ketWaktu']);
+            String feeder =
+                eventTime.hour < 12 ? "Morning Feeder" : "Afternoon Feeder";
             return Card(
               child: ListTile(
                 title: Text(
