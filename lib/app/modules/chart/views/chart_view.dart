@@ -127,13 +127,82 @@ class ChartView extends GetView<ChartController> {
                       child: SfCartesianChart(
                         legend: const Legend(isVisible: true),
                         tooltipBehavior: TooltipBehavior(
-                          color: AppColors.primary,
                           enable: true,
+                          builder: (dynamic data, dynamic point, dynamic series,
+                              int pointIndex, int seriesIndex) {
+                            Color tooltipColor;
+                            Color textColor = Colors.white;
+                            String unit = '';
+                            switch (series.name) {
+                              case 'Makanan Pagi':
+                                tooltipColor = Colors.blue;
+                                unit = 'Gr';
+                                break;
+                              case 'Minuman Pagi':
+                                tooltipColor = Colors.green;
+                                unit = 'mL';
+                                break;
+                              case 'Makanan Sore':
+                                tooltipColor = Colors.yellow;
+                                unit = 'Gr';
+                                break;
+                              case 'Minuman Sore':
+                                tooltipColor = AppColors.primary;
+                                unit = 'mL';
+                                break;
+                              default:
+                                tooltipColor = Colors.grey;
+                            }
+
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: tooltipColor,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    series.name,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: textColor.withOpacity(0.5),
+                                    thickness: 1,
+                                    height: 8,
+                                  ),
+                                  Text(
+                                    '${point.x} : ${point.y} $unit',
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                         primaryXAxis: const CategoryAxis(
                           labelIntersectAction:
                               AxisLabelIntersectAction.rotate45,
                           interval: 1,
+                          // plotOffset: 5,
                         ),
                         primaryYAxis: const NumericAxis(),
                         series: <CartesianSeries>[
@@ -146,6 +215,8 @@ class ChartView extends GetView<ChartController> {
                                     data['beratWadah']?.toString() ?? '0'),
                             name: 'Makanan Pagi',
                             color: Colors.blue,
+                            width: 0.8,
+                            spacing: 0.1,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
                           ),
@@ -158,6 +229,8 @@ class ChartView extends GetView<ChartController> {
                                     data['volumeMLWadah']?.toString() ?? '0'),
                             name: 'Minuman Pagi',
                             color: Colors.green,
+                            width: 0.8,
+                            spacing: 0.1,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
                           ),
@@ -169,6 +242,8 @@ class ChartView extends GetView<ChartController> {
                                 int.tryParse(
                                     data['beratWadah']?.toString() ?? '0'),
                             name: 'Makanan Sore',
+                            width: 0.8,
+                            spacing: 0.1,
                             color: Colors.yellow,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),
@@ -181,6 +256,8 @@ class ChartView extends GetView<ChartController> {
                                 int.tryParse(
                                     data['volumeMLWadah']?.toString() ?? '0'),
                             name: 'Minuman Sore',
+                            width: 0.8,
+                            spacing: 0.1,
                             color: AppColors.primary,
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: false),

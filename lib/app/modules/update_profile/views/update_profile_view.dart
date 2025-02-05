@@ -195,6 +195,12 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
             hint: "Masukkan Berat Awal Kucing",
             keyboardType: TextInputType.number,
           ),
+          CustomInput(
+            controller: controller.psController,
+            label: "Putaran Servo",
+            hint: "Masukkan Jumlah Putaran Servo",
+            keyboardType: TextInputType.number,
+          ),
           // Column(
           //   children: [
           //     Row(

@@ -20,6 +20,7 @@ class UpdateProfileController extends GetxController {
   TextEditingController bkController = TextEditingController();
   TextEditingController pbbController = TextEditingController();
   TextEditingController baController = TextEditingController();
+  TextEditingController psController = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
   s.FirebaseStorage storage = s.FirebaseStorage.instance;
@@ -45,6 +46,7 @@ class UpdateProfileController extends GetxController {
     bkController.text = user["beratKucing"]?.toString() ?? "";
     pbbController.text = user['beratKucingAf']?.toString() ?? "";
     baController.text = user['beratAkhir']?.toString() ?? "";
+    psController.text = user['putaranServo']?.toString() ?? "";
   }
 
   @override
@@ -59,6 +61,7 @@ class UpdateProfileController extends GetxController {
     bkController.dispose();
     pbbController.dispose();
     baController.dispose();
+    psController.dispose();
     super.onClose();
   }
 
@@ -88,6 +91,7 @@ class UpdateProfileController extends GetxController {
           "beratKucing": int.parse(bkController.text.trim()),
           "beratKucingAf": int.parse(pbbController.text.trim()),
           "beratAkhir": int.parse(baController.text.trim()),
+          "putaranServo": int.parse(psController.text.trim()),
         };
 
         if (image != null) {
@@ -121,6 +125,7 @@ class UpdateProfileController extends GetxController {
       bkController,
       pbbController,
       baController,
+      psController,
     ];
     for (var controller in numericControllers) {
       if (controller.text.trim().isEmpty) {
@@ -148,6 +153,7 @@ class UpdateProfileController extends GetxController {
         wmController.text.trim().isNotEmpty &&
         bkController.text.trim().isNotEmpty &&
         pbbController.text.trim().isNotEmpty &&
+        psController.text.trim().isNotEmpty &&
         baController.text.trim().isNotEmpty;
   }
 

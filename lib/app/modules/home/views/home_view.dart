@@ -312,6 +312,7 @@ class HomeView extends GetView<HomeController> {
                         bbKucing: '${data['beratKucing']}',
                         pbbKucing: '${data['beratKucingAf']}',
                         pKucing: '${data['beratAkhir']}',
+                        pServo: '${data['putaranServo']}',
                         onPressed: () => Get.toNamed(
                           Routes.UPDATE_PROFILE,
                           arguments: user,

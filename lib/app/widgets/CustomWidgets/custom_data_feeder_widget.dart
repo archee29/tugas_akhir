@@ -99,7 +99,7 @@ class FeederMFDataCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          const Text('Berat Wadah', style: TextStyle(color: Colors.white)),
+          const Text('Pakan Wadah', style: TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
           Text(
             (mfData["beratWadah"] == null) ? "-" : "${mfData["beratWadah"]} Gr",
@@ -235,7 +235,7 @@ class FeederAFDataCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          const Text('Berat Wadah', style: TextStyle(color: Colors.black)),
+          const Text('Pakan Wadah', style: TextStyle(color: Colors.black)),
           const SizedBox(height: 4),
           Text(
             (afData["beratWadah"] == null) ? "-" : "${afData["beratWadah"]} Gr",

@@ -14,6 +14,7 @@ class CustomInfoFeeder extends StatelessWidget {
   final String bbKucing;
   final String pbbKucing;
   final String pKucing;
+  final String pServo;
   final void Function() onPressed;
 
   const CustomInfoFeeder({
@@ -28,6 +29,7 @@ class CustomInfoFeeder extends StatelessWidget {
     required this.bbKucing,
     required this.pbbKucing,
     required this.pKucing,
+    required this.pServo,
   });
 
   @override
@@ -268,53 +270,32 @@ class CustomInfoFeeder extends StatelessWidget {
                   ],
                 ),
               ),
-              // Expanded(
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       const Text(
-              //         "Perubahan Berat Badan Kucing",
-              //         style: TextStyle(
-              //           fontSize: 10,
-              //           color: Colors.grey,
-              //         ),
-              //       ),
-              //       const SizedBox(height: 6),
-              //       Text(
-              //         pbbKucing,
-              //         style: const TextStyle(
-              //           fontSize: 14,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              // // Output
-              // Expanded(
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.end,
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       const Text(
-              //         "Berat Badan Akhir Kucing",
-              //         style: TextStyle(
-              //           fontSize: 10,
-              //           color: Colors.grey,
-              //         ),
-              //       ),
-              //       const SizedBox(height: 6),
-              //       Text(
-              //         pKucing,
-              //         style: const TextStyle(
-              //           fontSize: 14,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Jumlah Putaran\nServo",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      pServo,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(),
+              ),
             ],
           ),
           const SizedBox(height: 15),
