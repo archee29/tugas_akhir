@@ -20,7 +20,8 @@ class UpdateProfileController extends GetxController {
   TextEditingController bkController = TextEditingController();
   TextEditingController pbbController = TextEditingController();
   TextEditingController baController = TextEditingController();
-  TextEditingController psController = TextEditingController();
+  TextEditingController putaranServoController = TextEditingController();
+  TextEditingController waktuPumpController = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
   s.FirebaseStorage storage = s.FirebaseStorage.instance;
@@ -46,7 +47,8 @@ class UpdateProfileController extends GetxController {
     bkController.text = user["beratKucing"]?.toString() ?? "";
     pbbController.text = user['beratKucingAf']?.toString() ?? "";
     baController.text = user['beratAkhir']?.toString() ?? "";
-    psController.text = user['putaranServo']?.toString() ?? "";
+    putaranServoController.text = user['putaranServo']?.toString() ?? "";
+    waktuPumpController.text = user['waktuPump']?.toString() ?? "";
   }
 
   @override
@@ -61,7 +63,8 @@ class UpdateProfileController extends GetxController {
     bkController.dispose();
     pbbController.dispose();
     baController.dispose();
-    psController.dispose();
+    putaranServoController.dispose();
+    waktuPumpController.dispose();
     super.onClose();
   }
 
@@ -91,7 +94,8 @@ class UpdateProfileController extends GetxController {
           "beratKucing": int.parse(bkController.text.trim()),
           "beratKucingAf": int.parse(pbbController.text.trim()),
           "beratAkhir": int.parse(baController.text.trim()),
-          "putaranServo": int.parse(psController.text.trim()),
+          "putaranServo": int.parse(putaranServoController.text.trim()),
+          "waktuPump": int.parse(waktuPumpController.text.trim()),
         };
 
         if (image != null) {
@@ -125,7 +129,8 @@ class UpdateProfileController extends GetxController {
       bkController,
       pbbController,
       baController,
-      psController,
+      putaranServoController,
+      waktuPumpController,
     ];
     for (var controller in numericControllers) {
       if (controller.text.trim().isEmpty) {
@@ -153,7 +158,8 @@ class UpdateProfileController extends GetxController {
         wmController.text.trim().isNotEmpty &&
         bkController.text.trim().isNotEmpty &&
         pbbController.text.trim().isNotEmpty &&
-        psController.text.trim().isNotEmpty &&
+        putaranServoController.text.trim().isNotEmpty &&
+        waktuPumpController.text.trim().isNotEmpty &&
         baController.text.trim().isNotEmpty;
   }
 

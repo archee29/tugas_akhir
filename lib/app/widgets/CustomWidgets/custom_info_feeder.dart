@@ -15,6 +15,7 @@ class CustomInfoFeeder extends StatelessWidget {
   final String pbbKucing;
   final String pKucing;
   final String pServo;
+  final String wPump;
   final void Function() onPressed;
 
   const CustomInfoFeeder({
@@ -30,6 +31,7 @@ class CustomInfoFeeder extends StatelessWidget {
     required this.pbbKucing,
     required this.pKucing,
     required this.pServo,
+    required this.wPump,
   });
 
   @override
@@ -294,7 +296,27 @@ class CustomInfoFeeder extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Container(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Jumlah Waktu\nPump",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      wPump,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

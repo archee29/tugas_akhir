@@ -139,7 +139,7 @@ class HomeController extends GetxController {
 
   String formatFoodOutput(double value) {
     if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} Kg';
+      return '${(value / 1000).toStringAsFixed(2)} Kg';
     } else {
       return '${value.toStringAsFixed(0)} Gr';
     }
@@ -147,7 +147,7 @@ class HomeController extends GetxController {
 
   String formatWaterOutput(double value) {
     if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)} L';
+      return '${(value / 1000).toStringAsFixed(2)} L';
     } else {
       return '${value.toStringAsFixed(0)} mL';
     }
@@ -198,7 +198,8 @@ class HomeController extends GetxController {
                 formatLargeNumberOutput(data['beratKucingAf'], unit: ' Gr'),
             'beratAkhir':
                 formatLargeNumberOutput(data['beratAkhir'], unit: ' Gr'),
-            'putaranServo': data['putaranServo'],
+            'putaranServo': '${data['putaranServo']} x',
+            'waktuPump': formatTimeOutput(data['waktuPump']),
           };
         }
         return {};
@@ -212,11 +213,26 @@ class HomeController extends GetxController {
     if (value == null) return '0 $unit';
     double numValue = double.parse(value.toString());
     if (unit == ' Gr' && numValue >= 1000) {
-      return '${(numValue / 1000).toStringAsFixed(1)} Kg';
+      return '${(numValue / 1000).toStringAsFixed(2)} Kg';
     }
     if (unit == ' mL' && numValue >= 1000) {
-      return '${(numValue / 1000).toStringAsFixed(1)} L';
+      return '${(numValue / 1000).toStringAsFixed(2)} L';
     }
     return '${numValue.toStringAsFixed(0)}$unit';
+  }
+
+  String formatTimeOutput(dynamic value) {
+    if (value == null) return '0 detik';
+    int seconds = int.parse(value.toString());
+
+    if (seconds >= 3600) {
+      double hours = seconds / 3600;
+      return '${hours.toStringAsFixed(2)} Jam';
+    } else if (seconds >= 60) {
+      double minutes = seconds / 60;
+      return '${minutes.toStringAsFixed(2)} Menit';
+    } else {
+      return '$seconds Detik';
+    }
   }
 }

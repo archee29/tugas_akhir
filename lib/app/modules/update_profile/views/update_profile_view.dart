@@ -195,12 +195,38 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
             hint: "Masukkan Berat Awal Kucing",
             keyboardType: TextInputType.number,
           ),
-          CustomInput(
-            controller: controller.psController,
-            label: "Putaran Servo",
-            hint: "Masukkan Jumlah Putaran Servo",
-            keyboardType: TextInputType.number,
+
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: CustomInput(
+                        controller: controller.putaranServoController,
+                        label: "Putaran Servo",
+                        hint: "Masukkan Jumlah Putaran",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: CustomInput(
+                        controller: controller.waktuPumpController,
+                        label: "Waktu Pump",
+                        hint: "Masukkan Jumlah Waktu",
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
+
           // Column(
           //   children: [
           //     Row(
@@ -231,6 +257,7 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
           //     ),
           //   ],
           // ),
+
           // CustomInput(
           //   controller: controller.baController,
           //   label: "BB Akhir",
