@@ -30,6 +30,10 @@ String uid, databasePath;
 bool lastPumpControl = false;
 bool lastServoControl = false;
 
+
+int putaranServo = 4;
+int waktuPump = 5;
+
 unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
 unsigned long sendDataMonitoringToFirebaseDelay = 3000;
 
@@ -321,6 +325,34 @@ void updateFirebaseControlStatus(String status) {
   }
 }
 
+void getPumpDurationFromDatabase() {
+  String pumpDurationPath = databasePath + "/UsersProfile/waktuPump";
+
+  if (Firebase.getInt(firebaseData, pumpDurationPath.c_str())) {
+    int newWaktuPump = firebaseData.intData();
+    if (newWaktuPump != waktuPump) {
+      waktuPump = newWaktuPump;
+      Serial.println("PumpDuration#" + String(waktuPump));
+    }
+  } else {
+    Serial.println("Error getting pump duration: " + firebaseData.errorReason());
+  }
+}
+
+void getServoRotationFromDatabase() {
+  String servoRotationPath = databasePath + "/UsersProfile/putaranServo";
+
+  if (Firebase.getInt(firebaseData, servoRotationPath.c_str())) {
+    int newPutaranServo = firebaseData.intData();
+    if (newPutaranServo != putaranServo) {
+      putaranServo = newPutaranServo;
+      Serial.println("ServoRotation#" + String(putaranServo));
+    }
+  } else {
+    Serial.println("Error getting servo rotation: " + firebaseData.errorReason());
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   initWiFi();
@@ -337,6 +369,8 @@ void loop() {
     timeClient.update();
     processDataTransmitter();
     receiveDataControlFromDatabase();
+    getServoRotationFromDatabase();
+    getPumpDurationFromDatabase();
   } else {
     Serial.println("Menunggu koneksi WiFi/Firebase");
     delay(1000);

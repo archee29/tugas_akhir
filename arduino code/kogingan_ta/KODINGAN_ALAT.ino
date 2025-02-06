@@ -22,10 +22,12 @@ float maxTinggiWadah = 14.0, radiusWadah = 5.1;  // radius wadah bisa 5.05 atau 
 
 #define relayPin 8
 bool isPumpActive = false;
+int waktuPump = 5000;
 
 Servo myServo;
 #define servoPin 9
 bool isServoActive = false;
+int putaranServo = 4;
 
 #define echoPinTabung 10
 #define trigPinTabung 11
@@ -140,7 +142,7 @@ void onPump() {
     unsigned long startMillis = millis();
     digitalWrite(relayPin, HIGH);
     isPumpActive = true;
-    while (millis() - startMillis <= 5000) {}
+    while (millis() - startMillis <= waktuPump) {}
     digitalWrite(relayPin, LOW);
     isPumpActive = false;
     sendDataControlToReceiver("Pump_OFF");
@@ -182,7 +184,7 @@ void monitoring(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
     if (beratWadah >= 0 && beratWadah < 40) {
       monitoringNotification("PAKAN WADAH < 40 GR", "WADAH PERLU DIISI!", 2000);
       showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
-      bukaServo(4);
+      bukaServo(putaranServo);
       showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
     } else if (beratWadah >= 41 && beratWadah < 100) {
       monitoringNotification("PAKAN WADAH < 100 GR", "SEGERA ISI WADAH", 2000);
@@ -217,7 +219,7 @@ void feeder(String &waktuFeeding, int &beratWadah, int &volumeMLAirWadah, int &v
     showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
     onPump();
-    bukaServo(4);
+    bukaServo(putaranServo);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
     sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   }
@@ -280,15 +282,22 @@ void reqDataFromReceiver() {
     String receivedCommand = Serial.readStringUntil('\n');
     receivedCommand.trim();
 
-    if (receivedCommand == "Pump_ON" && !isPumpActive) {
+    if (receivedCommand.startsWith("ServoRotation#")) {
+      String rotationValue = receivedCommand.substring(14);
+      putaranServo = rotationValue.toInt();
+    }
+    else if (receivedCommand.startsWith("PumpDuration#")) {
+      String durationValue = receivedCommand.substring(13);
+      waktuPump = durationValue.toInt() * 1000;
+    }
+    else if (receivedCommand == "Pump_ON" && !isPumpActive) {
       onPump();
     } else if (receivedCommand == "Pump_OFF") {
       digitalWrite(relayPin, LOW);
       isPumpActive = false;
     }
-
-    if (receivedCommand == "Servo_ON" && !isServoActive) {
-      bukaServo(4);
+    else if (receivedCommand == "Servo_ON" && !isServoActive) {
+      bukaServo(putaranServo);
     } else if (receivedCommand == "Servo_OFF") {
       myServo.write(90);
       isServoActive = false;
