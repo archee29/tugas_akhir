@@ -113,9 +113,9 @@ class HomeController extends GetxController {
       double beratKucing = beratKucingAsli / 1000;
 
       double rER = 70 * pow(beratKucing, 0.75);
-      double kebutuhanKaloriTerkoreksi = rER * 1.8;
+      double kebutuhanKaloriTerkoreksi = rER * 1.6;
 
-      double rataRataKaloriMakananKering = 375;
+      double rataRataKaloriMakananKering = 344;
       double kebutuhanMakananHarian =
           kebutuhanKaloriTerkoreksi / (rataRataKaloriMakananKering / 100);
 
