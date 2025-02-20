@@ -175,7 +175,7 @@ class CustomBottomNavigationBar extends GetView<PageIndexController> {
                   onPressed: () => controller.changePage(1),
                   elevation: 0,
                   backgroundColor: AppColors.primary,
-                  child: (controller.feederController.isLoading.isFalse)
+                  child: (controller.scheduleController.isLoading.isFalse)
                       ? SvgPicture.asset('assets/icons/feeder.svg',
                           // ignore: deprecated_member_use
                           color: Colors.white)

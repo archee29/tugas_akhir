@@ -14,7 +14,7 @@ String hari, ketHari, ketWaktu;
 #define LOADCELL_WADAH_DOUT_PIN 4
 #define LOADCELL_WADAH_SCK_PIN 5
 HX711 lcWadah;
-float calibration_factor_wadah = -388.10;
+float calibration_factor_wadah = 3750.00;
 
 #define trigPinWadah 6
 #define echoPinWadah 7
@@ -79,7 +79,7 @@ void initRTC() {
 
 void wadahPakan(int &beratWadah) {
   beratWadah = lcWadah.get_units(10);
-  if (beratWadah < 1200) {
+  if (beratWadah < 0) {
     beratWadah = 0;
   }
 }
@@ -213,15 +213,15 @@ void monitoring(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
 }
 
 void feeder(String &waktuFeeding, int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
-  if ((jam == 7 && menit == 0 && detik == 0) || (jam == 17 && menit == 0 && detik == 0)) {
-    waktuFeeding = (jam == 7) ? "jadwalPagi" : "jadwalSore";
+  if ((jam == 10 && menit == 40 && detik == 0) || (jam == 17 && menit == 0 && detik == 0)) {
+    waktuFeeding = (jam == 10) ? "jadwalPagi" : "jadwalSore";
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
     showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
     onPump();
     bukaServo(putaranServo);
+    sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung, true, true);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
-    sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   }
 }
 
@@ -268,8 +268,8 @@ void sendDataMonitoringToReceiver(int beratWadah, int volumeMLAirWadah, int volu
   }
 }
 
-void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
-  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu + "#" + String(isPumpActive) + "#" + String(isServoActive);
+void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung, bool forcePumpActive, bool forceServoActive) {
+  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu + "#" + (forcePumpActive ? "1" : "0") + "#" + (forceServoActive ? "1" : "0");
   Serial.println(feedingData);
 }
 
@@ -285,18 +285,15 @@ void reqDataFromReceiver() {
     if (receivedCommand.startsWith("ServoRotation#")) {
       String rotationValue = receivedCommand.substring(14);
       putaranServo = rotationValue.toInt();
-    }
-    else if (receivedCommand.startsWith("PumpDuration#")) {
+    } else if (receivedCommand.startsWith("PumpDuration#")) {
       String durationValue = receivedCommand.substring(13);
       waktuPump = durationValue.toInt() * 1000;
-    }
-    else if (receivedCommand == "Pump_ON" && !isPumpActive) {
+    } else if (receivedCommand == "Pump_ON" && !isPumpActive) {
       onPump();
     } else if (receivedCommand == "Pump_OFF") {
       digitalWrite(relayPin, LOW);
       isPumpActive = false;
-    }
-    else if (receivedCommand == "Servo_ON" && !isServoActive) {
+    } else if (receivedCommand == "Servo_ON" && !isServoActive) {
       bukaServo(putaranServo);
     } else if (receivedCommand == "Servo_OFF") {
       myServo.write(90);
@@ -313,7 +310,7 @@ void setup() {
     Serial.flush();
     abort();
   }
-  rtc.adjust(DateTime(2025, 1, 10, 6, 55, 0));
+  rtc.adjust(DateTime(2025, 2, 19, 10, 37, 0));
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();

@@ -6,8 +6,8 @@ import './app/modules/chart/controllers/chart_controller.dart';
 import './app/modules/detail_feeder/controllers/detail_feeder_controller.dart';
 import './app/modules/statistik/controllers/statistik_controller.dart';
 import './app/routes/app_pages.dart';
+import 'app/controllers/schedule_button_controller.dart';
 import './app/controllers/page_index_controller.dart';
-import './app/controllers/feeder_controller.dart';
 import './app/controllers/notification_service.dart';
 import './app/modules/home/controllers/home_controller.dart';
 
@@ -20,7 +20,7 @@ void main() async {
 
   Get.put(HomeController(), permanent: true);
   Get.put(NotificationService(), permanent: true);
-  Get.put(FeederController(), permanent: true);
+  Get.put(ScheduleButtonController(), permanent: true);
   Get.put(StatistikController(), permanent: true);
   Get.put(PageIndexController(), permanent: true);
   Get.put(DetailFeederController(), permanent: true);

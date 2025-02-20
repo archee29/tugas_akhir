@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import './../controllers/feeder_controller.dart';
+import 'schedule_button_controller.dart';
 import './../routes/app_pages.dart';
 
 class PageIndexController extends GetxController {
-  final feederController = Get.find<FeederController>();
+  final scheduleController = Get.find<ScheduleButtonController>();
 
   RxInt pageIndex = 0.obs;
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -21,7 +21,7 @@ class PageIndexController extends GetxController {
 
     switch (index) {
       case 1:
-        feederController.feeder();
+        scheduleController.showAddScheduleDialog();
         break;
       case 2:
         Get.offAllNamed(Routes.SETTING);

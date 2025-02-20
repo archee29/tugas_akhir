@@ -6,10 +6,10 @@
 #include <WiFiUdp.h>
 #include <TimeLib.h>
 
-// #define WIFI_SSID "Tugasakhir"
-// #define WIFI_PASSWORD "wifisigit"
-#define WIFI_SSID "HOME 2G"
-#define WIFI_PASSWORD "wifirumah2"
+#define WIFI_SSID "Tugasakhir"
+#define WIFI_PASSWORD "wifisigit"
+// #define WIFI_SSID "HOME 2G"
+// #define WIFI_PASSWORD "wifirumah2"
 #define API_KEY "AIzaSyD9cMliTs9G41vgRLcjS2VacvtMWWR1doQ"
 #define DATABASE_URL "https://tugas-akhir-3c0d9-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define USER_EMAIL "mhsigit01@gmail.com"
@@ -182,8 +182,16 @@ void receivedDataFromTransmitter(String message) {
       int volumeAirTabung = message.substring(separatorPos[2] + 1, separatorPos[3]).toInt();
       String ketHari = message.substring(separatorPos[3] + 1, separatorPos[4]);
       String ketWaktu = message.substring(separatorPos[4] + 1, separatorPos[5]);
-      bool pumpStatus = message.substring(separatorPos[5] + 1, separatorPos[6]) == "1";
-      bool servoStatus = message.substring(separatorPos[6] + 1) == "1";
+      String pumpStatusStr = message.substring(separatorPos[5] + 1, separatorPos[6]);
+      String servoStatusStr = message.substring(separatorPos[6] + 1);
+      Serial.println("Debug - Received pump status string: '" + pumpStatusStr + "'");
+      Serial.println("Debug - Received servo status string: '" + servoStatusStr + "'");
+
+      bool pumpStatus = (pumpStatusStr == "1");
+      bool servoStatus = (servoStatusStr == "1");
+
+      Serial.println("Debug - Converted pump status: " + String(pumpStatus));
+      Serial.println("Debug - Converted servo status: " + String(servoStatus));
 
       String formattedDate = formatDate(ketHari);
       if (waktuFeeding == "jadwalPagi" || waktuFeeding == "jadwalSore") {
@@ -247,6 +255,9 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
 
     String feederFullPath = databasePath + "/iot/feeder/" + feederType + "/" + formattedDate;
 
+    Serial.println("Debug - Sending to Firebase - pump status: " + String(pumpStatus));
+    Serial.println("Debug - Sending to Firebase - servo status: " + String(servoStatus));
+
     feederJson.clear();
     feederJson.set("beratWadah", beratWadah);
     feederJson.set("volumeMLWadah", volumeAirWadah);
@@ -260,6 +271,16 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
 
     if (Firebase.setJSON(firebaseData, feederFullPath.c_str(), feederJson)) {
       Serial.println("Data feeding berhasil dikirim");
+      if (Firebase.getJSON(firebaseData, feederFullPath.c_str())) {
+        FirebaseJson responseJson = firebaseData.jsonObject();
+        FirebaseJsonData pumpData, servoData;
+
+        responseJson.get(pumpData, "pumpStatus");
+        responseJson.get(servoData, "servoStatus");
+
+        Serial.println("Debug - Verified from Firebase - pump status: " + String(pumpData.boolValue));
+        Serial.println("Debug - Verified from Firebase - servo status: " + String(servoData.boolValue));
+      }
     } else {
       Serial.println("Gagal mengirim data feeding: " + firebaseData.errorReason());
     }
