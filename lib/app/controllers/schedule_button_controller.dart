@@ -182,12 +182,14 @@ class ScheduleButtonController extends GetxController {
           "distance": distance,
           "beratWadah": monitoringData['beratWadah'],
           "ketHari": DateFormat('d/MM/yyyy').format(selectedDate.value),
-          "ketWaktu": isValidMorning ? "7:0:0" : "17:0:0",
+          "ketWaktu":
+              "${selectedTime.value.hour}:${selectedTime.value.minute}:0",
           "volumeMLTabung": monitoringData['volumeMLTabung'],
           "volumeMLWadah": monitoringData['volumeMLWadah'],
           "title": titleController.text,
           "description": deskripsiController.text,
           "created_at": DateTime.now().toIso8601String(),
+          "feedingType": "byApplication",
         };
 
         String feedPath = isValidMorning ? "jadwalPagi" : "jadwalSore";

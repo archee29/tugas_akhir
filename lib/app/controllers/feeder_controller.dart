@@ -159,9 +159,10 @@ class FeederController extends GetxController {
       "distance": distance,
       "beratWadah": monitoringData['beratWadah'],
       "ketHari": DateFormat('d/MM/yyyy').format(DateTime.now()),
-      "ketWaktu": feederType == "morning" ? "7:0:0" : "17:0:0",
+      "ketWaktu": currentTime.value,
       "volumeMLTabung": monitoringData['volumeMLTabung'],
       "volumeMLWadah": monitoringData['volumeMLWadah'],
+      "feedingType": "byApplication",
     };
 
     if (feederType == "morning") {

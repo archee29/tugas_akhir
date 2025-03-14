@@ -410,6 +410,15 @@ class StatistikController extends GetxController {
                         fontWeight: FontWeight.w300,
                       ),
                     ),
+                    Text(
+                      "Tipe\t\t\t\t\t\t\t\t\t\t\t: ${event['feedingType'] ?? 'Manual'}",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'poppins',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ],
                 ),
               ),
