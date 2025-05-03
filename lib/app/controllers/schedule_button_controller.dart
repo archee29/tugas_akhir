@@ -84,16 +84,52 @@ class ScheduleButtonController extends GetxController {
     if (picked != null && picked != selectedDate.value) {
       selectedDate.value = picked;
       dateController.text = DateFormat("dd-MM-yyyy").format(picked);
+      if (DateFormat("dd-MM-yyyy").format(picked) ==
+          DateFormat("dd-MM-yyyy").format(DateTime.now())) {
+        DateTime now = DateTime.now();
+        selectedTime.value = TimeOfDay(hour: now.hour, minute: now.minute + 15);
+        timeController.text =
+            "${selectedTime.value.hour.toString().padLeft(2, '0')}:${selectedTime.value.minute.toString().padLeft(2, '0')}";
+      }
     }
   }
 
   Future<void> handleTimeSelection() async {
+    TimeOfDay initialTime = selectedTime.value;
+    if (DateFormat("dd-MM-yyyy").format(selectedDate.value) ==
+        DateFormat("dd-MM-yyyy").format(DateTime.now())) {
+      DateTime now = DateTime.now();
+      if (initialTime.hour < now.hour ||
+          (initialTime.hour == now.hour && initialTime.minute < now.minute)) {
+        initialTime = TimeOfDay(hour: now.hour, minute: now.minute + 5);
+      }
+    }
+
     final TimeOfDay? picked = await showTimePicker(
       context: Get.context!,
-      initialTime: selectedTime.value,
+      initialTime: initialTime,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
+      if (DateFormat("dd-MM-yyyy").format(selectedDate.value) ==
+          DateFormat("dd-MM-yyyy").format(DateTime.now())) {
+        DateTime now = DateTime.now();
+        DateTime selectedDateTime =
+            DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+
+        if (selectedDateTime.isBefore(now)) {
+          CustomNotification.errorNotification("Waktu Tidak Valid",
+              "Waktu yang dipilih tidak boleh lebih awal dari waktu sekarang.");
+          return;
+        }
+      }
+
       selectedTime.value = picked;
       timeController.text =
           "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
@@ -119,6 +155,19 @@ class ScheduleButtonController extends GetxController {
             "Gagal mendapatkan waktu saat ini. Periksa koneksi database.");
         return;
       }
+      if (DateFormat("dd-MM-yyyy").format(selectedDate.value) ==
+          DateFormat("dd-MM-yyyy").format(DateTime.now())) {
+        DateTime now = DateTime.now();
+        DateTime selectedDateTime = DateTime(now.year, now.month, now.day,
+            selectedTime.value.hour, selectedTime.value.minute);
+
+        if (selectedDateTime.isBefore(now)) {
+          isLoading.value = false;
+          CustomNotification.errorNotification("Waktu Tidak Valid",
+              "Waktu yang dipilih tidak boleh lebih awal dari waktu sekarang.");
+          return;
+        }
+      }
 
       String uid = auth.currentUser!.uid;
 
@@ -131,30 +180,17 @@ class ScheduleButtonController extends GetxController {
       String scheduleDate = DateFormat("MM-dd-yyyy").format(selectedDate.value);
       String scheduledTime =
           "${selectedTime.value.hour.toString().padLeft(2, '0')}:${selectedTime.value.minute.toString().padLeft(2, '0')}";
-
-      bool isValidMorning =
-          _isWithinFeedingTime(scheduledTime, "07:00", 15, 60);
-      bool isValidAfternoon =
-          _isWithinFeedingTime(scheduledTime, "17:00", 15, 60);
-
-      if (!isValidMorning && !isValidAfternoon) {
-        isLoading.value = false;
-        CustomNotification.errorNotification("Terjadi Kesalahan",
-            "Jadwal harus berada dalam rentang waktu 07:00 atau 17:00 (±1 jam)");
-        return;
-      }
+      bool isMorningSchedule = selectedTime.value.hour < 12;
+      String feedPath = isMorningSchedule ? "jadwalPagi" : "jadwalSore";
 
       DatabaseReference feederRef = database.child("UsersData/$uid/iot/feeder");
-      DatabaseEvent morningFeedEvent =
-          await feederRef.child("jadwalPagi/$scheduleDate").once();
-      DatabaseEvent afternoonFeedEvent =
-          await feederRef.child("jadwalSore/$scheduleDate").once();
+      DatabaseEvent feedEvent =
+          await feederRef.child("$feedPath/$scheduleDate").once();
 
-      if ((isValidMorning && morningFeedEvent.snapshot.value != null) ||
-          (isValidAfternoon && afternoonFeedEvent.snapshot.value != null)) {
+      if (feedEvent.snapshot.value != null) {
         isLoading.value = false;
         CustomNotification.errorNotification("Terjadi Kesalahan",
-            "Sudah terdapat jadwal pemberian makan pada tanggal ini.");
+            "Sudah terdapat jadwal ${isMorningSchedule ? 'pagi' : 'sore'} pada tanggal ini.");
         return;
       }
 
@@ -192,12 +228,11 @@ class ScheduleButtonController extends GetxController {
           "feedingType": "byApplication",
         };
 
-        String feedPath = isValidMorning ? "jadwalPagi" : "jadwalSore";
         await feederRef.child("$feedPath/$scheduleDate").set(scheduleData);
 
         Get.back();
-        CustomNotification.successNotification(
-            "Sukses", "Jadwal berhasil ditambahkan");
+        CustomNotification.successNotification("Sukses",
+            "Jadwal ${isMorningSchedule ? 'pagi' : 'sore'} berhasil ditambahkan");
         _clearInputs();
       } else {
         CustomNotification.errorNotification(
@@ -209,17 +244,6 @@ class ScheduleButtonController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  bool _isWithinFeedingTime(String scheduledTime, String feedTime,
-      int toleranceBefore, int toleranceAfter) {
-    DateTime scheduled = DateFormat("HH:mm").parse(scheduledTime);
-    DateTime feed = DateFormat("HH:mm").parse(feedTime);
-    DateTime startValidTime = feed.subtract(Duration(minutes: toleranceBefore));
-    DateTime endValidTime = feed.add(Duration(minutes: toleranceAfter));
-
-    return scheduled.isAfter(startValidTime) &&
-        scheduled.isBefore(endValidTime);
   }
 
   bool _validateInputs() {

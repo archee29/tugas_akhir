@@ -1,3 +1,4 @@
+// Existing includes and definitions
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <RTClib.h>
@@ -14,7 +15,7 @@ String hari, ketHari, ketWaktu;
 #define LOADCELL_WADAH_DOUT_PIN 4
 #define LOADCELL_WADAH_SCK_PIN 5
 HX711 lcWadah;
-float calibration_factor_wadah = -377.90;
+float calibration_factor_wadah = 3750.00;
 
 #define trigPinWadah 6
 #define echoPinWadah 7
@@ -36,12 +37,28 @@ float maxTinggiTabung = 9.0, radiusTabung = 4.0;  // Tinggi Tabung = 34.5
 String dataMonitoring;
 String dataFeeding;
 
+// Structure to store user-defined schedule
+struct UserSchedule {
+  bool exists;
+  String feedingType;
+  int scheduleHour;
+  int scheduleMinute;
+};
+
+// Global variable to store received user schedule
+UserSchedule todayUserSchedule = {false, "", 0, 0};
+
 unsigned long previousLCDMillis = 0;
 const long lcdInterval = 1000;
 
 unsigned long previousNotificationMonitoringMillis = 0;
 const long notificationMonitoringInterval = 960000;
 
+// New timer for checking schedule updates
+unsigned long previousScheduleCheckMillis = 0;
+const long scheduleCheckInterval = 60000;  // Check for schedule updates every minute
+
+// Functions remain the same as before
 void initLCD() {
   lcd.init();
   lcd.backlight();
@@ -92,10 +109,9 @@ void USWadah(int &volumeMLAirWadah) {
   digitalWrite(trigPinWadah, LOW);
   long durasiWadah = pulseIn(echoPinWadah, HIGH);
   float jarakAirWadah = durasiWadah * 0.034 / 2;
-  // volumeMLAirWadah = durasiWadah * 0.034 / 2;
   float tinggiAirWadah = abs(maxTinggiWadah - jarakAirWadah);
   if (tinggiAirWadah <= 1) {
-    tinggiAirWadah == 0;
+    tinggiAirWadah = 0;
   }
   float volumeAirWadah = 3.14159 * radiusWadah * radiusWadah * tinggiAirWadah;
   volumeMLAirWadah = abs(volumeAirWadah);
@@ -109,10 +125,9 @@ void USTabung(int &volumeMLAirTabung) {
   digitalWrite(trigPinTabung, LOW);
   long durasiTabung = pulseIn(echoPinTabung, HIGH);
   float jarakAirTabung = durasiTabung * 0.034 / 2;
-  // volumeMLAirTabung = durasiTabung * 0.034 / 2;
   float tinggiAirTabung = abs(maxTinggiTabung - jarakAirTabung);
   if (tinggiAirTabung <= 1) {
-    tinggiAirTabung == 0;
+    tinggiAirTabung = 0;
   }
   float volumeAirTabung = 3.14159 * radiusTabung * radiusTabung * tinggiAirTabung;
   volumeMLAirTabung = abs(volumeAirTabung);
@@ -206,50 +221,33 @@ void monitoring(int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung) {
     } else if (volumeMLAirTabung > 1000) {
       monitoringNotification("AIR TABUNG > 1 L", "TABUNG MINUM PENUH", 2000);
     }
-    if (jam != 7 && jam != 17) {
-      monitoringNotification("DILUAR WAKTU FEEDING", "CEK KET WAKTU", 2000);
-    }
   }
 }
 
-bool checkUserScheduledFeeding(String &waktuFeeding) {
-  Serial.println("CHECK_USER_SCHEDULE");
-  unsigned long startWaitTime = millis();
-  while (millis() - startWaitTime < 2000) {
-    if (Serial.available()) {
-      String response = Serial.readStringUntil('\n');
-      response.trim();
-
-      if (response.startsWith("USER_SCHEDULE#")) {
-        int separatorPos = response.indexOf('#', 14);
-        if (separatorPos != -1) {
-          waktuFeeding = response.substring(14, separatorPos);
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
+// Modified feeder function to handle user-defined schedules
 void feeder(String &waktuFeeding, int &beratWadah, int &volumeMLAirWadah, int &volumeMLAirTabung) {
-  bool isUserScheduled = checkUserScheduledFeeding(waktuFeeding);
-  bool isSystemScheduledMorning = (jam == 7 && menit == 0 && detik == 0);
-  bool isSystemScheduledEvening = (jam == 17 && menit == 0 && detik == 0);
+  bool shouldFeed = false;
+  bool isUserSchedule = false;
 
-  if (isUserScheduled || isSystemScheduledMorning || isSystemScheduledEvening) {
-    waktuFeeding = isUserScheduled ? "jadwalAplikasi" : (isSystemScheduledMorning ? "jadwalPagi" : "jadwalSore");
-    String feedingType = isUserScheduled ? "byApplication" : "bySystem";
+  // Check for user-defined schedule first
+  if (todayUserSchedule.exists && jam == todayUserSchedule.scheduleHour && menit == todayUserSchedule.scheduleMinute && detik == 0) {
+    waktuFeeding = (todayUserSchedule.scheduleHour < 12) ? "jadwalPagi" : "jadwalSore";
+    shouldFeed = true;
+    isUserSchedule = true;
+  }
+  // Fall back to default system schedule only if no user schedule was triggered
+  else if (!isUserSchedule && ((jam == 7 && menit == 0 && detik == 0) || (jam == 17 && menit == 0 && detik == 0))) {
+    waktuFeeding = (jam == 7) ? "jadwalPagi" : "jadwalSore";
+    shouldFeed = true;
+  }
 
+  if (shouldFeed) {
     showNotification("NOTIFIKASI !!!", "FEEDING CHECKING!!..", 3000);
-    showNotification("NOTIFIKASI !!!", waktuFeeding, 2000);
+    showNotification("NOTIFIKASI !!!", isUserSchedule ? "jadwal Aplikasi" : waktuFeeding, 2000);
     showNotification("NOTIFIKASI !!!", "PROSES PENGISIAN ...", 1000);
-
     onPump();
     bukaServo(putaranServo);
-
-    sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung, true, true, feedingType);
-
+    sendDataFeedingToReceiver(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung, true, true, isUserSchedule);
     showNotification("NOTIFIKASI !!!", "PROCESS SUCCESSFULL!", 2000);
   }
 }
@@ -297,8 +295,11 @@ void sendDataMonitoringToReceiver(int beratWadah, int volumeMLAirWadah, int volu
   }
 }
 
-void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung, bool forcePumpActive, bool forceServoActive, String feedingType) {
-  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" + ketHari + "#" + ketWaktu + "#" + (forcePumpActive ? "1" : "0") + "#" + (forceServoActive ? "1" : "0") + "#" + feedingType;
+// Modified to include feedingType parameter
+void sendDataFeedingToReceiver(String waktuFeeding, int beratWadah, int volumeMLAirWadah, int volumeMLAirTabung, bool forcePumpActive, bool forceServoActive, bool isUserSchedule) {
+  String feedingType = isUserSchedule ? "byApplication" : "bySystem";
+  String feedingData = "feeding#" + waktuFeeding + "#" + String(beratWadah) + "#" + String(volumeMLAirWadah) + "#" + String(volumeMLAirTabung) + "#" +
+                       ketHari + "#" + ketWaktu + "#" + (forcePumpActive ? "1" : "0") + "#" + (forceServoActive ? "1" : "0") + "#" + feedingType;
   Serial.println(feedingData);
 }
 
@@ -306,6 +307,7 @@ void sendDataControlToReceiver(String command) {
   Serial.println(command);
 }
 
+// Modified to handle schedule data from receiver
 void reqDataFromReceiver() {
   if (Serial.available()) {
     String receivedCommand = Serial.readStringUntil('\n');
@@ -328,6 +330,46 @@ void reqDataFromReceiver() {
       myServo.write(90);
       isServoActive = false;
     }
+    // New handler for today's schedule updates
+    else if (receivedCommand.startsWith("Schedule#")) {
+      processScheduleData(receivedCommand.substring(9));
+    }
+  }
+}
+
+// New function to process schedule data received from NodeMCU
+void processScheduleData(String scheduleData) {
+  // Format expected: exists#feedingType#hour#minute
+  // Example: 1#byApplication#8#30
+
+  int firstPos = scheduleData.indexOf('#');
+  int secondPos = scheduleData.indexOf('#', firstPos + 1);
+  int thirdPos = scheduleData.indexOf('#', secondPos + 1);
+
+  if (firstPos > 0 && secondPos > firstPos && thirdPos > secondPos) {
+    String existsStr = scheduleData.substring(0, firstPos);
+    String feedingType = scheduleData.substring(firstPos + 1, secondPos);
+    String hourStr = scheduleData.substring(secondPos + 1, thirdPos);
+    String minuteStr = scheduleData.substring(thirdPos + 1);
+
+    todayUserSchedule.exists = (existsStr == "1");
+    todayUserSchedule.feedingType = feedingType;
+    todayUserSchedule.scheduleHour = hourStr.toInt();
+    todayUserSchedule.scheduleMinute = minuteStr.toInt();
+
+    // Debug notification on LCD
+    showNotification("Schedule Update",
+                    String(todayUserSchedule.scheduleHour) + ":" +
+                    String(todayUserSchedule.scheduleMinute), 2000);
+  }
+}
+
+// New function to request schedule updates
+void requestScheduleUpdate() {
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousScheduleCheckMillis >= scheduleCheckInterval) {
+    previousScheduleCheckMillis = currentMillis;
+    Serial.println("RequestSchedule#" + ketHari);
   }
 }
 
@@ -339,7 +381,7 @@ void setup() {
     Serial.flush();
     abort();
   }
-  rtc.adjust(DateTime(2025, 2, 19, 10, 37, 0));
+  rtc.adjust(DateTime(2025, 5, 4, 7, 0, 0)); // (tahun, bulan, tanggal, jam,menit,detik)
   lcWadah.begin(LOADCELL_WADAH_DOUT_PIN, LOADCELL_WADAH_SCK_PIN);
   lcWadah.set_scale(calibration_factor_wadah);
   lcWadah.tare();
@@ -364,4 +406,5 @@ void loop() {
   String waktuFeeding;
   feeder(waktuFeeding, beratWadah, volumeMLAirWadah, volumeMLAirTabung);
   reqDataFromReceiver();
+  requestScheduleUpdate(); // Periodically check for schedule updates
 }

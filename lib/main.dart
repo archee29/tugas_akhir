@@ -10,7 +10,6 @@ import 'app/controllers/schedule_button_controller.dart';
 import './app/controllers/page_index_controller.dart';
 import './app/controllers/notification_service.dart';
 import './app/modules/home/controllers/home_controller.dart';
-// import
 import 'firebase_options.dart';
 
 void main() async {

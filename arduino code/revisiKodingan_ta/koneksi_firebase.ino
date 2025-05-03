@@ -33,6 +33,15 @@ bool lastServoControl = false;
 int putaranServo = 4;
 int waktuPump = 5;
 
+// Structure to hold user schedule data
+struct UserSchedule {
+  bool exists;
+  String feedingType;
+  int hour;
+  int minute;
+  String date;
+};
+
 unsigned long sendDataMonitoringToFirebasePrevMillis = 0;
 unsigned long sendDataMonitoringToFirebaseDelay = 3000;
 
@@ -44,6 +53,10 @@ unsigned long receiveDataControlFromFirebaseDelay = 1000;
 
 unsigned long receiveDataControlFromTransmitterPrevMillis = 0;
 unsigned long receiveDataControlFromTransmitterDelay = 1000;
+
+// New timer for schedule check
+unsigned long checkSchedulePrevMillis = 0;
+unsigned long checkScheduleDelay = 60000; // Check every minute
 
 struct TimeComponents {
   int hour;
@@ -123,50 +136,11 @@ int calculateTimeDifference(String rtcTime) {
 String getNTPTime() {
   timeClient.update();
   char timeString[9];
-  sprintf(timeString, "%02d:%02d:%02d", timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
+  sprintf(timeString, "%02d:%02d:%02d",
+          timeClient.getHours(),
+          timeClient.getMinutes(),
+          timeClient.getSeconds());
   return String(timeString);
-}
-
-String getCurrentDate() {
-  timeClient.update();
-  time_t epochTime = timeClient.getEpochTime();
-  struct tm *ptm = gmtime(&epochTime);
-  char dateString[11];
-  sprintf(dateString, "%02d-%02d-%04d", ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_year + 1900);
-  return String(dateString);
-}
-
-bool checkUserScheduledFeeding(String type) {
-  String userScheduleNode = databasePath + "/iot/feeder/" + type;
-  if (!Firebase.ready()) {
-    Serial.println("Firebase not ready");
-    return false;
-  }
-  if (Firebase.getJSON(firebaseData, userScheduleNode.c_str())) {
-    String jsonStr = firebaseData.jsonString();
-    String currentFormattedDate = getCurrentDate();
-    Serial.println("Current Date: " + currentFormattedDate);
-    Serial.println("Raw JSON: " + jsonStr);
-    int index = jsonStr.indexOf("\"" + currentFormattedDate + "\"");
-    if (index != -1) {
-      int feedingIndex = jsonStr.indexOf("\"feeding\":\"byApplication\"", index);
-      if (feedingIndex != -1 && abs(feedingIndex - index) < 200) {
-        int timeIndex = jsonStr.indexOf("\"ketWaktu\":\"", feedingIndex);
-        if (timeIndex != -1) {
-          int endTimeIndex = jsonStr.indexOf("\"", timeIndex + 12);
-          if (endTimeIndex != -1) {
-            String feedingTime = jsonStr.substring(timeIndex + 12, endTimeIndex);
-            Serial.println("USER_SCHEDULE#" + type + "#" + feedingTime);
-            return true;
-          }
-        }
-      }
-    }
-  } else {
-    Serial.println("Failed to get JSON: " + firebaseData.errorReason());
-  }
-
-  return false;
 }
 
 void processDataTransmitter() {
@@ -174,17 +148,8 @@ void processDataTransmitter() {
   while (Serial.available() > 0) {
     char inChar = (char)Serial.read();
     if (inChar == '\n') {
-      if (inputBuffer == "CHECK_USER_SCHEDULE") {
-        bool morningScheduleFound = checkUserScheduledFeeding("jadwalPagi");
-        bool eveningScheduleFound = checkUserScheduledFeeding("jadwalSore");
-        if (!morningScheduleFound && !eveningScheduleFound) {
-          Serial.println("NO_USER_SCHEDULE");
-        }
-        inputBuffer = "";
-      } else {
-        receivedDataFromTransmitter(inputBuffer);
-        inputBuffer = "";
-      }
+      receivedDataFromTransmitter(inputBuffer);
+      inputBuffer = "";
     } else {
       inputBuffer += inChar;
     }
@@ -214,7 +179,7 @@ void receivedDataFromTransmitter(String message) {
     }
   } else if (message.startsWith("feeding#")) {
     message.remove(0, 8);
-    int separatorPos[9];
+    int separatorPos[9]; // Updated to handle feedingType
     int count = 0;
     for (int i = 0; i < message.length() && count < 9; i++) {
       if (message.charAt(i) == '#') {
@@ -222,29 +187,27 @@ void receivedDataFromTransmitter(String message) {
         count++;
       }
     }
-
-    if (count == 8) {
+    if (count >= 8) { // Can handle both old and new formats
       String waktuFeeding = message.substring(0, separatorPos[0]);
       int beratWadah = message.substring(separatorPos[0] + 1, separatorPos[1]).toInt();
       int volumeAirWadah = message.substring(separatorPos[1] + 1, separatorPos[2]).toInt();
       int volumeAirTabung = message.substring(separatorPos[2] + 1, separatorPos[3]).toInt();
       String ketHari = message.substring(separatorPos[3] + 1, separatorPos[4]);
       String ketWaktu = message.substring(separatorPos[4] + 1, separatorPos[5]);
-
       String pumpStatusStr = message.substring(separatorPos[5] + 1, separatorPos[6]);
-      String servoStatusStr = message.substring(separatorPos[6] + 1);
-      Serial.println("Debug - Received pump status string: '" + pumpStatusStr + "'");
-      Serial.println("Debug - Received servo status string: '" + servoStatusStr + "'");
+      String servoStatusStr = message.substring(separatorPos[6] + 1, separatorPos[7]);
+
+      // Get feedingType (bySystem or byApplication)
+      String feedingType = "bySystem"; // Default
+      if (count == 9) {
+        feedingType = message.substring(separatorPos[7] + 1, separatorPos[8]);
+      }
+
       bool pumpStatus = (pumpStatusStr == "1");
       bool servoStatus = (servoStatusStr == "1");
-      Serial.println("Debug - Converted pump status: " + String(pumpStatus));
-      Serial.println("Debug - Converted servo status: " + String(servoStatus));
-
-      String feedingType = message.substring(separatorPos[7] + 1);
 
       String formattedDate = formatDate(ketHari);
-
-      if (waktuFeeding == "jadwalPagi" || waktuFeeding == "jadwalSore" || waktuFeeding == "jadwalAplikasi") {
+      if (waktuFeeding == "jadwalPagi" || waktuFeeding == "jadwalSore") {
         sendDataFeedingToFirebase(waktuFeeding, beratWadah, volumeAirWadah, volumeAirTabung, ketHari, ketWaktu, formattedDate, pumpStatus, servoStatus, feedingType);
       } else {
         Serial.println("Error: Invalid waktuFeeding value: " + waktuFeeding);
@@ -252,58 +215,70 @@ void receivedDataFromTransmitter(String message) {
     }
   } else if (message == "Pump_OFF" || message == "Servo_OFF") {
     updateFirebaseControlStatus(message);
+  } else if (message.startsWith("RequestSchedule#")) {
+    String requestDate = message.substring(15);
+    checkAndSendTodaySchedule(requestDate);
   }
 }
 
 void sendDataMonitoringToFirebase(int beratWadah, int volumeAirWadah, int volumeAirTabung, String ketHari, String ketWaktu) {
   unsigned long currentMillis = millis();
-  if (currentMillis - sendDataMonitoringToFirebasePrevMillis > sendDataMonitoringToFirebaseDelay) {
+  if (currentMillis - sendDataMonitoringToFirebasePrevMillis >= sendDataMonitoringToFirebaseDelay) {
     sendDataMonitoringToFirebasePrevMillis = currentMillis;
 
-    String monitoringNode = databasePath + "/iot/monitoring";
+    String waktuNTP = getNTPTime();
+    int selisihWaktu = calculateTimeDifference(ketWaktu);
+
     monitoringJson.clear();
     monitoringJson.set("beratWadah", beratWadah);
     monitoringJson.set("volumeMLWadah", volumeAirWadah);
     monitoringJson.set("volumeMLTabung", volumeAirTabung);
     monitoringJson.set("ketHari", ketHari);
     monitoringJson.set("ketWaktu", ketWaktu);
+    monitoringJson.set("waktuNTP", waktuNTP);
+    monitoringJson.set("selisihWaktu", selisihWaktu);
 
-    if (Firebase.setJSON(firebaseData, monitoringNode.c_str(), monitoringJson)) {
-      Serial.println("Data monitoring berhasil dikirim");
+    if (Firebase.updateNode(firebaseData, databasePath + "/UsersProfile/iot/monitoring", monitoringJson)) {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + firebaseData.dataPath());
+      Serial.println("TYPE: " + firebaseData.dataType());
+      Serial.println("ETag: " + firebaseData.ETag());
+      Serial.println();
     } else {
-      Serial.println("Gagal mengirim data monitoring: " + firebaseData.errorReason());
+      Serial.println("FAILED");
+      Serial.println("REASON: " + firebaseData.errorReason());
+      Serial.println();
     }
   }
 }
 
-String formatDate(String ketHari) {
-  int firstSlash = ketHari.indexOf('/');
-  int secondSlash = ketHari.lastIndexOf('/');
+String formatDate(String date) {
+  // Convert from DD/MM/YYYY to MM-DD-YYYY format
+  int firstSlash = date.indexOf('/');
+  int secondSlash = date.lastIndexOf('/');
 
-  String day = ketHari.substring(0, firstSlash);
-  String month = ketHari.substring(firstSlash + 1, secondSlash);
-  String year = ketHari.substring(secondSlash + 1);
+  if (firstSlash > 0 && secondSlash > firstSlash) {
+    String day = date.substring(0, firstSlash);
+    String month = date.substring(firstSlash + 1, secondSlash);
+    String year = date.substring(secondSlash + 1);
 
-  if (day.length() == 1) day = "0" + day;
-  if (month.length() == 1) month = "0" + month;
+    // Ensure day and month have two digits
+    if (day.length() == 1) day = "0" + day;
+    if (month.length() == 1) month = "0" + month;
 
-  return month + "-" + day + "-" + year;
+    return month + "-" + day + "-" + year;
+  }
+
+  return date; // Return original if format doesn't match
 }
 
 void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAirWadah, int volumeAirTabung, String ketHari, String ketWaktu, String formattedDate, bool pumpStatus, bool servoStatus, String feedingType) {
   unsigned long currentMillis = millis();
-
-  if (currentMillis - sendDataFeedingToFirebasePrevMillis > sendDataFeedingToFirebasePrevDelay) {
+  if (currentMillis - sendDataFeedingToFirebasePrevMillis >= sendDataFeedingToFirebasePrevDelay) {
     sendDataFeedingToFirebasePrevMillis = currentMillis;
 
-    String feederType = waktuFeeding == "jadwalPagi" ? "jadwalPagi" : waktuFeeding == "jadwalSore" ? "jadwalSore" : "jadwalAplikasi";
-    int timeDifference = calculateTimeDifference(ketWaktu);
-    String ntpTime = getNTPTime();
-
-    String feederFullPath = databasePath + "/iot/feeder/" + feederType + "/" + formattedDate;
-
-    Serial.println("Debug - Sending to Firebase - pump status: " + String(pumpStatus));
-    Serial.println("Debug - Sending to Firebase - servo status: " + String(servoStatus));
+    String waktuNTP = getNTPTime();
+    int selisihWaktu = calculateTimeDifference(ketWaktu);
 
     feederJson.clear();
     feederJson.set("beratWadah", beratWadah);
@@ -311,114 +286,168 @@ void sendDataFeedingToFirebase(String waktuFeeding, int beratWadah, int volumeAi
     feederJson.set("volumeMLTabung", volumeAirTabung);
     feederJson.set("ketHari", ketHari);
     feederJson.set("ketWaktu", ketWaktu);
-    feederJson.set("waktuNTP", ntpTime);
-    feederJson.set("selisihWaktu", timeDifference);
+    feederJson.set("waktuNTP", waktuNTP);
+    feederJson.set("selisihWaktu", selisihWaktu);
     feederJson.set("pumpStatus", pumpStatus);
     feederJson.set("servoStatus", servoStatus);
-    feederJson.set("feeding", feedingType);
+    feederJson.set("feedingType", feedingType);
 
-    if (Firebase.setJSON(firebaseData, feederFullPath.c_str(), feederJson)) {
-      Serial.println("Data feeding berhasil dikirim");
-      if (Firebase.getJSON(firebaseData, feederFullPath.c_str())) {
-        FirebaseJson responseJson = firebaseData.jsonObject();
-        FirebaseJsonData pumpData, servoData;
+    String feedingPath = databasePath + "/UsersProfile/iot/feeder/" + waktuFeeding + "/" + formattedDate;
 
-        responseJson.get(pumpData, "pumpStatus");
-        responseJson.get(servoData, "servoStatus");
-
-        Serial.println("Debug - Verified from Firebase - pump status: " + String(pumpData.boolValue));
-        Serial.println("Debug - Verified from Firebase - servo status: " + String(servoData.boolValue));
-      }
+    if (Firebase.setJSON(firebaseData, feedingPath, feederJson)) {
+      Serial.println("PASSED");
+      Serial.println("PATH: " + firebaseData.dataPath());
+      Serial.println("TYPE: " + firebaseData.dataType());
+      Serial.println("ETag: " + firebaseData.ETag());
+      Serial.println();
     } else {
-      Serial.println("Gagal mengirim data feeding: " + firebaseData.errorReason());
+      Serial.println("FAILED");
+      Serial.println("REASON: " + firebaseData.errorReason());
+      Serial.println();
     }
   }
 }
 
-void sendDataControlToTransmitter(String command) {
-  Serial.println(command);
+void updateFirebaseControlStatus(String command) {
+  if (command == "Pump_OFF") {
+    if (Firebase.setBool(firebaseData, databasePath + "/UsersProfile/iot/control/pumpStatus", false)) {
+      Serial.println("Pump Status Updated to OFF");
+    } else {
+      Serial.println("FAILED to update Pump Status");
+      Serial.println("REASON: " + firebaseData.errorReason());
+    }
+  } else if (command == "Servo_OFF") {
+    if (Firebase.setBool(firebaseData, databasePath + "/UsersProfile/iot/control/servoStatus", false)) {
+      Serial.println("Servo Status Updated to OFF");
+    } else {
+      Serial.println("FAILED to update Servo Status");
+      Serial.println("REASON: " + firebaseData.errorReason());
+    }
+  }
 }
 
-void receiveDataControlFromDatabase() {
+// Function to check and retrieve today's feeding schedule from Firebase
+void checkAndSendTodaySchedule(String requestDate) {
+  // Convert DD/MM/YYYY to MM-DD-YYYY for Firebase path
+  String formattedDate = formatDate(requestDate);
+  Serial.println("Checking schedule for date: " + formattedDate);
+
+  // First check jadwalPagi for user-defined schedule
+  String morningPath = databasePath + "/UsersProfile/iot/feeder/jadwalPagi/" + formattedDate;
+
+  if (Firebase.getJSON(firebaseData, morningPath)) {
+    FirebaseJson &json = firebaseData.jsonObject();
+    FirebaseJsonData feedingTypeData;
+    FirebaseJsonData ketWaktuData;
+
+    json.get(feedingTypeData, "feedingType");
+    json.get(ketWaktuData, "ketWaktu");
+
+    if (feedingTypeData.success && feedingTypeData.stringValue == "byApplication" && ketWaktuData.success) {
+      // Parse the time from ketWaktu format (H:M:S)
+      TimeComponents tc = parseTime(ketWaktuData.stringValue);
+
+      // Send schedule to Arduino (exists, feedingType, hour, minute)
+      String scheduleCommand = "Schedule#1#byApplication#" + String(tc.hour) + "#" + String(tc.minute);
+      Serial.println(scheduleCommand);
+      return; // Found and sent a morning application schedule
+    }
+  }
+
+  // Then check jadwalSore for user-defined schedule
+  String eveningPath = databasePath + "/UsersProfile/iot/feeder/jadwalSore/" + formattedDate;
+
+  if (Firebase.getJSON(firebaseData, eveningPath)) {
+    FirebaseJson &json = firebaseData.jsonObject();
+    FirebaseJsonData feedingTypeData;
+    FirebaseJsonData ketWaktuData;
+
+    json.get(feedingTypeData, "feedingType");
+    json.get(ketWaktuData, "ketWaktu");
+
+    if (feedingTypeData.success && feedingTypeData.stringValue == "byApplication" && ketWaktuData.success) {
+      // Parse the time from ketWaktu format (H:M:S)
+      TimeComponents tc = parseTime(ketWaktuData.stringValue);
+
+      // Send schedule to Arduino (exists, feedingType, hour, minute)
+      String scheduleCommand = "Schedule#1#byApplication#" + String(tc.hour) + "#" + String(tc.minute);
+      Serial.println(scheduleCommand);
+      return; // Found and sent an evening application schedule
+    }
+  }
+
+  // If no user schedule found, inform Arduino there's no custom schedule today
+  Serial.println("Schedule#0#none#0#0");
+}
+
+void receiveDataControlFromFirebase() {
   unsigned long currentMillis = millis();
-  if (currentMillis - receiveDataControlFromFirebasePrevMillis > receiveDataControlFromFirebaseDelay || receiveDataControlFromFirebasePrevMillis == 0) {
+  if (currentMillis - receiveDataControlFromFirebasePrevMillis >= receiveDataControlFromFirebaseDelay) {
     receiveDataControlFromFirebasePrevMillis = currentMillis;
-    String controlNode = databasePath + "/iot/control";
 
-    if (Firebase.getJSON(firebaseData, controlNode.c_str())) {
-      FirebaseJson controlJson = firebaseData.jsonObject();
-      bool pumpControl, servoControl;
-
-      controlJson.get(jsonData, "pumpControl");
-      pumpControl = jsonData.boolValue;
-
-      controlJson.get(jsonData, "servoControl");
-      servoControl = jsonData.boolValue;
-
-      if (pumpControl != lastPumpControl) {
-        sendDataControlToTransmitter(pumpControl ? "Pump_ON" : "Pump_OFF");
-        lastPumpControl = pumpControl;
+    // Check for pump control
+    if (Firebase.getBool(firebaseData, databasePath + "/UsersProfile/iot/control/pumpStatus")) {
+      bool currentPumpControl = firebaseData.boolData();
+      if (currentPumpControl != lastPumpControl) {
+        lastPumpControl = currentPumpControl;
+        if (currentPumpControl) {
+          Serial.println("Pump_ON");
+        } else {
+          // No need to send Pump_OFF as it will be sent by the Arduino
+        }
       }
+    }
 
-      if (servoControl != lastServoControl) {
-        sendDataControlToTransmitter(servoControl ? "Servo_ON" : "Servo_OFF");
-        lastServoControl = servoControl;
+    // Check for servo control
+    if (Firebase.getBool(firebaseData, databasePath + "/UsersProfile/iot/control/servoStatus")) {
+      bool currentServoControl = firebaseData.boolData();
+      if (currentServoControl != lastServoControl) {
+        lastServoControl = currentServoControl;
+        if (currentServoControl) {
+          Serial.println("Servo_ON");
+        } else {
+          // No need to send Servo_OFF as it will be sent by the Arduino
+        }
       }
-    } else {
-      Serial.println("Error mendapatkan data kontrol: " + firebaseData.errorReason());
+    }
+
+    // Check for servo rotation updates
+    if (Firebase.getInt(firebaseData, databasePath + "/UsersProfile/iot/control/putaranServo")) {
+      int newPutaranServo = firebaseData.intData();
+      if (newPutaranServo != putaranServo) {
+        putaranServo = newPutaranServo;
+        Serial.println("ServoRotation#" + String(putaranServo));
+      }
+    }
+
+    // Check for pump duration updates
+    if (Firebase.getInt(firebaseData, databasePath + "/UsersProfile/iot/control/waktuPump")) {
+      int newWaktuPump = firebaseData.intData();
+      if (newWaktuPump != waktuPump) {
+        waktuPump = newWaktuPump;
+        Serial.println("PumpDuration#" + String(waktuPump));
+      }
     }
   }
 }
 
-void updateFirebaseControlStatus(String status) {
+// Function to periodically check and process user schedules
+void checkUserSchedules() {
   unsigned long currentMillis = millis();
-  if (currentMillis - receiveDataControlFromTransmitterPrevMillis > receiveDataControlFromTransmitterDelay || receiveDataControlFromTransmitterPrevMillis == 0) {
-    receiveDataControlFromTransmitterPrevMillis = currentMillis;
-    String controlPath = databasePath + "/iot/control";
-    FirebaseJson updateJson;
-    if (status == "Pump_OFF") {
-      updateJson.set("pumpControl", false);
-      if (Firebase.updateNode(firebaseData, controlPath.c_str(), updateJson)) {
-        Serial.println("Status pompa berhasil diupdate ke OFF");
-      } else {
-        Serial.println("Gagal mengupdate status pompa: " + firebaseData.errorReason());
-      }
-    } else if (status == "Servo_OFF") {
-      updateJson.set("servoControl", false);
-      if (Firebase.updateNode(firebaseData, controlPath.c_str(), updateJson)) {
-        Serial.println("Status servo berhasil diupdate ke OFF");
-      } else {
-        Serial.println("Gagal mengupdate status servo: " + firebaseData.errorReason());
-      }
-    }
-  }
-}
+  if (currentMillis - checkSchedulePrevMillis >= checkScheduleDelay) {
+    checkSchedulePrevMillis = currentMillis;
 
-void getPumpDurationFromDatabase() {
-  String pumpDurationPath = databasePath + "/UsersProfile/waktuPump";
+    // Get current date in the format used by your system
+    timeClient.update();
+    time_t epochTime = timeClient.getEpochTime();
+    struct tm *ptm = gmtime((time_t *)&epochTime);
 
-  if (Firebase.getInt(firebaseData, pumpDurationPath.c_str())) {
-    int newWaktuPump = firebaseData.intData();
-    if (newWaktuPump != waktuPump) {
-      waktuPump = newWaktuPump;
-      Serial.println("PumpDuration#" + String(waktuPump));
-    }
-  } else {
-    Serial.println("Error getting pump duration: " + firebaseData.errorReason());
-  }
-}
+    char dateString[11];
+    sprintf(dateString, "%d/%d/%d", ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900);
+    String currentDate = String(dateString);
 
-void getServoRotationFromDatabase() {
-  String servoRotationPath = databasePath + "/UsersProfile/putaranServo";
-
-  if (Firebase.getInt(firebaseData, servoRotationPath.c_str())) {
-    int newPutaranServo = firebaseData.intData();
-    if (newPutaranServo != putaranServo) {
-      putaranServo = newPutaranServo;
-      Serial.println("ServoRotation#" + String(putaranServo));
-    }
-  } else {
-    Serial.println("Error getting servo rotation: " + firebaseData.errorReason());
+    // Send request to Arduino to check if there's a schedule for today
+    Serial.println("RequestSchedule#" + currentDate);
   }
 }
 
@@ -427,21 +456,10 @@ void setup() {
   initWiFi();
   initFirebase();
   initNTP();
-  delay(500);
 }
 
 void loop() {
-  if (Firebase.isTokenExpired()) {
-    Firebase.refreshToken(&config);
-    Serial.println("Memperbarui Token");
-  } else if (Firebase.ready()) {
-    timeClient.update();
-    processDataTransmitter();
-    receiveDataControlFromDatabase();
-    getServoRotationFromDatabase();
-    getPumpDurationFromDatabase();
-  } else {
-    Serial.println("Menunggu koneksi WiFi/Firebase");
-    delay(1000);
-  }
+  processDataTransmitter();
+  receiveDataControlFromFirebase();
+  checkUserSchedules();
 }
