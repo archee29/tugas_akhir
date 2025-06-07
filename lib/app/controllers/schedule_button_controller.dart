@@ -217,7 +217,7 @@ class ScheduleButtonController extends GetxController {
           "in_area": distance <= 200,
           "distance": distance,
           "beratWadah": monitoringData['beratWadah'],
-          "ketHari": DateFormat('d/MM/yyyy').format(selectedDate.value),
+          "ketHari": DateFormat('d/M/yyyy').format(selectedDate.value),
           "ketWaktu":
               "${selectedTime.value.hour}:${selectedTime.value.minute}:0",
           "volumeMLTabung": monitoringData['volumeMLTabung'],
